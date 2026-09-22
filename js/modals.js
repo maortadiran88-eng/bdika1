@@ -255,17 +255,30 @@ function BrandMgr({data,onClose,onSave}){
   const add=()=>setBrands(b=>[...b,{id:gid(),name:'מותג חדש',color:'#607d8b',light:'#eceff1',categories:DCATS()}]);
   const upd=(id,k,v)=>setBrands(b=>b.map(x=>x.id!==id?x:{...x,[k]:v}));
   const del=id=>{if(confirm('למחוק?'))setBrands(b=>b.filter(x=>x.id!==id));};
+  const move=(idx,dir)=>setBrands(b=>{
+    const j=idx+dir; if(j<0||j>=b.length)return b;
+    const n=[...b]; [n[idx],n[j]]=[n[j],n[idx]]; return n;
+  });
   return(
     <Modal onClose={onClose} wide title="⚙ ניהול מותגים">
+      <div style={{fontSize:12,color:'var(--sub)',marginBottom:10}}>הסדר כאן הוא הסדר שבו המותגים יופיעו בתפריט ובדף הבית. מותג מוסתר לא יוצג לצופים (אך יישאר גלוי למנהלים ולעורכים).</div>
       <div style={{maxHeight:'50vh',overflowY:'auto',marginBottom:12}}>
-        {brands.map(b=>(
-          <div key={b.id} style={{border:'1px solid var(--border)',borderRadius:10,padding:12,marginBottom:10,borderRight:`5px solid ${b.color}`}}>
+        {brands.map((b,idx)=>(
+          <div key={b.id} style={{border:'1px solid var(--border)',borderRadius:10,padding:12,marginBottom:10,borderRight:`5px solid ${b.color}`,opacity:b.hidden?0.55:1}}>
             <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+              <div style={{display:'flex',flexDirection:'column',gap:1}}>
+                <button onClick={()=>move(idx,-1)} disabled={idx===0} title="הזז למעלה"
+                  style={{background:'none',border:'none',cursor:idx===0?'default':'pointer',color:idx===0?'var(--border2)':'var(--sub)',fontSize:13,padding:0,lineHeight:1}}>▲</button>
+                <button onClick={()=>move(idx,1)} disabled={idx===brands.length-1} title="הזז למטה"
+                  style={{background:'none',border:'none',cursor:idx===brands.length-1?'default':'pointer',color:idx===brands.length-1?'var(--border2)':'var(--sub)',fontSize:13,padding:0,lineHeight:1}}>▼</button>
+              </div>
               <input value={b.name} onChange={e=>upd(b.id,'name',e.target.value)} style={{border:'1px solid var(--border)',borderRadius:6,padding:'6px 10px',fontSize:14,fontWeight:'bold',flex:'1 1 100px',color:'var(--inp)',background:'var(--ibg)'}}/>
               <div style={{display:'flex',alignItems:'center',gap:6}}>
                 <label style={{fontSize:12,color:'var(--sub)'}}>צבע:</label>
                 <input type="color" value={b.color} onChange={e=>{const c=e.target.value;upd(b.id,'color',c);upd(b.id,'light',c+'22');}} style={{border:'none',borderRadius:4,height:34,width:44,cursor:'pointer'}}/>
               </div>
+              <button onClick={()=>upd(b.id,'hidden',!b.hidden)} title={b.hidden?'הצג לצופים':'הסתר מצופים'}
+                className="btn btn-sm btn-secondary">{b.hidden?'🙈 מוסתר':'👁 גלוי'}</button>
               <button onClick={()=>del(b.id)} style={{background:'none',border:'1px solid var(--red)',color:'var(--red)',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12}}>מחק</button>
             </div>
             <div style={{fontSize:11,color:'var(--sub)',marginTop:6}}>{b.categories.reduce((s,c)=>s+c.models.length,0)} דגמים</div>

@@ -124,18 +124,19 @@ function TechSiteLink(){
 }
 
 // ══════════ HOME SCREEN ══════════
-function HomeScreen({data,onNav,recent,favorites,onToggleFav,loginRole,reports,techRequests,alerts,onOpenSidebar,query,setQuery,onOpenBrand}){
-  const total=data.brands.reduce((s,b)=>s+b.categories.reduce((ss,c)=>ss+c.models.length,0),0);
-  const totalParts=data.brands.reduce((s,b)=>s+b.categories.reduce((ss,c)=>ss+c.models.reduce((sss,m)=>sss+m.parts.length,0),0),0);
+function HomeScreen({data,onNav,recent,favorites,onToggleFav,loginRole,reports,techRequests,alerts,onOpenSidebar,query,setQuery,onOpenBrand,results,canSeeHidden}){
+  const visBrands=data.brands.filter(b=>canSeeHidden||!b.hidden);
+  const total=visBrands.reduce((s,b)=>s+b.categories.reduce((ss,c)=>ss+c.models.filter(m=>canSeeHidden||!m.hidden).length,0),0);
+  const totalParts=visBrands.reduce((s,b)=>s+b.categories.reduce((ss,c)=>ss+c.models.filter(m=>canSeeHidden||!m.hidden).reduce((sss,m)=>sss+m.parts.length,0),0),0);
   const greeting=getGreeting(data.greetings);
 
   const fmtTime=ts=>{const diff=Math.floor((Date.now()-ts)/60000);if(diff<1)return'עכשיו';if(diff<60)return`לפני ${diff} דק'`;if(diff<1440)return`לפני ${Math.floor(diff/60)} שע'`;return new Date(ts).toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit'});};
-  const recentModels=recent.slice(0,6).map(rv=>{const b=data.brands.find(x=>x.id===rv.bid);const c=b?.categories.find(x=>x.id===rv.cid);const m=c?.models.find(x=>x.id===rv.mid);if(!b||!c||!m)return null;return{b,c,m,ts:rv.ts};}).filter(Boolean);
-  const favModels=[];data.brands.forEach(b=>b.categories.forEach(c=>c.models.forEach(m=>{if(favorites.has(m.id))favModels.push({b,c,m});})));
+  const recentModels=recent.slice(0,6).map(rv=>{const b=data.brands.find(x=>x.id===rv.bid);const c=b?.categories.find(x=>x.id===rv.cid);const m=c?.models.find(x=>x.id===rv.mid);if(!b||!c||!m)return null;if(!canSeeHidden&&(b.hidden||m.hidden))return null;return{b,c,m,ts:rv.ts};}).filter(Boolean);
+  const favModels=[];data.brands.forEach(b=>b.categories.forEach(c=>c.models.forEach(m=>{if(favorites.has(m.id)&&(canSeeHidden||(!b.hidden&&!m.hidden)))favModels.push({b,c,m});})));
 
   const brandStats=b=>{
     let models=0,parts=0;
-    b.categories.forEach(c=>{models+=c.models.length;c.models.forEach(m=>parts+=m.parts.length);});
+    b.categories.forEach(c=>{const ms=c.models.filter(m=>canSeeHidden||!m.hidden);models+=ms.length;ms.forEach(m=>parts+=m.parts.length);});
     return{models,parts};
   };
 
@@ -152,6 +153,7 @@ function HomeScreen({data,onNav,recent,favorites,onToggleFav,loginRole,reports,t
             placeholder="🔍 חיפוש לפי מק&quot;ט, דגם או שם חלק..."
             className="hero-search"/>
           {query&&<button onClick={()=>setQuery('')} style={{position:'absolute',left:16,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'var(--sub)',fontSize:18}}>✕</button>}
+          {query&&<SearchResultsPanel results={results} query={query} onClose={()=>setQuery('')} onSelect={r=>onNav(r.b.id,r.c.id,r.m.id,query)}/>}
         </div>
 
         <div style={{marginTop:18,fontSize:12.5,color:'var(--sub)'}}>{greeting}</div>
@@ -161,7 +163,7 @@ function HomeScreen({data,onNav,recent,favorites,onToggleFav,loginRole,reports,t
       <div style={{marginBottom:30}}>
         <div className="tc-sub-title" style={{textAlign:'center',marginBottom:14}}>או בחר מותג</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:12,maxWidth:720,margin:'0 auto'}}>
-          {data.brands.map(b=>{
+          {visBrands.map(b=>{
             const st=brandStats(b);
             return(
               <div key={b.id} className="brand-card" onClick={()=>(onOpenBrand?onOpenBrand(b.id):onOpenSidebar())} style={{borderTop:`3px solid ${b.color}`}}>
@@ -230,7 +232,7 @@ function HomeScreen({data,onNav,recent,favorites,onToggleFav,loginRole,reports,t
 }
 
 // ══════════ SIDEBAR BRAND ══════════
-function SidebarBrand({brand,sel,editor,admin,favorites,onToggleFav,onNav,onAddModel,onDelModel,onAddCat,onEditCat,onDelCat,onAddSubCat,onEditSubCat,onDelSubCat,sidebarFilter,compareList,onToggleCompare}){
+function SidebarBrand({brand,sel,editor,admin,canSeeHidden,favorites,onToggleFav,onNav,onAddModel,onDelModel,onAddCat,onEditCat,onDelCat,onAddSubCat,onEditSubCat,onDelSubCat,sidebarFilter,compareList,onToggleCompare}){
   const[open,setOpen]=useState(false);const[openCats,setOpenCats]=useState({});const[openSubs,setOpenSubs]=useState({});
   const[addingMod,setAddingMod]=useState(null);const[newModName,setNewModName]=useState('');
   const[editCat,setEditCat]=useState(null);const[addingCat,setAddingCat]=useState(false);const[newCatName,setNewCatName]=useState('');
@@ -294,7 +296,8 @@ function SidebarBrand({brand,sel,editor,admin,favorites,onToggleFav,onNav,onAddM
     return(
       <div key={m.id} style={{display:'flex',alignItems:'center',borderBottom:'1px solid var(--border)'}}>
         <div onClick={()=>onNav(brand.id,cid,m.id,scid)}
-          style={{flex:1,padding:'8px 10px 8px 26px',cursor:'pointer',fontSize:13,color:sel?.mid===m.id?brand.color:'var(--text)',fontWeight:sel?.mid===m.id?'bold':'normal',background:sel?.mid===m.id?brand.light+'88':'transparent',borderRight:sel?.mid===m.id?`3px solid ${brand.color}`:'3px solid transparent'}}>
+          style={{flex:1,padding:'8px 10px 8px 26px',cursor:'pointer',fontSize:13,color:sel?.mid===m.id?brand.color:'var(--text)',fontWeight:sel?.mid===m.id?'bold':'normal',background:sel?.mid===m.id?brand.light+'88':'transparent',borderRight:sel?.mid===m.id?`3px solid ${brand.color}`:'3px solid transparent',opacity:m.hidden?0.6:1}}>
+          {m.hidden && <span title="מוסתר מצופים" style={{fontSize:11,marginLeft:4}}>🙈</span>}
           {m.name}
           {m.synonyms?.length>0&&<div style={{fontSize:10,color:'var(--sub)',marginTop:2}}>{m.synonyms.join(' | ')}</div>}
           {sidebarFilter&&(m.synonyms||[]).some(s=>s.toLowerCase().includes(sidebarFilter.toLowerCase()))&&!(m.name.toLowerCase().includes(sidebarFilter.toLowerCase()))&&(
@@ -317,13 +320,14 @@ function SidebarBrand({brand,sel,editor,admin,favorites,onToggleFav,onNav,onAddM
     <div style={{borderBottom:'1px solid var(--border)'}}>
       <div onClick={()=>setOpen(v=>!v)} style={{padding:'11px 14px',background:brand.color,color:'#fff',display:'flex',alignItems:'center',cursor:'pointer',userSelect:'none',gap:6}}>
         <span style={{flex:1,fontWeight:'bold',fontSize:14}}>{brand.name}</span>
+        {brand.hidden && <span title="מותג מוסתר מצופים" style={{fontSize:11,opacity:.9}}>🙈</span>}
         <span style={{fontSize:11,opacity:.8}}>{open?'▲':'▼'}</span>
       </div>
       {open&&<>
         {brand.categories.map(c=>{
           const q=sidebarFilter?sidebarFilter.toLowerCase():'';
           const mm=m=>!q||m.name.toLowerCase().includes(q)||(m.synonyms||[]).some(s=>s.toLowerCase().includes(q));
-          const visibleModels=sidebarFilter?c.models.filter(mm):c.models;
+          const visibleModels=(sidebarFilter?c.models.filter(mm):c.models).filter(m=>canSeeHidden||!m.hidden);
           const subCats=c.subCategories||[];
           const visibleSubs=sidebarFilter?subCats.filter(sc=>sc.models.some(mm)):subCats;
           if(sidebarFilter&&!visibleModels.length&&!visibleSubs.length)return null;
@@ -369,7 +373,7 @@ function SidebarBrand({brand,sel,editor,admin,favorites,onToggleFav,onNav,onAddM
                 {visibleModels.map(m=>renderModelRow(m,c.id,null))}
                 {!visibleModels.length&&!sidebarFilter&&!subCats.length&&<div style={{padding:'7px 26px',color:'var(--sub)',fontSize:12}}>אין דגמים</div>}
                 {(sidebarFilter?visibleSubs:subCats).map(sc=>{
-                  const scModels=sidebarFilter?sc.models.filter(mm):sc.models;
+                  const scModels=(sidebarFilter?sc.models.filter(mm):sc.models).filter(m=>canSeeHidden||!m.hidden);
                   if(sidebarFilter&&!scModels.length)return null;
                   return(
                     <div key={sc.id}>

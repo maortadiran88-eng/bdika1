@@ -121,20 +121,28 @@ function App() {
 
   const brand = sel&&data ? data.brands.find(b=>b.id===sel.bid) : null;
   const cat   = brand     ? brand.categories.find(c=>c.id===sel.cid) : null;
-  const model = cat       ? cat.models.find(m=>m.id===sel.mid) : null;
+  const model = cat       ? (cat.models.find(m=>m.id===sel.mid) || (cat.subCategories||[]).flatMap(sc=>sc.models).find(m=>m.id===sel.mid)) : null;
 
   const results = useMemo(() => {
     if (!data||!loginRole) return [];
     const q = query.trim().toLowerCase(); if (!q) return [];
+    const canSeeHidden = editor;
     const res=[]; const seen=new Set();
-    data.brands.forEach(b => b.categories.forEach(c => c.models.forEach(m => {
-      const ms  = m.synonyms?.find(s => fuzzyMatch(q,s));
-      const mh  = fuzzyMatch(q,m.name) || !!ms;
-      const ph  = m.parts.filter(p => partMatches(q,p,m.columns));
-      if ((mh||ph.length) && !seen.has(m.id)) { seen.add(m.id); res.push({b,c,m,ph,ms:ms||null}); }
-    })));
+    data.brands.forEach(b => {
+      if (!canSeeHidden && b.hidden) return;
+      b.categories.forEach(c => {
+        const allModels=[...c.models,...(c.subCategories||[]).flatMap(sc=>sc.models)];
+        allModels.forEach(m => {
+          if (!canSeeHidden && m.hidden) return;
+          const ms  = m.synonyms?.find(s => fuzzyMatch(q,s));
+          const mh  = fuzzyMatch(q,m.name) || !!ms;
+          const ph  = m.parts.filter(p => partMatches(q,p,m.columns));
+          if ((mh||ph.length) && !seen.has(m.id)) { seen.add(m.id); res.push({b,c,m,ph,ms:ms||null}); }
+        });
+      });
+    });
     return res;
-  }, [query, data, loginRole]);
+  }, [query, data, loginRole, editor]);
 
   const nav = (bid,cid,mid,hq='') => {
     if (sel) navStack.current = [...navStack.current.slice(-9), sel];
@@ -460,6 +468,7 @@ function App() {
                 placeholder="🔍 חיפוש — דגם / מק&quot;ט / שם חלק..."
                 style={{width:'100%',padding:'8px 36px 8px 12px',borderRadius:22,border:'none',fontSize:14,outline:'none',color:'#222',background:'rgba(255,255,255,.93)',boxSizing:'border-box',boxShadow:'0 1px 4px rgba(0,0,0,.15)'}}/>
               {query&&<button onClick={()=>setQuery('')} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'#888',fontSize:16}}>✕</button>}
+              {query&&<SearchResultsPanel results={results} query={query} onClose={()=>setQuery('')} onSelect={r=>nav(r.b.id,r.c.id,r.m.id,query)}/>}
             </div>
           </div>
         )}
@@ -487,52 +496,6 @@ function App() {
         </div>
       )}
 
-            {/* SEARCH DROPDOWN */}
-      {query&&(
-        <div style={{position:'fixed',top:(headerRef.current?.offsetHeight||80)+28+'px',right:0,left:0,zIndex:300,background:'var(--card)',boxShadow:'0 6px 20px rgba(0,0,0,.2)',maxHeight:'55vh',overflowY:'auto',animation:'fadeIn .1s'}}>
-          <div style={{padding:'8px 14px',borderBottom:'1px solid var(--border)',color:'var(--sub)',fontSize:12,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <span>{results.length} תוצאות עבור: <strong style={{color:'var(--text)'}}>{query}</strong></span>
-            <button onClick={()=>setQuery('')} style={{background:'#e53935',border:'none',borderRadius:5,color:'#fff',padding:'3px 10px',cursor:'pointer',fontSize:12}}>✕ סגור</button>
-          </div>
-          {!results.length&&(
-            <div style={{padding:28,textAlign:'center'}}>
-              <div style={{fontSize:32,marginBottom:8}}>🔍</div>
-              <div style={{color:'var(--sub)',fontSize:14,fontWeight:'bold'}}>לא נמצאו תוצאות עבור "{query}"</div>
-              <div style={{color:'var(--sub)',fontSize:12,marginTop:6}}>נסה לחפש לפי שם דגם, מק"ט יצרן, מק"ט תדיראן או שם חלק</div>
-            </div>
-          )}
-          {results.map((r,i)=>(
-            <div key={i} onClick={()=>nav(r.b.id,r.c.id,r.m.id,query)}
-              style={{padding:'10px 14px',cursor:'pointer',borderBottom:'1px solid var(--border)',background:'var(--card)'}}
-              onMouseEnter={e=>e.currentTarget.style.background='var(--row2)'}
-              onMouseLeave={e=>e.currentTarget.style.background='var(--card)'}>
-              <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',marginBottom:4}}>
-                <span style={{background:r.b.color,color:'#fff',padding:'2px 8px',borderRadius:4,fontSize:11,fontWeight:'bold'}}>{r.b.name}</span>
-                <span style={{fontWeight:'bold',color:'var(--text)',fontSize:14}}>{r.m.name}</span>
-                {r.ms&&<span style={{background:'#e3f2fd',color:'#1565c0',padding:'1px 7px',borderRadius:4,fontSize:11,fontWeight:'bold'}}>≡ {r.ms}</span>}
-                {r.m.synonyms?.filter(s=>s!==r.ms).map((s,si)=>(
-                  <span key={si} style={{background:'#f3e5f5',color:'#6a1b9a',padding:'1px 6px',borderRadius:4,fontSize:10}}>{s}</span>
-                ))}
-                <span style={{color:'var(--sub)',fontSize:11}}>{r.c.name}</span>
-                {r.ph.length>0&&<span style={{color:'#795548',fontSize:11,background:'#fff9c4',padding:'1px 6px',borderRadius:4}}>✦ {r.ph.length} חלקים</span>}
-              </div>
-              {r.ph.slice(0,3).map(p=>{
-                const he=(p.values.nameHe||'').trim(),tadPn=(p.values.tadPn||'').trim(),mfgPn=(p.values.mfgPn||'').trim();
-                return(
-                  <div key={p.id} style={{fontSize:11,color:'var(--sub)',paddingRight:8,marginBottom:2,display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
-                    {p.discontinued&&<span style={{background:'#e53935',color:'#fff',borderRadius:4,padding:'1px 6px',fontSize:10,fontWeight:'bold'}}>⛔ הופסק</span>}
-                    {he&&<span style={{color:'var(--text)',fontWeight:'500'}}>{he}</span>}
-                    {tadPn&&<span>מק"ט תדיראן: <strong style={{color:'#1565c0'}}>{tadPn}</strong></span>}
-                    {mfgPn&&<span>מק"ט יצרן: <strong>{mfgPn}</strong></span>}
-                  </div>
-                );
-              })}
-              {r.ph.length>3&&<div style={{fontSize:10,color:'var(--sub)',paddingRight:8}}>ועוד {r.ph.length-3} חלקים...</div>}
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* BODY */}
       <div style={{display:'flex',flex:1,overflow:'hidden',height:'calc(100vh - 56px)'}}>
 
@@ -548,8 +511,8 @@ function App() {
               </div>
             </div>
             <div style={{flex:1,overflowY:'auto'}}>
-              {data.brands.map(b=>(
-                <SidebarBrand key={b.id} brand={b} sel={sel} editor={editor} admin={admin}
+              {data.brands.filter(b=>editor||!b.hidden).map(b=>(
+                <SidebarBrand key={b.id} brand={b} sel={sel} editor={editor} admin={admin} canSeeHidden={editor}
                   favorites={favorites} onToggleFav={toggleFav} onNav={nav}
                   sidebarFilter={sidebarFilter}
                   compareList={compareList}
@@ -607,7 +570,7 @@ function App() {
           {!model
             ?<HomeScreen data={data} onNav={nav} recent={recent} favorites={favorites} onToggleFav={toggleFav} loginRole={loginRole} reports={reports} techRequests={techRequests} alerts={alerts}
                 onOpenSidebar={()=>setSidebar(true)} onOpenBrand={()=>setSidebar(true)}
-                query={query} setQuery={setQuery}/>
+                query={query} setQuery={setQuery} results={results} canSeeHidden={editor}/>
             :<ModelView
                 key={model.id} brand={brand} cat={cat} model={model}
                 editor={editor} admin={admin} viewer={viewer} hq={sel?.hq||''}

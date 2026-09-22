@@ -38,7 +38,7 @@ async function fbSave(data, mids) {
     welcomeTitle:data.welcomeTitle, welcomeSub:data.welcomeSub,
     disclaimer:data.disclaimer, partsDisclaimer:data.partsDisclaimer||DEFAULT_DISCLAIMER,
     tips:data.tips||[], greetings:data.greetings||null, systemMsg:data.systemMsg||null,
-    brands:data.brands.map(b=>({...b,categories:b.categories.map(c=>({...c,models:c.models.map(m=>({id:m.id,name:m.name}))}))}))
+    brands:data.brands.map(b=>({...b,categories:b.categories.map(c=>({...c,models:c.models.map(m=>({id:m.id,name:m.name,hidden:m.hidden||false}))}))}))
   };
   await db.collection('catalog').doc('meta').set({d:meta});
   const batch = db.batch();

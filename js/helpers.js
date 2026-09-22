@@ -51,7 +51,55 @@ function Modal({children,onClose,wide,title}){
   );
 }
 
-// ── Breadcrumb — consistent "where am I" trail used across the app ──
+// ── Search results dropdown — anchored right below whichever search box is
+// showing it (rendered inside a position:relative wrapper around the input),
+// so it never covers what the user is typing. ──
+function SearchResultsPanel({results,query,onClose,onSelect}){
+  return(
+    <div style={{position:'absolute',top:'calc(100% + 8px)',right:0,left:0,zIndex:300,background:'var(--card)',borderRadius:12,boxShadow:'0 10px 30px var(--shadow2)',border:'1px solid var(--border)',maxHeight:'55vh',overflowY:'auto',animation:'fadeIn .12s'}}>
+      <div style={{padding:'8px 14px',borderBottom:'1px solid var(--border)',color:'var(--sub)',fontSize:12,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <span>{results.length} תוצאות עבור: <strong style={{color:'var(--text)'}}>{query}</strong></span>
+        <button onClick={onClose} style={{background:'var(--red)',border:'none',borderRadius:6,color:'#fff',padding:'3px 10px',cursor:'pointer',fontSize:12}}>✕ סגור</button>
+      </div>
+      {!results.length&&(
+        <div style={{padding:28,textAlign:'center'}}>
+          <div style={{fontSize:32,marginBottom:8}}>🔍</div>
+          <div style={{color:'var(--sub)',fontSize:14,fontWeight:700}}>לא נמצאו תוצאות עבור "{query}"</div>
+          <div style={{color:'var(--sub)',fontSize:12,marginTop:6}}>נסה לחפש לפי שם דגם, מק"ט יצרן, מק"ט תדיראן או שם חלק</div>
+        </div>
+      )}
+      {results.map((r,i)=>(
+        <div key={i} onClick={()=>onSelect(r)}
+          style={{padding:'10px 14px',cursor:'pointer',borderBottom:'1px solid var(--border)',background:'var(--card)'}}
+          onMouseEnter={e=>e.currentTarget.style.background='var(--row2)'}
+          onMouseLeave={e=>e.currentTarget.style.background='var(--card)'}>
+          <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',marginBottom:4}}>
+            <span style={{background:r.b.color,color:'#fff',padding:'2px 8px',borderRadius:4,fontSize:11,fontWeight:700}}>{r.b.name}</span>
+            <span style={{fontWeight:700,color:'var(--text)',fontSize:14}}>{r.m.name}</span>
+            {r.ms&&<span style={{background:'var(--primary-light)',color:'var(--primary)',padding:'1px 7px',borderRadius:4,fontSize:11,fontWeight:700}}>≡ {r.ms}</span>}
+            {r.m.synonyms?.filter(s=>s!==r.ms).map((s,si)=>(
+              <span key={si} style={{background:'var(--primary-light)',color:'var(--primary)',padding:'1px 6px',borderRadius:4,fontSize:10}}>{s}</span>
+            ))}
+            <span style={{color:'var(--sub)',fontSize:11}}>{r.c.name}</span>
+            {r.ph.length>0&&<span style={{color:'var(--orange)',fontSize:11,background:'var(--orange-bg)',padding:'1px 6px',borderRadius:4}}>✦ {r.ph.length} חלקים</span>}
+          </div>
+          {r.ph.slice(0,3).map(p=>{
+            const he=(p.values.nameHe||'').trim(),tadPn=(p.values.tadPn||'').trim(),mfgPn=(p.values.mfgPn||'').trim();
+            return(
+              <div key={p.id} style={{fontSize:11,color:'var(--sub)',paddingRight:8,marginBottom:2,display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+                {p.discontinued&&<span style={{background:'var(--red)',color:'#fff',borderRadius:4,padding:'1px 6px',fontSize:10,fontWeight:700}}>⛔ הופסק</span>}
+                {he&&<span style={{color:'var(--text)',fontWeight:500}}>{he}</span>}
+                {tadPn&&<span>מק"ט תדיראן: <strong style={{color:'var(--primary)'}}>{tadPn}</strong></span>}
+                {mfgPn&&<span>מק"ט יצרן: <strong>{mfgPn}</strong></span>}
+              </div>
+            );
+          })}
+          {r.ph.length>3&&<div style={{fontSize:10,color:'var(--sub)',paddingRight:8}}>ועוד {r.ph.length-3} חלקים...</div>}
+        </div>
+      ))}
+    </div>
+  );
+}
 function Breadcrumb({items,onHome}){
   // items: [{label, onClick}] — last item renders as the current (non-clickable) page
   return(

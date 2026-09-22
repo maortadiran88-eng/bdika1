@@ -228,6 +228,11 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
           <button onClick={()=>onToggleFav(model.id)} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',marginRight:'auto'}}>{favorites.has(model.id)?'⭐':'☆'}</button>
           <span className="tc-meta">{model.parts.length.toLocaleString()} חלקים</span>
         </div>
+        {model.hidden && (
+          <div style={{background:'var(--orange-bg)',color:'var(--orange)',borderRadius:8,padding:'6px 12px',fontSize:12,fontWeight:700,marginBottom:8,display:'inline-block'}}>
+            🙈 הדגם מוסתר — לא מוצג לצופים
+          </div>
+        )}
         <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',fontSize:12,marginBottom:12}}>
           <span className="tc-meta">שמות נרדפים:</span>
           {!editSyn
@@ -250,6 +255,9 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
             <button onClick={()=>setShowMove(true)} className="btn btn-sm btn-secondary">🔀 העבר</button>
             <button onClick={()=>{if(confirm('לשכפל?'))onDuplicate();}} className="btn btn-sm btn-secondary">⧉ שכפל</button>
             <button onClick={()=>setShowCopy(true)} className="btn btn-sm btn-secondary">📋 העתק חלקים</button>
+            <button onClick={()=>onUpdate({hidden:!model.hidden})} className="btn btn-sm btn-secondary" title="הסתר/הצג דגם מצופים">
+              {model.hidden?'👁 הצג לצופים':'🙈 הסתר מצופים'}
+            </button>
           </>}
         </div>
       </div>
@@ -495,56 +503,70 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
           Object.keys(next).forEach(k => next[k]===undefined && delete next[k]);
           onReviewApprovalsChange(next);
         };
+        // בעבר כל שורה קראה ל-setStatus בנפרד בתוך forEach, וכל קריאה חישבה
+        // מחדש את ה-state מתוך הערך הישן (approved) — כך שרק החלק האחרון
+        // בפועל נשמר. עכשיו בונים אובייקט אחד ושומרים פעם אחת.
+        const approveAll = () => {
+          const next = {...approved};
+          parts.forEach(p => { next[brand.id+'__'+model.id+'__'+p.id] = 'ok'; });
+          onReviewApprovalsChange(next);
+        };
+        const [pendingOnly, setPendingOnly] = useState(false);
+        const visibleParts = pendingOnly ? parts.filter(p=>!approved[brand.id+'__'+model.id+'__'+p.id]) : parts;
         return(
           <Modal onClose={()=>setReviewMode(false)} wide title={'✅ בדיקת מק"טים — '+model.name}>
             {/* Progress */}
             <div style={{marginBottom:14}}>
               <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}>
-                <span style={{fontWeight:'bold',fontSize:13}}>התקדמות אישור</span>
-                <span style={{fontWeight:'bold',color:barColor}}>{okCount}/{parts.length} ({pct}%)</span>
+                <span style={{fontWeight:700,fontSize:13}}>התקדמות אישור</span>
+                <span style={{fontWeight:700,color:barColor}}>{okCount}/{parts.length} ({pct}%)</span>
               </div>
               <div style={{height:12,background:'var(--border)',borderRadius:8,overflow:'hidden'}}>
                 <div style={{height:'100%',width:pct+'%',background:barColor,transition:'width .3s',borderRadius:8}}/>
               </div>
               <div style={{display:'flex',gap:16,marginTop:6,fontSize:12}}>
-                <span style={{color:'#4caf50'}}>✓ אושרו: {okCount}</span>
-                <span style={{color:'#e53935'}}>✗ לתיקון: {fixCount}</span>
+                <span style={{color:'var(--green)'}}>✓ אושרו: {okCount}</span>
+                <span style={{color:'var(--red)'}}>✗ לתיקון: {fixCount}</span>
                 <span style={{color:'var(--sub)'}}>⏳ ממתינים: {parts.length-okCount-fixCount}</span>
               </div>
             </div>
 
             {/* Bulk actions */}
-            <div style={{display:'flex',gap:8,marginBottom:10}}>
-              <button onClick={()=>parts.forEach(p=>setStatus(p.id,'ok'))}
-                style={{flex:1,padding:'7px',background:'#e8f5e9',border:'1px solid #4caf50',borderRadius:8,cursor:'pointer',fontSize:12,fontWeight:'bold',color:'#2e7d32'}}>
+            <div style={{display:'flex',gap:8,marginBottom:10,flexWrap:'wrap'}}>
+              <button onClick={approveAll}
+                style={{flex:1,padding:'9px',background:'var(--green-bg)',border:'1px solid var(--green)',borderRadius:9,cursor:'pointer',fontSize:12.5,fontWeight:700,color:'var(--green)',minWidth:120}}>
                 ✓ אשר הכל ({parts.length})
               </button>
               <button onClick={()=>{const next={...approved};parts.forEach(p=>{const k=brand.id+'__'+model.id+'__'+p.id;delete next[k];});onReviewApprovalsChange(next);}}
-                style={{flex:1,padding:'7px',background:'#fff8e1',border:'1px solid #ff9800',borderRadius:8,cursor:'pointer',fontSize:12,fontWeight:'bold',color:'#e65100'}}>
+                style={{flex:1,padding:'9px',background:'var(--orange-bg)',border:'1px solid var(--orange)',borderRadius:9,cursor:'pointer',fontSize:12.5,fontWeight:700,color:'var(--orange)',minWidth:120}}>
                 ↺ איפוס הכל
               </button>
+              <label style={{display:'flex',alignItems:'center',gap:6,fontSize:12.5,color:'var(--sub)',cursor:'pointer',padding:'0 6px'}}>
+                <input type="checkbox" checked={pendingOnly} onChange={e=>setPendingOnly(e.target.checked)}/>
+                הצג רק ממתינים
+              </label>
             </div>
 
-            {/* Table */}
-            <div style={{overflowX:'auto',border:'1px solid var(--border)',borderRadius:8,maxHeight:'55vh',overflowY:'auto'}}>
+            {/* Table — click anywhere on the row = ✓ אשר (הדרך הכי מהירה לסמן הרבה שורות) */}
+            <div style={{overflowX:'auto',border:'1px solid var(--border)',borderRadius:9,maxHeight:'55vh',overflowY:'auto'}}>
               <table style={{borderCollapse:'collapse',width:'100%',direction:'rtl',fontSize:13}}>
                 <thead style={{position:'sticky',top:0,zIndex:2}}>
-                  <tr style={{background:'var(--row2)'}}>
-                    <th style={{padding:'8px 10px',borderBottom:'2px solid var(--border)',textAlign:'right',fontWeight:'bold',color:'var(--sub)',fontSize:12,minWidth:30}}>#</th>
+                  <tr style={{background:'var(--card2)'}}>
+                    <th style={{padding:'8px 10px',borderBottom:'2px solid var(--border)',textAlign:'right',fontWeight:700,color:'var(--sub)',fontSize:11.5,minWidth:30}}>#</th>
                     {reviewCols.map(c=>(
-                      <th key={c} style={{padding:'8px 10px',borderBottom:'2px solid var(--border)',textAlign:'right',fontWeight:'bold',color:'var(--sub)',fontSize:12,minWidth:120}}>{colLabels[c]}</th>
+                      <th key={c} style={{padding:'8px 10px',borderBottom:'2px solid var(--border)',textAlign:'right',fontWeight:700,color:'var(--sub)',fontSize:11.5,minWidth:120}}>{colLabels[c]}</th>
                     ))}
-                    <th style={{padding:'8px 10px',borderBottom:'2px solid var(--border)',textAlign:'center',fontWeight:'bold',color:'var(--sub)',fontSize:12,minWidth:90}}>סטטוס</th>
+                    <th style={{padding:'8px 10px',borderBottom:'2px solid var(--border)',textAlign:'center',fontWeight:700,color:'var(--sub)',fontSize:11.5,minWidth:100}}>סטטוס · לחץ לאישור מהיר</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {parts.map((p,i)=>{
+                  {visibleParts.map((p,i)=>{
                     const key = brand.id+'__'+model.id+'__'+p.id;
                     const status = approved[key];
-                    const rowBg = status==='ok'?'#e8f5e9':status==='fix'?'#ffebee':i%2?'var(--row2)':'var(--row1)';
+                    const rowBg = status==='ok'?'var(--green-bg)':status==='fix'?'var(--red-bg)':i%2?'var(--row2)':'var(--row1)';
                     const missing = reviewCols.filter(c=>!(p.values[c]||'').trim());
                     return(
-                      <tr key={p.id} style={{background:rowBg}}>
+                      <tr key={p.id} style={{background:rowBg,cursor:'pointer'}} onClick={()=>setStatus(p.id,'ok')} title="לחץ לאישור מהיר">
                         <td style={{padding:'8px 10px',borderBottom:'1px solid var(--border)',color:'var(--sub)',fontSize:11}}>{i+1}</td>
                         {reviewCols.map(c=>{
                           const val = (p.values[c]||'').trim();
@@ -552,28 +574,31 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
                           return(
                             <td key={c} style={{padding:'8px 10px',borderBottom:'1px solid var(--border)'}}>
                               {isEmpty
-                                ? <span style={{color:'#e53935',fontSize:11,fontStyle:'italic'}}>חסר</span>
-                                : <span style={{color: c==='tadPn'?'#1565c0':c==='mfgPn'?'#2e7d32':'var(--text)', fontFamily:c==='tadPn'||c==='mfgPn'?'monospace':'inherit', fontWeight:c==='tadPn'?'bold':'normal'}}>{val}</span>
+                                ? <span style={{color:'var(--red)',fontSize:11,fontStyle:'italic'}}>חסר</span>
+                                : <span style={{color: c==='tadPn'?'var(--primary)':c==='mfgPn'?'var(--green)':'var(--text)', fontFamily:c==='tadPn'||c==='mfgPn'?'monospace':'inherit', fontWeight:c==='tadPn'?700:400}}>{val}</span>
                               }
                             </td>
                           );
                         })}
-                        <td style={{padding:'6px 8px',borderBottom:'1px solid var(--border)',textAlign:'center'}}>
-                          <div style={{display:'flex',gap:4,justifyContent:'center'}}>
+                        <td style={{padding:'6px 8px',borderBottom:'1px solid var(--border)',textAlign:'center'}} onClick={e=>e.stopPropagation()}>
+                          <div style={{display:'flex',gap:5,justifyContent:'center'}}>
                             <button onClick={()=>setStatus(p.id,'ok')}
-                              style={{padding:'4px 10px',border:'1px solid #4caf50',borderRadius:6,cursor:'pointer',fontSize:12,fontWeight:'bold',
-                                background:status==='ok'?'#4caf50':'transparent',color:status==='ok'?'#fff':'#4caf50'}}>✓</button>
+                              style={{padding:'5px 12px',border:'1px solid var(--green)',borderRadius:7,cursor:'pointer',fontSize:13,fontWeight:700,
+                                background:status==='ok'?'var(--green)':'transparent',color:status==='ok'?'#fff':'var(--green)'}}>✓</button>
                             <button onClick={()=>setStatus(p.id,'fix')}
-                              style={{padding:'4px 10px',border:'1px solid #e53935',borderRadius:6,cursor:'pointer',fontSize:12,fontWeight:'bold',
-                                background:status==='fix'?'#e53935':'transparent',color:status==='fix'?'#fff':'#e53935'}}>✗</button>
+                              style={{padding:'5px 12px',border:'1px solid var(--red)',borderRadius:7,cursor:'pointer',fontSize:13,fontWeight:700,
+                                background:status==='fix'?'var(--red)':'transparent',color:status==='fix'?'#fff':'var(--red)'}}>✗</button>
                           </div>
                           {missing.length>0&&!status&&(
-                            <div style={{fontSize:9,color:'#e65100',marginTop:2}}>חסר: {missing.map(c=>colLabels[c]).join(', ')}</div>
+                            <div style={{fontSize:9,color:'var(--orange)',marginTop:2}}>חסר: {missing.map(c=>colLabels[c]).join(', ')}</div>
                           )}
                         </td>
                       </tr>
                     );
                   })}
+                  {!visibleParts.length&&(
+                    <tr><td colSpan={reviewCols.length+2} style={{padding:24,textAlign:'center',color:'var(--sub)'}}>🎉 הכל טופל</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
