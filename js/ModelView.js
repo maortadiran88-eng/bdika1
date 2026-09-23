@@ -22,6 +22,7 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
   const [editingName, setEditingName] = useState(false);
   const [nameInput,   setNameInput]   = useState(model.name);
   const [reviewMode,  setReviewMode]  = useState(false);
+  const [pendingOnly, setPendingOnly] = useState(false);
   const firstHiRef = useRef(null);
   const q      = hq.trim().toLowerCase();
   const images = model.images || [];
@@ -511,7 +512,6 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
           parts.forEach(p => { next[brand.id+'__'+model.id+'__'+p.id] = 'ok'; });
           onReviewApprovalsChange(next);
         };
-        const [pendingOnly, setPendingOnly] = useState(false);
         const visibleParts = pendingOnly ? parts.filter(p=>!approved[brand.id+'__'+model.id+'__'+p.id]) : parts;
         return(
           <Modal onClose={()=>setReviewMode(false)} wide title={'✅ בדיקת מק"טים — '+model.name}>
