@@ -8,30 +8,37 @@ function LoginScreen({data,onLogin}){
     else setErr('סיסמה שגויה');
   };
   return(
-    <div style={{minHeight:'100vh',background:'linear-gradient(160deg,#0a1428 0%,#0d3a6e 55%,#0a1428 100%)',display:'flex',alignItems:'center',justifyContent:'center',padding:20,direction:'rtl'}}>
-      <div style={{width:'100%',maxWidth:408,animation:'slideUp .35s ease-out'}}>
-        <div className="card-lg" style={{background:'var(--card)',padding:'40px 34px 32px',textAlign:'center'}}>
-          <div style={{
-            width:64,height:64,borderRadius:16,margin:'0 auto 18px',
-            background:'linear-gradient(135deg,var(--primary),var(--primary-dark))',
-            display:'flex',alignItems:'center',justifyContent:'center',fontSize:30,
-            boxShadow:'0 8px 20px rgba(13,93,179,.35)'
-          }}>🔧</div>
-          <div style={{fontWeight:800,fontSize:21,color:'var(--text)',marginBottom:6,lineHeight:1.4,whiteSpace:'pre-line'}}>{data.welcomeTitle||'ברוך הבא לקטלוג חלקי חילוף'}</div>
-          <div style={{fontSize:13.5,color:'var(--sub)',marginBottom:30}}>{data.welcomeSub||'תחת המותג תדיראן'}</div>
+    <div style={{position:'fixed',inset:0,overflow:'hidden',background:'linear-gradient(160deg,#dfe9ff,#f4f0ff)',display:'flex',alignItems:'center',justifyContent:'center',padding:20,direction:'rtl'}}>
+      {/* Blurred color blobs behind the glass card */}
+      <div aria-hidden style={{position:'absolute',width:280,height:280,borderRadius:'50%',background:'#a9c8ff',filter:'blur(70px)',opacity:.55,top:-70,right:-60}}/>
+      <div aria-hidden style={{position:'absolute',width:240,height:240,borderRadius:'50%',background:'#ffc6e8',filter:'blur(70px)',opacity:.55,bottom:-50,left:-40}}/>
+      <div aria-hidden style={{position:'absolute',width:200,height:200,borderRadius:'50%',background:'#bdf7dd',filter:'blur(70px)',opacity:.5,top:'42%',left:'28%'}}/>
+
+      <div style={{position:'relative',zIndex:1,width:'100%',maxWidth:380,animation:'slideUp .35s ease-out'}}>
+        <div style={{
+          background:'rgba(255,255,255,.55)',border:'1px solid rgba(255,255,255,.8)',
+          backdropFilter:'blur(18px) saturate(160%)',WebkitBackdropFilter:'blur(18px) saturate(160%)',
+          borderRadius:24,padding:'36px 30px 28px',textAlign:'center',
+          boxShadow:'0 20px 50px rgba(31,41,88,.18)'
+        }}>
+          <div style={{width:76,height:76,borderRadius:18,margin:'0 auto 16px',overflow:'hidden',boxShadow:'0 8px 22px rgba(31,41,88,.2)',background:'#0a1420'}}>
+            <img src="logo.png" alt="Tadiran" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+          </div>
+          <div style={{fontWeight:800,fontSize:20,color:'#1e2a4a',marginBottom:6,lineHeight:1.4,whiteSpace:'pre-line'}}>{data.welcomeTitle||'ברוך הבא לקטלוג חלקי חילוף'}</div>
+          <div style={{fontSize:13.5,color:'#5c6688',marginBottom:28}}>{data.welcomeSub||'תחת המותג תדיראן'}</div>
 
           <input type="password" value={pwd} onChange={e=>{setPwd(e.target.value);setErr('');}} onKeyDown={e=>e.key==='Enter'&&submit()} placeholder="הזן סיסמת כניסה" autoFocus
-            style={{width:'100%',padding:'13px 16px',borderRadius:11,border:`2px solid ${err?'var(--red)':'var(--border)'}`,fontSize:15,textAlign:'center',marginBottom:err?8:16,outline:'none',boxSizing:'border-box',background:'var(--ibg)',color:'var(--inp)'}}/>
-          {err&&<div style={{color:'var(--red)',fontSize:12.5,marginBottom:14,fontWeight:700}}>⚠ {err}</div>}
-          <button onClick={submit} className="btn btn-primary" style={{width:'100%',padding:'13px',fontSize:15.5,marginBottom:24,borderRadius:11}}>
+            style={{width:'100%',padding:'13px 16px',borderRadius:12,border:`1.5px solid ${err?'#e0455a':'rgba(120,140,200,.4)'}`,fontSize:15,textAlign:'center',marginBottom:err?8:16,outline:'none',boxSizing:'border-box',background:'rgba(255,255,255,.7)',color:'#1e2a4a'}}/>
+          {err&&<div style={{color:'#c0242c',fontSize:12.5,marginBottom:14,fontWeight:700}}>⚠ {err}</div>}
+          <button onClick={submit} style={{width:'100%',padding:'13px',fontSize:15.5,marginBottom:22,borderRadius:12,border:'none',background:'#3b6fd6',color:'#fff',fontWeight:800,cursor:'pointer'}}>
             כניסה למערכת ←
           </button>
 
-          <div style={{background:'var(--orange-bg)',borderRadius:11,padding:'13px 15px',fontSize:12,color:'var(--orange)',textAlign:'right',lineHeight:1.7,fontWeight:500}}>
+          <div style={{background:'rgba(255,255,255,.5)',border:'1px solid rgba(255,255,255,.7)',borderRadius:12,padding:'12px 14px',fontSize:12,color:'#7a5a1e',textAlign:'right',lineHeight:1.7,fontWeight:500}}>
             ⚠️ {data.disclaimer||'מערכת זו מיועדת לשימוש עובדי תדיראן בלבד.'}
           </div>
         </div>
-        <div style={{textAlign:'center',color:'rgba(255,255,255,.45)',fontSize:11.5,marginTop:16,fontWeight:500}}>Tadiran VRF · Professional Spare Parts Catalog</div>
+        <div style={{textAlign:'center',color:'#5c6688',fontSize:11.5,marginTop:16,fontWeight:500}}>Tadiran VRF · Professional Spare Parts Catalog</div>
       </div>
     </div>
   );
