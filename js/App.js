@@ -387,7 +387,7 @@ function App() {
   };
 
   return(
-    <div dir="rtl" style={{fontFamily:"'Rubik','Segoe UI',Arial,sans-serif",minHeight:'100vh',background:'var(--bg)',display:'flex',flexDirection:'column',fontSize:14,color:'var(--text)'}}>
+    <div dir="rtl" style={{fontFamily:"'Rubik','Segoe UI',Arial,sans-serif",minHeight:'100vh',background:'var(--bg)',display:'flex',flexDirection:'column',fontSize:14,color:'var(--text)',animation:'fadeIn .6s ease-out'}}>
 
       {/* Broadcast */}
       {broadcast && <BroadcastBanner msg={broadcast} onDismiss={()=>setBroadcast(null)}/>}

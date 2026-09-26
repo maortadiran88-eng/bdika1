@@ -1,40 +1,51 @@
 // ══════════ LOGIN ══════════
 function LoginScreen({data,onLogin}){
-  const[pwd,setPwd]=useState('');const[err,setErr]=useState('');
+  const[pwd,setPwd]=useState('');const[err,setErr]=useState('');const[exiting,setExiting]=useState(false);
   const submit=()=>{
+    if(exiting)return;
     const users=data.users||DEFAULT_USERS;
     const match=users.find(u=>u.pass===pwd);
-    if(match){onLogin(match.role,match.id,match.label);}
+    if(match){
+      // Fade/scale the login screen out first, then hand off — so the
+      // transition into the home screen feels like one continuous screen
+      // instead of an abrupt swap.
+      setExiting(true);
+      setTimeout(()=>onLogin(match.role,match.id,match.label), 480);
+    }
     else setErr('סיסמה שגויה');
   };
   return(
     <div className="login-bg" style={{position:'fixed',inset:0,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',padding:20,direction:'rtl'}}>
       <AirParticles/>
-      {/* Blurred color blobs behind the glass card */}
-      <div aria-hidden className="login-blob-a" style={{position:'absolute',width:280,height:280,borderRadius:'50%',filter:'blur(70px)',opacity:.5,top:-70,right:-60}}/>
-      <div aria-hidden className="login-blob-b" style={{position:'absolute',width:240,height:240,borderRadius:'50%',filter:'blur(70px)',opacity:.5,bottom:-50,left:-40}}/>
-      <div aria-hidden className="login-blob-c" style={{position:'absolute',width:200,height:200,borderRadius:'50%',filter:'blur(70px)',opacity:.45,top:'42%',left:'28%'}}/>
+      <div style={{opacity:exiting?0:1,transform:exiting?'scale(1.04)':'scale(1)',transition:'opacity .45s ease, transform .45s ease',width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',position:'relative'}}>
+        {/* Blurred color blobs behind the glass card */}
+        <div aria-hidden className="login-blob-a" style={{position:'absolute',width:280,height:280,borderRadius:'50%',filter:'blur(70px)',opacity:.5,top:-70,right:-60}}/>
+        <div aria-hidden className="login-blob-b" style={{position:'absolute',width:240,height:240,borderRadius:'50%',filter:'blur(70px)',opacity:.5,bottom:-50,left:-40}}/>
+        <div aria-hidden className="login-blob-c" style={{position:'absolute',width:200,height:200,borderRadius:'50%',filter:'blur(70px)',opacity:.45,top:'42%',left:'28%'}}/>
 
-      <div style={{position:'relative',zIndex:1,width:'100%',maxWidth:380,animation:'slideUp .35s ease-out'}}>
-        <div className="glass" style={{borderRadius:'var(--radius-xl)',padding:'36px 30px 28px',textAlign:'center',boxShadow:'0 20px 50px var(--shadow2)'}}>
-          <div style={{width:76,height:76,borderRadius:18,margin:'0 auto 16px',overflow:'hidden',boxShadow:'0 8px 22px var(--shadow2)',background:'#0a1420'}}>
-            <img src="logo.png" alt="Tadiran" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-          </div>
-          <div style={{fontWeight:800,fontSize:20,color:'var(--text)',marginBottom:6,lineHeight:1.4,whiteSpace:'pre-line'}}>{data.welcomeTitle||'ברוך הבא לקטלוג חלקי חילוף'}</div>
-          <div style={{fontSize:13.5,color:'var(--sub)',marginBottom:28}}>{data.welcomeSub||'תחת המותג תדיראן'}</div>
+        <div style={{position:'relative',zIndex:1,width:'100%',maxWidth:380,animation:'slideUp .35s ease-out'}}>
+          <div className="glass" style={{borderRadius:'var(--radius-xl)',padding:'36px 30px 28px',textAlign:'center',boxShadow:'0 20px 50px var(--shadow2)'}}>
+            <div style={{marginBottom:22}}>
+              <div style={{fontWeight:900,fontSize:22,letterSpacing:2,color:'var(--text)'}}>TADI<span style={{color:'var(--primary)'}}>RAN</span></div>
+              <div style={{fontSize:9.5,letterSpacing:3,color:'var(--sub)',marginTop:2,fontWeight:700}}>P A R T S &nbsp; C A T A L O G</div>
+            </div>
+            <div style={{fontWeight:800,fontSize:20,color:'var(--text)',marginBottom:6,lineHeight:1.4,whiteSpace:'pre-line'}}>{data.welcomeTitle||'ברוך הבא לקטלוג חלקי חילוף'}</div>
+            <div style={{fontSize:13.5,color:'var(--sub)',marginBottom:28}}>{data.welcomeSub||'תחת המותג תדיראן'}</div>
 
-          <input type="password" value={pwd} onChange={e=>{setPwd(e.target.value);setErr('');}} onKeyDown={e=>e.key==='Enter'&&submit()} placeholder="הזן סיסמת כניסה" autoFocus
-            style={{width:'100%',padding:'13px 16px',borderRadius:12,border:`1.5px solid ${err?'var(--red)':'var(--border2)'}`,fontSize:15,textAlign:'center',marginBottom:err?8:16,outline:'none',boxSizing:'border-box',background:'var(--ibg)',color:'var(--inp)'}}/>
-          {err&&<div style={{color:'var(--red)',fontSize:12.5,marginBottom:14,fontWeight:700}}>⚠ {err}</div>}
-          <button onClick={submit} style={{width:'100%',padding:'13px',fontSize:15.5,marginBottom:22,borderRadius:12,border:'none',background:'var(--primary)',color:'#fff',fontWeight:800,cursor:'pointer',boxShadow:'0 8px 20px var(--cyan-glow)'}}>
-            כניסה למערכת ←
-          </button>
+            <input type="password" value={pwd} onChange={e=>{setPwd(e.target.value);setErr('');}} onKeyDown={e=>e.key==='Enter'&&submit()} placeholder="הזן סיסמת כניסה" autoFocus
+              style={{width:'100%',padding:'13px 16px',borderRadius:12,border:`1.5px solid ${err?'var(--red)':'var(--border2)'}`,fontSize:15,textAlign:'center',marginBottom:err?8:16,outline:'none',boxSizing:'border-box',background:'var(--ibg)',color:'var(--inp)'}}/>
+            {err&&<div style={{color:'var(--red)',fontSize:12.5,marginBottom:14,fontWeight:700}}>⚠ {err}</div>}
+            <button onClick={submit} style={{width:'100%',padding:'13px',fontSize:15.5,marginBottom:22,borderRadius:12,border:'none',background:'var(--primary)',color:'#fff',fontWeight:800,cursor:'pointer',boxShadow:'0 8px 20px var(--cyan-glow)'}}>
+              כניסה למערכת ←
+            </button>
+
 
           <div style={{background:'var(--orange-bg)',border:'1px solid var(--orange)',borderRadius:12,padding:'12px 14px',fontSize:12,color:'var(--orange)',textAlign:'right',lineHeight:1.7,fontWeight:500}}>
             ⚠️ {data.disclaimer||'מערכת זו מיועדת לשימוש עובדי תדיראן בלבד.'}
           </div>
         </div>
         <div style={{textAlign:'center',color:'var(--sub)',fontSize:11.5,marginTop:16,fontWeight:500}}>Tadiran VRF · Professional Spare Parts Catalog</div>
+      </div>
       </div>
     </div>
   );
