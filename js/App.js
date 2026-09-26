@@ -374,7 +374,7 @@ function App() {
 
   if (!loginRole) return <LoginScreen data={data} onLogin={(role,id,label)=>{setLoginRole(role);setLoginLabel(label||role);}}/>;
 
-  const hdrBg = brand?.color || '#37474f';
+  const hdrBg = brand?.color || 'var(--primary)';
   const tips  = data.tips&&data.tips.length ? data.tips : DEFAULT_TIPS;
   const partsDisclaimer = data.partsDisclaimer || DEFAULT_DISCLAIMER;
 
@@ -393,7 +393,7 @@ function App() {
       {broadcast && <BroadcastBanner msg={broadcast} onDismiss={()=>setBroadcast(null)}/>}
 
       {/* HEADER */}
-      <header ref={headerRef} style={{background:hdrBg,color:'#fff',boxShadow:'0 3px 12px rgba(0,0,0,.3)',position:'sticky',top:0,zIndex:200,transition:'background .3s'}}>
+      <header ref={headerRef} style={{background:hdrBg,color:'#fff',boxShadow:'0 3px 16px var(--shadow2), 0 1px 0 var(--cyan-glow)',position:'sticky',top:0,zIndex:200,transition:'background .3s'}}>
 
         {/* Row 1 — all buttons compact */}
         <div style={{padding:'8px 10px',display:'flex',alignItems:'center',gap:5,flexWrap:'wrap'}}>

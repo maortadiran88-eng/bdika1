@@ -100,6 +100,90 @@ function SearchResultsPanel({results,query,onClose,onSelect}){
     </div>
   );
 }
+
+// ── TiltCard — bento tile with 3D tilt + cursor-tracked cyan glow on hover ──
+// Purely presentational wrapper: forwards onClick untouched, adds no state to
+// the app, so it never affects data or navigation logic.
+function TiltCard({className,style,onClick,children}){
+  const ref = useRef(null);
+  const onMove = e => {
+    const el = ref.current; if(!el) return;
+    const r = el.getBoundingClientRect();
+    const x = e.clientX-r.left, y = e.clientY-r.top;
+    const rx = ((y/r.height)-.5) * -7;
+    const ry = ((x/r.width)-.5) * 7;
+    el.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`;
+    el.style.setProperty('--mx', x+'px');
+    el.style.setProperty('--my', y+'px');
+  };
+  const onLeave = () => { if(ref.current) ref.current.style.transform = ''; };
+  return (
+    <div ref={ref} className={'bento-tile '+(className||'')} style={style} onClick={onClick} onMouseMove={onMove} onMouseLeave={onLeave}>
+      <div className="glow-layer"></div>
+      {children}
+    </div>
+  );
+}
+
+// ── Reveal — wraps a section so it fades/slides in once scrolled into view.
+// Wrapper only; never alters what's rendered inside it. ──
+function Reveal({children,className,style}){
+  const ref = useRef(null);
+  const [shown,setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current; if(!el) return;
+    const io = new IntersectionObserver(([entry]) => {
+      if(entry.isIntersecting){ setShown(true); io.unobserve(el); }
+    }, {threshold:.12});
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return <div ref={ref} className={'reveal '+(shown?'show ':'')+(className||'')} style={style}>{children}</div>;
+}
+
+// ── AirParticles — decorative cool-air particle canvas for the hero. Reads
+// nothing from app state and writes nothing back; safe to mount/unmount freely. ──
+function AirParticles(){
+  const ref = useRef(null);
+  useEffect(() => {
+    const canvas = ref.current; if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let raf, W, H, mouseX=0, mouseY=0;
+    const resize = () => { W=canvas.width=canvas.offsetWidth; H=canvas.height=canvas.offsetHeight; };
+    resize();
+    window.addEventListener('resize', resize);
+    const move = e => { const r=canvas.getBoundingClientRect(); mouseX=e.clientX-r.left; mouseY=e.clientY-r.top; };
+    const parent = canvas.parentElement;
+    if(parent) parent.addEventListener('mousemove', move);
+    const particles = Array.from({length:34}, () => ({
+      x:Math.random()*W, y:Math.random()*H+H*.2,
+      r:Math.random()*2+1, vy:-(Math.random()*.4+.2), vx:(Math.random()-.5)*.25,
+      a:Math.random()*.4+.12
+    }));
+    const tick = () => {
+      ctx.clearRect(0,0,W,H);
+      const dark = document.documentElement.classList.contains('dark');
+      const color = dark ? '49,215,232' : '10,42,99';
+      particles.forEach(p => {
+        const dx=(mouseX-p.x)*.0005, dy=(mouseY-p.y)*.0005;
+        p.x+=p.vx+dx; p.y+=p.vy+dy;
+        if(p.y<-10){ p.y=H+10; p.x=Math.random()*W; }
+        if(p.x<-10) p.x=W+10; if(p.x>W+10) p.x=-10;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle = `rgba(${color},${p.a})`; ctx.fill();
+      });
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+      if(parent) parent.removeEventListener('mousemove', move);
+    };
+  }, []);
+  return <canvas ref={ref} className="air-canvas" aria-hidden="true"/>;
+}
+
 function Breadcrumb({items,onHome}){
   // items: [{label, onClick}] — last item renders as the current (non-clickable) page
   return(

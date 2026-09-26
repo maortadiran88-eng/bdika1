@@ -8,37 +8,33 @@ function LoginScreen({data,onLogin}){
     else setErr('סיסמה שגויה');
   };
   return(
-    <div style={{position:'fixed',inset:0,overflow:'hidden',background:'linear-gradient(160deg,#dfe9ff,#f4f0ff)',display:'flex',alignItems:'center',justifyContent:'center',padding:20,direction:'rtl'}}>
+    <div className="login-bg" style={{position:'fixed',inset:0,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',padding:20,direction:'rtl'}}>
+      <AirParticles/>
       {/* Blurred color blobs behind the glass card */}
-      <div aria-hidden style={{position:'absolute',width:280,height:280,borderRadius:'50%',background:'#a9c8ff',filter:'blur(70px)',opacity:.55,top:-70,right:-60}}/>
-      <div aria-hidden style={{position:'absolute',width:240,height:240,borderRadius:'50%',background:'#ffc6e8',filter:'blur(70px)',opacity:.55,bottom:-50,left:-40}}/>
-      <div aria-hidden style={{position:'absolute',width:200,height:200,borderRadius:'50%',background:'#bdf7dd',filter:'blur(70px)',opacity:.5,top:'42%',left:'28%'}}/>
+      <div aria-hidden className="login-blob-a" style={{position:'absolute',width:280,height:280,borderRadius:'50%',filter:'blur(70px)',opacity:.5,top:-70,right:-60}}/>
+      <div aria-hidden className="login-blob-b" style={{position:'absolute',width:240,height:240,borderRadius:'50%',filter:'blur(70px)',opacity:.5,bottom:-50,left:-40}}/>
+      <div aria-hidden className="login-blob-c" style={{position:'absolute',width:200,height:200,borderRadius:'50%',filter:'blur(70px)',opacity:.45,top:'42%',left:'28%'}}/>
 
       <div style={{position:'relative',zIndex:1,width:'100%',maxWidth:380,animation:'slideUp .35s ease-out'}}>
-        <div style={{
-          background:'rgba(255,255,255,.55)',border:'1px solid rgba(255,255,255,.8)',
-          backdropFilter:'blur(18px) saturate(160%)',WebkitBackdropFilter:'blur(18px) saturate(160%)',
-          borderRadius:24,padding:'36px 30px 28px',textAlign:'center',
-          boxShadow:'0 20px 50px rgba(31,41,88,.18)'
-        }}>
-          <div style={{width:76,height:76,borderRadius:18,margin:'0 auto 16px',overflow:'hidden',boxShadow:'0 8px 22px rgba(31,41,88,.2)',background:'#0a1420'}}>
+        <div className="glass" style={{borderRadius:'var(--radius-xl)',padding:'36px 30px 28px',textAlign:'center',boxShadow:'0 20px 50px var(--shadow2)'}}>
+          <div style={{width:76,height:76,borderRadius:18,margin:'0 auto 16px',overflow:'hidden',boxShadow:'0 8px 22px var(--shadow2)',background:'#0a1420'}}>
             <img src="logo.png" alt="Tadiran" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
           </div>
-          <div style={{fontWeight:800,fontSize:20,color:'#1e2a4a',marginBottom:6,lineHeight:1.4,whiteSpace:'pre-line'}}>{data.welcomeTitle||'ברוך הבא לקטלוג חלקי חילוף'}</div>
-          <div style={{fontSize:13.5,color:'#5c6688',marginBottom:28}}>{data.welcomeSub||'תחת המותג תדיראן'}</div>
+          <div style={{fontWeight:800,fontSize:20,color:'var(--text)',marginBottom:6,lineHeight:1.4,whiteSpace:'pre-line'}}>{data.welcomeTitle||'ברוך הבא לקטלוג חלקי חילוף'}</div>
+          <div style={{fontSize:13.5,color:'var(--sub)',marginBottom:28}}>{data.welcomeSub||'תחת המותג תדיראן'}</div>
 
           <input type="password" value={pwd} onChange={e=>{setPwd(e.target.value);setErr('');}} onKeyDown={e=>e.key==='Enter'&&submit()} placeholder="הזן סיסמת כניסה" autoFocus
-            style={{width:'100%',padding:'13px 16px',borderRadius:12,border:`1.5px solid ${err?'#e0455a':'rgba(120,140,200,.4)'}`,fontSize:15,textAlign:'center',marginBottom:err?8:16,outline:'none',boxSizing:'border-box',background:'rgba(255,255,255,.7)',color:'#1e2a4a'}}/>
-          {err&&<div style={{color:'#c0242c',fontSize:12.5,marginBottom:14,fontWeight:700}}>⚠ {err}</div>}
-          <button onClick={submit} style={{width:'100%',padding:'13px',fontSize:15.5,marginBottom:22,borderRadius:12,border:'none',background:'#3b6fd6',color:'#fff',fontWeight:800,cursor:'pointer'}}>
+            style={{width:'100%',padding:'13px 16px',borderRadius:12,border:`1.5px solid ${err?'var(--red)':'var(--border2)'}`,fontSize:15,textAlign:'center',marginBottom:err?8:16,outline:'none',boxSizing:'border-box',background:'var(--ibg)',color:'var(--inp)'}}/>
+          {err&&<div style={{color:'var(--red)',fontSize:12.5,marginBottom:14,fontWeight:700}}>⚠ {err}</div>}
+          <button onClick={submit} style={{width:'100%',padding:'13px',fontSize:15.5,marginBottom:22,borderRadius:12,border:'none',background:'var(--primary)',color:'#fff',fontWeight:800,cursor:'pointer',boxShadow:'0 8px 20px var(--cyan-glow)'}}>
             כניסה למערכת ←
           </button>
 
-          <div style={{background:'rgba(255,255,255,.5)',border:'1px solid rgba(255,255,255,.7)',borderRadius:12,padding:'12px 14px',fontSize:12,color:'#7a5a1e',textAlign:'right',lineHeight:1.7,fontWeight:500}}>
+          <div style={{background:'var(--orange-bg)',border:'1px solid var(--orange)',borderRadius:12,padding:'12px 14px',fontSize:12,color:'var(--orange)',textAlign:'right',lineHeight:1.7,fontWeight:500}}>
             ⚠️ {data.disclaimer||'מערכת זו מיועדת לשימוש עובדי תדיראן בלבד.'}
           </div>
         </div>
-        <div style={{textAlign:'center',color:'#5c6688',fontSize:11.5,marginTop:16,fontWeight:500}}>Tadiran VRF · Professional Spare Parts Catalog</div>
+        <div style={{textAlign:'center',color:'var(--sub)',fontSize:11.5,marginTop:16,fontWeight:500}}>Tadiran VRF · Professional Spare Parts Catalog</div>
       </div>
     </div>
   );
@@ -151,43 +147,47 @@ function HomeScreen({data,onNav,recent,favorites,onToggleFav,loginRole,reports,t
     <div className="tc-container" style={{paddingBottom:44}}>
 
       {/* ── HERO ── */}
-      <div style={{textAlign:'center',padding:'34px 12px 30px'}}>
-        <div className="tc-page-title" style={{fontSize:26,marginBottom:6}}>קטלוג חלקי חילוף VRF</div>
-        <div className="tc-body" style={{marginBottom:22,color:'var(--sub)'}}>חיפוש חלקי חילוף לפי מק"ט, דגם או שם חלק</div>
+      <div style={{position:'relative',textAlign:'center',padding:'34px 12px 30px',overflow:'hidden'}}>
+        <AirParticles/>
+        <div style={{position:'relative',zIndex:1}}>
+          <div className="tc-page-title" style={{fontSize:26,marginBottom:6}}>קטלוג חלקי חילוף VRF</div>
+          <div className="tc-body" style={{marginBottom:22,color:'var(--sub)'}}>חיפוש חלקי חילוף לפי מק"ט, דגם או שם חלק</div>
 
-        <div className="hero-search-wrap">
-          <input value={query} onChange={e=>setQuery(e.target.value)}
-            placeholder="🔍 חיפוש לפי מק&quot;ט, דגם או שם חלק..."
-            className="hero-search"/>
-          {query&&<button onClick={()=>setQuery('')} style={{position:'absolute',left:16,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'var(--sub)',fontSize:18}}>✕</button>}
-          {query&&<SearchResultsPanel results={results} query={query} onClose={()=>setQuery('')} onSelect={r=>onNav(r.b.id,r.c.id,r.m.id,query)}/>}
+          <div className="hero-search-wrap">
+            <input value={query} onChange={e=>setQuery(e.target.value)}
+              placeholder="🔍 חיפוש לפי מק&quot;ט, דגם או שם חלק..."
+              className="hero-search"/>
+            {query&&<button onClick={()=>setQuery('')} style={{position:'absolute',left:16,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'var(--sub)',fontSize:18}}>✕</button>}
+            {query&&<SearchResultsPanel results={results} query={query} onClose={()=>setQuery('')} onSelect={r=>onNav(r.b.id,r.c.id,r.m.id,query)}/>}
+          </div>
+
+          <div style={{marginTop:18,fontSize:12.5,color:'var(--sub)'}}>{greeting}</div>
         </div>
-
-        <div style={{marginTop:18,fontSize:12.5,color:'var(--sub)'}}>{greeting}</div>
       </div>
 
-      {/* ── BRAND CARDS ── */}
-      <div style={{marginBottom:30}}>
+      {/* ── BRAND BENTO GRID ── */}
+      <Reveal style={{marginBottom:30}}>
         <div className="tc-sub-title" style={{textAlign:'center',marginBottom:14}}>או בחר מותג</div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:12,maxWidth:720,margin:'0 auto'}}>
-          {visBrands.map(b=>{
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:14,maxWidth:760,margin:'0 auto'}}>
+          {visBrands.map((b,bi)=>{
             const st=brandStats(b);
             return(
-              <div key={b.id} className="brand-card" onClick={()=>(onOpenBrand?onOpenBrand(b.id):onOpenSidebar())} style={{borderTop:`3px solid ${b.color}`}}>
-                <div style={{width:44,height:44,borderRadius:11,background:b.light||(b.color+'18'),display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,fontWeight:800,color:b.color}}>
+              <TiltCard key={b.id} onClick={()=>(onOpenBrand?onOpenBrand(b.id):onOpenSidebar())}
+                style={{gridColumn:bi===0&&visBrands.length>1?'span 2':undefined,background:'var(--card)',border:'1px solid var(--border)',borderTop:`3px solid ${b.color}`,padding:'22px 18px',display:'flex',flexDirection:'column',alignItems:'center',gap:9,textAlign:'center',boxShadow:'0 2px 10px var(--shadow)'}}>
+                <div style={{position:'relative',zIndex:2,width:46,height:46,borderRadius:12,background:b.light||(b.color+'18'),display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,fontWeight:800,color:b.color}}>
                   {b.name.slice(0,2)}
                 </div>
-                <div style={{fontWeight:800,fontSize:14,color:'var(--text)'}}>{b.name}</div>
-                <div className="tc-meta">{st.models} דגמים · {st.parts.toLocaleString()} חלקים</div>
-              </div>
+                <div style={{position:'relative',zIndex:2,fontWeight:800,fontSize:15,color:'var(--text)'}}>{b.name}</div>
+                <div className="tc-meta" style={{position:'relative',zIndex:2}}>{st.models} דגמים · {st.parts.toLocaleString()} חלקים</div>
+              </TiltCard>
             );
           })}
         </div>
-      </div>
+      </Reveal>
 
       {/* Favorites */}
       {favModels.length>0&&(
-        <div style={{marginBottom:22}}>
+        <Reveal style={{marginBottom:22}}>
           <div className="tc-sub-title" style={{marginBottom:10}}>⭐ מועדפים</div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:10}}>
             {favModels.map(({b,c,m})=>(
@@ -202,12 +202,12 @@ function HomeScreen({data,onNav,recent,favorites,onToggleFav,loginRole,reports,t
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
       )}
 
       {/* Recently viewed */}
       {recentModels.length>0&&(
-        <div style={{marginBottom:22}}>
+        <Reveal style={{marginBottom:22}}>
           <div className="tc-sub-title" style={{marginBottom:10}}>🕐 נצפו לאחרונה</div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:10}}>
             {recentModels.map(({b,c,m,ts})=>(
@@ -220,17 +220,17 @@ function HomeScreen({data,onNav,recent,favorites,onToggleFav,loginRole,reports,t
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
       )}
 
       {/* Quick stats strip */}
-      <div style={{display:'flex',gap:10,marginBottom:22,flexWrap:'wrap',justifyContent:'center'}}>
+      <Reveal style={{display:'flex',gap:10,marginBottom:22,flexWrap:'wrap',justifyContent:'center'}}>
         {[['❄️','דגמים',total],['🔩','חלקים',totalParts.toLocaleString()],['🏷️','מותגים',data.brands.length]].map(([ic,lb,v])=>(
           <div key={lb} style={{display:'flex',alignItems:'center',gap:7,color:'var(--sub)',fontSize:12.5}}>
             <span>{ic}</span><strong style={{color:'var(--text)'}}>{v}</strong><span>{lb}</span>
           </div>
         ))}
-      </div>
+      </Reveal>
 
       <TechRequestBox loginRole={loginRole}/>
       <TechSiteLink/>
