@@ -31,7 +31,11 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
     if(!v) return;
     (navigator.clipboard?.writeText(v)||Promise.reject()).then(()=>{setCopiedId(key);setTimeout(()=>setCopiedId(c=>c===key?null:c),1400);}).catch(()=>alert('מק"ט: '+v));
   };
-  const isPnCol = cid => cid==='tadPn'||cid==='mfgPn';
+  // A column's internal id can drift from what it's actually labeled (older
+  // models / imports sometimes reused ids), so match by the column's real
+  // displayed name first — that's what the person actually sees — and keep
+  // the id check only as a fallback for columns that still use the default ids.
+  const isPnCol = col => /מק["״׳]?ט/.test(col.name||'') || col.id==='tadPn' || col.id==='mfgPn';
 
   useEffect(() => { setSynIn(model.synonyms?.join(', ')||''); setNameInput(model.name); setEditingName(false); }, [model.id]);
   useEffect(() => {
@@ -176,7 +180,7 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
                   ⛔ הופסק לייצור
                 </div>
               )}
-              {dc.map(col => {const v=(p.values[col.id]||'').trim();if(!v)return null;const pn=isPnCol(col.id);const ckey=p.id+'__'+col.id;return(
+              {dc.map(col => {const v=(p.values[col.id]||'').trim();if(!v)return null;const pn=isPnCol(col);const ckey=p.id+'__'+col.id;return(
                 <div key={col.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4,fontSize:13.5}}>
                   <span style={{color:'var(--sub)',marginLeft:10}}>{col.name}:</span>
                   <span style={{display:'flex',alignItems:'center',gap:6}}>
@@ -421,7 +425,7 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
 
                     {visibleCols.map(col => {
                       const v = p.values[col.id]||'';
-                      const pn = isPnCol(col.id);
+                      const pn = isPnCol(col);
                       const ckey = p.id+'__'+col.id;
                       return (
                         <td key={col.id} style={{padding:'7px 10px',borderBottom:'1px solid var(--border)',background:cellHi(v)?'var(--hi)':undefined}}>

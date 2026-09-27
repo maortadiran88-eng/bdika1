@@ -350,7 +350,7 @@ function SidebarBrand({brand,sel,editor,admin,canSeeHidden,favorites,onToggleFav
           if(sidebarFilter&&!visibleModels.length&&!visibleSubs.length)return null;
           return(
             <div key={c.id}>
-              <div style={{display:'flex',alignItems:'center',background:'var(--row2)',borderBottom:'1px solid var(--border)',minHeight:36}}>
+              <div style={{display:'flex',alignItems:'center',background:'rgba(127,140,165,.14)',borderBottom:'1px solid var(--border)',minHeight:36}}>
                 {editCat?.id===c.id&&admin
                   ?<div style={{flex:1,display:'flex',gap:4,padding:'4px 8px'}}>
                      <input value={editCat.name} autoFocus onChange={e=>setEditCat({id:c.id,name:e.target.value})}
