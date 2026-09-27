@@ -158,8 +158,7 @@ function HomeScreen({data,onNav,recent,favorites,onToggleFav,loginRole,reports,t
     <div className="tc-container" style={{paddingBottom:44}}>
 
       {/* ── HERO ── */}
-      <div style={{position:'relative',textAlign:'center',padding:'34px 12px 30px',overflow:'hidden'}}>
-        <AirParticles/>
+      <div style={{position:'relative',textAlign:'center',padding:'34px 12px 30px'}}>
         <div style={{position:'relative',zIndex:1}}>
           <div className="tc-page-title" style={{fontSize:26,marginBottom:6}}>קטלוג חלקי חילוף VRF</div>
           <div className="tc-body" style={{marginBottom:22,color:'var(--sub)'}}>חיפוש חלקי חילוף לפי מק"ט, דגם או שם חלק</div>

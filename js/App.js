@@ -365,10 +365,16 @@ function App() {
   };
 
   if (!loaded) return(
-    <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',flexDirection:'column',gap:16,background:'#0f172a'}}>
-      <div style={{fontSize:52}}>🔧</div>
-      <div style={{fontSize:17,color:'#94a3b8'}}>טוען...</div>
-      <div style={{width:40,height:40,border:'4px solid #334155',borderTop:'4px solid #1565c0',borderRadius:'50%',animation:'spin .9s linear infinite'}}/>
+    <div className="login-bg" style={{position:'fixed',inset:0,overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',direction:'rtl'}}>
+      <div aria-hidden className="login-blob-a" style={{position:'absolute',width:280,height:280,borderRadius:'50%',filter:'blur(70px)',opacity:.5,top:-70,right:-60}}/>
+      <div aria-hidden className="login-blob-b" style={{position:'absolute',width:240,height:240,borderRadius:'50%',filter:'blur(70px)',opacity:.5,bottom:-50,left:-40}}/>
+      <div aria-hidden className="login-blob-c" style={{position:'absolute',width:200,height:200,borderRadius:'50%',filter:'blur(70px)',opacity:.45,top:'42%',left:'28%'}}/>
+      <div style={{position:'relative',zIndex:1,textAlign:'center',animation:'fadeIn .4s ease-out'}}>
+        <div style={{fontWeight:900,fontSize:24,letterSpacing:2,color:'var(--text)',marginBottom:2}}>TADI<span style={{color:'var(--primary)'}}>RAN</span></div>
+        <div style={{fontSize:10,letterSpacing:3,color:'var(--sub)',fontWeight:700,marginBottom:26}}>P A R T S &nbsp; C A T A L O G</div>
+        <div style={{width:34,height:34,margin:'0 auto',border:'3px solid var(--border2)',borderTop:'3px solid var(--cyan)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
+        <div style={{fontSize:12.5,color:'var(--sub)',marginTop:16,fontWeight:600}}>טוען...</div>
+      </div>
     </div>
   );
 
@@ -387,7 +393,9 @@ function App() {
   };
 
   return(
-    <div dir="rtl" style={{fontFamily:"'Rubik','Segoe UI',Arial,sans-serif",minHeight:'100vh',background:'var(--bg)',display:'flex',flexDirection:'column',fontSize:14,color:'var(--text)',animation:'fadeIn .6s ease-out'}}>
+    <div dir="rtl" style={{fontFamily:"'Rubik','Segoe UI',Arial,sans-serif",position:'relative',minHeight:'100vh',background:'var(--bg)',fontSize:14,color:'var(--text)'}}>
+      <AirParticles/>
+      <div style={{position:'relative',zIndex:1,display:'flex',flexDirection:'column',minHeight:'100vh',animation:'fadeIn .6s ease-out'}}>
 
       {/* Broadcast */}
       {broadcast && <BroadcastBanner msg={broadcast} onDismiss={()=>setBroadcast(null)}/>}
@@ -500,7 +508,7 @@ function App() {
       <div style={{display:'flex',flex:1,overflow:'hidden',height:'calc(100vh - 56px)'}}>
 
         {/* SIDEBAR */}
-        <aside style={{width:sidebar?265:0,flexShrink:0,overflow:'hidden',transition:'width .25s',background:'var(--sidebar)',borderLeft:'1px solid var(--border)'}}>
+        <aside style={{width:sidebar?265:0,flexShrink:0,overflow:'hidden',transition:'width .25s',background:'var(--glass-bg)',backdropFilter:'blur(16px) saturate(160%)',WebkitBackdropFilter:'blur(16px) saturate(160%)',borderLeft:'1px solid var(--border)'}}>
           <div style={{width:265,overflowY:'auto',height:'100%',display:'flex',flexDirection:'column'}}>
             <div style={{padding:'8px 10px',borderBottom:'1px solid var(--border)',flexShrink:0}}>
               <div style={{position:'relative'}}>
@@ -714,6 +722,7 @@ function App() {
       {showXls  &&<XlsImportModal data={data} onImport={importFromXls} onClose={()=>setShowXls(false)}/>}
       {showBulkMove&&<BulkMoveModal data={data} onMove={bulkMoveModels} onClose={()=>setShowBulkMove(false)}/>}
       {showBulkDel &&<BulkDeleteModal data={data} onDelete={bulkDeleteModels} onClose={()=>setShowBulkDel(false)}/>}
+      </div>
     </div>
   );
 }
