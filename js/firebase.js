@@ -21,7 +21,7 @@ async function fbLoad() {
   allD.forEach(doc => { if (doc.exists) pm[doc.id] = doc.data(); });
   d.brands.forEach(b => b.categories.forEach(c => c.models.forEach(m => {
     const pd = pm[m.id]||{};
-    m.parts    = (pd.parts||[]).map(p=>({discontinued:false,tags:'',pinned:false,comments:[],...p}));
+    m.parts    = (pd.parts||[]).map(p=>({discontinued:false,tags:'',pinned:false,comments:[],hidden:false,...p}));
     m.images   = pd.images   || [];
     m.columns  = pd.columns  || DCOLS();
     m.synonyms = pd.synonyms || [];

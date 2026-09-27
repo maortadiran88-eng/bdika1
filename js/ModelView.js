@@ -23,6 +23,7 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
   const [nameInput,   setNameInput]   = useState(model.name);
   const [reviewMode,  setReviewMode]  = useState(false);
   const [pendingOnly, setPendingOnly] = useState(false);
+  const [showHiddenParts, setShowHiddenParts] = useState(false);
   const firstHiRef = useRef(null);
   const q      = hq.trim().toLowerCase();
   const images = model.images || [];
@@ -51,7 +52,14 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
       : model.columns.filter(col => model.parts.some(p => (p.values[col.id]||'').trim()!=='')),
   [model.columns, model.parts, editor]);
 
-  let filtered = [...model.parts.filter(p=>p.pinned), ...model.parts.filter(p=>!p.pinned)];
+  // Parts hidden from customers: viewers never see them; editors (non-admin)
+  // keep seeing everything exactly as before (unaffected); admins see the
+  // normal filtered view by default and can reveal them via the toolbar toggle.
+  const partsBase = (viewer || (admin && !showHiddenParts)) ? model.parts.filter(p=>!p.hidden) : model.parts;
+  const hiddenCount = model.parts.filter(p=>p.hidden).length;
+  const shownCount  = model.parts.length - hiddenCount;
+
+  let filtered = [...partsBase.filter(p=>p.pinned), ...partsBase.filter(p=>!p.pinned)];
   if (filter.trim()) filtered = filtered.filter(p => partMatches(filter,p,model.columns));
   if (sortCol) {
     filtered = [...filtered].sort((a,b) => {
@@ -180,6 +188,9 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
                   ⛔ הופסק לייצור
                 </div>
               )}
+              {p.hidden && (
+                <div className="badge-hidden" style={{marginBottom:7}}>🙈 מוסתר מלקוחות</div>
+              )}
               {dc.map(col => {const v=(p.values[col.id]||'').trim();if(!v)return null;const pn=isPnCol(col);const ckey=p.id+'__'+col.id;return(
                 <div key={col.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4,fontSize:13.5}}>
                   <span style={{color:'var(--sub)',marginLeft:10}}>{col.name}:</span>
@@ -231,7 +242,7 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
               </span>
           }
           <button onClick={()=>onToggleFav(model.id)} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',marginRight:'auto'}}>{favorites.has(model.id)?'⭐':'☆'}</button>
-          <span className="tc-meta">{model.parts.length.toLocaleString()} חלקים</span>
+          <span className="tc-meta">{partsBase.length.toLocaleString()} חלקים</span>
         </div>
         {model.hidden && (
           <div style={{background:'var(--orange-bg)',color:'var(--orange)',borderRadius:8,padding:'6px 12px',fontSize:12,fontWeight:700,marginBottom:8,display:'inline-block'}}>
@@ -248,24 +259,65 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
                <button onClick={saveSyn} className="btn btn-sm" style={{background:'var(--green)',color:'#fff'}}>✓</button>
                <button onClick={()=>setEditSyn(false)} className="btn btn-sm btn-secondary">✕</button></>}
         </div>
-        {/* Actions toolbar — one coherent group instead of scattered colors */}
-        <div style={{display:'flex',gap:7,flexWrap:'wrap',borderTop:'1px solid var(--border)',paddingTop:12}}>
-          <button onClick={exportPDF}               className="btn btn-sm btn-secondary">📄 PDF</button>
-          <button onClick={exportModelXLS}          className="btn btn-sm btn-secondary">📊 Excel</button>
-          <button onClick={shareLink}               className="btn btn-sm btn-secondary">↗ שיתוף</button>
-          <button onClick={()=>setQuickMode(true)}  className="btn btn-sm btn-secondary">📱 תצוגת נייד</button>
-          {admin && <button onClick={()=>setReviewMode(true)} className="btn btn-sm btn-secondary">✅ בדיקת מק"טים</button>}
-          <button onClick={()=>setShowReport(true)} className="btn btn-sm btn-secondary" style={{color:'var(--orange)'}}>⚠️ דווח שגיאה</button>
-          {editor && <>
-            <button onClick={()=>setShowMove(true)} className="btn btn-sm btn-secondary">🔀 העבר</button>
-            <button onClick={()=>{if(confirm('לשכפל?'))onDuplicate();}} className="btn btn-sm btn-secondary">⧉ שכפל</button>
-            <button onClick={()=>setShowCopy(true)} className="btn btn-sm btn-secondary">📋 העתק חלקים</button>
-            <button onClick={()=>onUpdate({hidden:!model.hidden})} className="btn btn-sm btn-secondary" title="הסתר/הצג דגם מצופים">
-              {model.hidden?'👁 הצג לצופים':'🙈 הסתר מצופים'}
+        {/* Actions toolbar — grouped, glass panel matching the home screen's design language */}
+        <div className="toolbar-panel" style={{marginTop:12}}>
+          <div className="tool-group">
+            <button onClick={exportPDF} className="tool-btn tt" data-tt="הורד קובץ PDF עם רשימת החלקים">
+              <span className="ic">📄</span><span className="lbl">PDF</span>
             </button>
+            <button onClick={exportModelXLS} className="tool-btn tt" data-tt="הורד קובץ Excel עם רשימת החלקים">
+              <span className="ic">📊</span><span className="lbl">Excel</span>
+            </button>
+            <button onClick={shareLink} className="tool-btn tt" data-tt="העתק קישור לשיתוף הדגם">
+              <span className="ic">↗</span><span className="lbl">שיתוף</span>
+            </button>
+            <button onClick={()=>setQuickMode(true)} className="tool-btn tt" data-tt="עבור לתצוגה נוחה לנייד">
+              <span className="ic">📱</span><span className="lbl">תצוגת נייד</span>
+            </button>
+            <button onClick={()=>setShowReport(true)} className="tool-btn warn tt" data-tt="דווח על טעות או אי-התאמה בדגם זה">
+              <span className="ic">⚠️</span><span className="lbl">דווח שגיאה</span>
+            </button>
+          </div>
+
+          {editor && <>
+            <div className="tool-group" style={{marginTop:8,paddingTop:8,borderTop:'1px solid var(--border)'}}>
+              <span className="tool-group-label">ניהול</span>
+              <button onClick={()=>setShowMove(true)} className="tool-btn tt" data-tt="העבר את הדגם למותג/קטגוריה אחרים">
+                <span className="ic">🔀</span><span className="lbl">העבר</span>
+              </button>
+              <button onClick={()=>{if(confirm('לשכפל?'))onDuplicate();}} className="tool-btn tt" data-tt="צור עותק זהה של הדגם">
+                <span className="ic">⧉</span><span className="lbl">שכפל</span>
+              </button>
+              <button onClick={()=>setShowCopy(true)} className="tool-btn tt" data-tt="העתק חלקים מדגם אחר לתוך זה">
+                <span className="ic">📋</span><span className="lbl">העתק חלקים</span>
+              </button>
+              <button onClick={()=>onUpdate({hidden:!model.hidden})}
+                className={'tool-btn tt'+(model.hidden?' active':'')}
+                data-tt={model.hidden?'הדגם מוסתר מצופים — לחץ כדי להציג':'הצג את הדגם לצופים'}>
+                <span className="ic">{model.hidden?'🙈':'👁'}</span><span className="lbl">{model.hidden?'מוסתר מצופים':'הסתר מצופים'}</span>
+              </button>
+              {admin && <>
+                <button onClick={()=>setReviewMode(true)} className="tool-btn tt" data-tt="עבור על כל החלקים ואשר את המק&quot;טים">
+                  <span className="ic">✅</span><span className="lbl">בדיקת מק"טים</span>
+                </button>
+                <button onClick={()=>setShowHiddenParts(v=>!v)}
+                  className={'tool-btn tt'+(showHiddenParts?' active':'')}
+                  data-tt={showHiddenParts?'הסתר חלקים מוסתרים':'הצג חלקים מוסתרים מלקוחות (תצוגת ניהול בלבד — לא משנה למי שהם מוסתרים)'}>
+                  <span className="ic">{showHiddenParts?'🙈':'👁'}</span><span className="lbl">{showHiddenParts?'מציג חלקים מוסתרים':'הצג חלקים מוסתרים'}</span>
+                </button>
+                {hiddenCount>0 && (
+                  <span className="tc-meta" style={{padding:'0 4px'}}>
+                    {showHiddenParts
+                      ? <>מוצגים {model.parts.length.toLocaleString()} (כולל {hiddenCount} מוסתרים)</>
+                      : <>מוצגים {shownCount.toLocaleString()} · מוסתרים {hiddenCount.toLocaleString()}</>}
+                  </span>
+                )}
+              </>}
+            </div>
           </>}
         </div>
       </div>
+
 
       {/* Notes */}
       {(editor||model.notes) && (
@@ -342,9 +394,9 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
             <button onClick={()=>setShowPaste(v=>!v)} className="btn btn-sm btn-secondary">📋 הדבק</button>
           </>}
           <span className="tc-meta" style={{marginRight:'auto'}}>
-            {filtered.length===model.parts.length
+            {filtered.length===partsBase.length
               ? <>{filtered.length.toLocaleString()} חלקים</>
-              : <>מציג {filtered.length.toLocaleString()} מתוך {model.parts.length.toLocaleString()} חלקים</>}
+              : <>מציג {filtered.length.toLocaleString()} מתוך {partsBase.length.toLocaleString()} חלקים</>}
             {sortCol?' · מוין':''}
           </span>
         </div>
@@ -433,6 +485,9 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
                           {col.id===visibleCols[0]?.id && p.discontinued && (
                             <span style={{display:'inline-block',background:'var(--red)',color:'#fff',borderRadius:4,padding:'1px 6px',fontSize:10,fontWeight:'bold',marginLeft:6,verticalAlign:'middle'}}>⛔ הופסק</span>
                           )}
+                          {col.id===visibleCols[0]?.id && p.hidden && (
+                            <span className="badge-hidden" style={{marginLeft:6,verticalAlign:'middle'}}>🙈 מוסתר מלקוחות</span>
+                          )}
                           {p.pinned && !p.discontinued && col.id===visibleCols[0]?.id && (
                             <span style={{fontSize:9,color:'var(--orange)',marginLeft:4}}>📌</span>
                           )}
@@ -470,14 +525,19 @@ function ModelView({brand,cat,model,editor,admin,viewer,hq,data,favorites,onTogg
                               style={{background:'none',border:'none',cursor:i===filtered.length-1?'default':'pointer',color:i===filtered.length-1?'var(--border2)':'var(--sub)',fontSize:10,padding:0,lineHeight:1}}>▼</button>
                           </div>
                         )}
-                        <button onClick={()=>onAddToCart(brand.id,cat.id,model.id,p.id)} title="הוסף לסל" style={{background:'none',border:'none',cursor:'pointer',fontSize:13}}>🛒</button>
+                        <button onClick={()=>onAddToCart(brand.id,cat.id,model.id,p.id)} className="icon-btn tt" data-tt="הוסף לסל">🛒</button>
                         {editor && <>
                           <button onClick={()=>onUpdate({parts:model.parts.map(pp=>pp.id!==p.id?pp:{...pp,pinned:!pp.pinned})})}
-                            title={p.pinned?'הסר סימון':'סמן כנפוץ'} style={{background:'none',border:'none',cursor:'pointer',fontSize:12}}>{p.pinned?'📌':'☆'}</button>
+                            className={'icon-btn tt'+(p.pinned?' active':'')} data-tt={p.pinned?'הסר סימון "נפוץ"':'סמן כחלק נפוץ'}>{p.pinned?'📌':'☆'}</button>
                           <button onClick={()=>onUpdate({parts:model.parts.map(pp=>pp.id!==p.id?pp:{...pp,discontinued:!pp.discontinued})})}
-                            title={p.discontinued?'החזר לפעיל':'סמן כהופסק'} style={{background:'none',border:'none',cursor:'pointer',fontSize:12}}>{p.discontinued?'✅':'⛔'}</button>
+                            className="icon-btn tt" data-tt={p.discontinued?'החזר לפעיל':'סמן כהופסק לייצור'}>{p.discontinued?'✅':'⛔'}</button>
                         </>}
-                        {(admin||editor) && <button onClick={()=>onDelPart(p.id)} style={{background:'none',border:'none',color:'var(--red)',cursor:'pointer',fontSize:13}}>🗑</button>}
+                        {admin && (
+                          <button onClick={()=>onUpdate({parts:model.parts.map(pp=>pp.id!==p.id?pp:{...pp,hidden:!pp.hidden})})}
+                            className={'icon-btn tt'+(p.hidden?' active':'')}
+                            data-tt={p.hidden?'החלק מוסתר מלקוחות — לחץ כדי להציג':'הסתר חלק זה מלקוחות'}>{p.hidden?'🙈':'👁'}</button>
+                        )}
+                        {(admin||editor) && <button onClick={()=>onDelPart(p.id)} className="icon-btn tt danger" data-tt="מחק חלק">🗑</button>}
                       </div>
                     </td>
                   </tr>

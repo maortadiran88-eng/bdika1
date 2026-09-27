@@ -245,6 +245,75 @@ table{border-collapse:separate;border-spacing:0}
 .login-blob-b{background:#ffc6e8}.dark .login-blob-b{background:#3b6fd6}
 .login-blob-c{background:#bdf7dd}.dark .login-blob-c{background:#7c5cff}
 
+/* ─── Management toolbar — same design language as the home screen ─── */
+.toolbar-panel{
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
+  border-radius:var(--radius-lg);padding:10px;box-shadow:0 4px 20px var(--shadow);
+}
+.tool-group{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.tool-sep{width:1px;align-self:stretch;background:var(--border2);margin:2px 6px;flex-shrink:0}
+.tool-group-label{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;width:100%;margin-bottom:2px}
+
+.tool-btn{
+  position:relative;display:inline-flex;align-items:center;gap:7px;
+  padding:8px 12px;border-radius:12px;border:1px solid transparent;background:transparent;
+  color:var(--text2);font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+  transition:background .18s ease,color .18s ease,transform .12s ease,box-shadow .18s ease,border-color .18s ease;
+  white-space:nowrap;
+}
+.tool-btn .ic{font-size:15px;line-height:1;transition:transform .18s ease;display:inline-block}
+.tool-btn:hover{background:var(--card2);color:var(--text)}
+.tool-btn:hover .ic{transform:scale(1.15)}
+.tool-btn:active{transform:scale(.94)}
+.tool-btn.active{background:var(--primary);color:#fff;box-shadow:0 4px 14px var(--cyan-glow);border-color:transparent}
+.tool-btn.active:hover{background:var(--primary-dark);color:#fff}
+.tool-btn.warn{color:var(--orange)}
+.tool-btn.warn:hover{background:var(--orange-bg)}
+.tool-btn.danger{color:var(--red)}
+.tool-btn.danger:hover{background:var(--red-bg)}
+.tool-btn:disabled{opacity:.4;cursor:default}
+.tool-btn:disabled:hover{background:transparent;color:var(--text2)}
+
+/* Icon-only round button (row-level actions) */
+.icon-btn{
+  display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;
+  border:1px solid transparent;background:transparent;color:var(--sub);cursor:pointer;font-size:14px;
+  transition:background .15s ease,color .15s ease,transform .12s ease;
+}
+.icon-btn:hover{background:var(--card2);color:var(--text);transform:scale(1.08)}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn.active{background:var(--orange-bg);color:var(--orange)}
+
+/* Tooltip — lightweight, CSS-only, fast */
+.tt{position:relative}
+.tt::after{
+  content:attr(data-tt);position:absolute;bottom:calc(100% + 9px);left:50%;
+  transform:translateX(-50%) translateY(4px);
+  background:var(--text);color:var(--card);font-size:11px;font-weight:600;padding:6px 11px;border-radius:8px;
+  white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s ease,transform .15s ease;z-index:60;
+  box-shadow:0 6px 16px var(--shadow2);
+}
+.tt::before{
+  content:'';position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--text);opacity:0;transition:opacity .15s ease;pointer-events:none;z-index:60;
+}
+.tt:hover::after,.tt:hover::before{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Hidden-from-customers badge */
+.badge-hidden{
+  display:inline-flex;align-items:center;gap:4px;background:var(--orange-bg);color:var(--orange);
+  border:1px solid var(--orange);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;
+}
+
+@keyframes tapPop{0%{transform:scale(1)}45%{transform:scale(.9)}100%{transform:scale(1)}}
+
+@media(max-width:640px){
+  .tool-btn .lbl{display:none}
+  .tool-btn{padding:9px;border-radius:11px}
+  .tool-group-label{font-size:9px}
+}
+
 /* Empty / loading states ───────────────── */
 .empty-state{text-align:center;padding:48px 20px;color:var(--sub)}
 .empty-state .icon{font-size:38px;margin-bottom:10px;opacity:.7}
