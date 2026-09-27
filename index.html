@@ -168,10 +168,35 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary)
   display:inline-flex;align-items:center;justify-content:center;gap:5px;
   background:rgba(255,255,255,.14);color:#fff;border:none;border-radius:9px;
   padding:8px 11px;cursor:pointer;font-size:14px;transition:background .15s,transform .08s;
-  flex-shrink:0;
+  flex-shrink:0;position:relative;
 }
 .hdr-btn:hover{background:rgba(255,255,255,.24)}
 .hdr-btn:active{transform:scale(.94)}
+.hdr-btn.on{background:#fff;color:var(--primary)}
+
+/* Header tooltip variant — bubble drops downward from a sticky top bar */
+.tt-hdr::after{bottom:auto;top:calc(100% + 9px);transform:translateX(-50%) translateY(-4px)}
+.tt-hdr::before{bottom:auto;top:calc(100% + 4px);border-top-color:transparent;border-bottom-color:var(--text);transform:translateX(-50%) translateY(-4px)}
+.tt-hdr:hover::after,.tt-hdr:hover::before{transform:translateX(-50%) translateY(0)}
+
+/* Dropdown menu (e.g. admin tools) */
+.menu-wrap{position:relative}
+.menu-panel{
+  position:absolute;top:calc(100% + 10px);left:0;z-index:250;min-width:230px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);
+  box-shadow:0 16px 40px var(--shadow2);padding:6px;animation:popIn .16s ease-out;
+  max-height:70vh;overflow-y:auto;
+}
+.menu-item{
+  display:flex;align-items:center;gap:10px;width:100%;padding:9px 11px;border-radius:9px;
+  border:none;background:transparent;color:var(--text);font-family:inherit;font-size:13px;font-weight:600;
+  cursor:pointer;transition:background .15s ease;text-align:right;
+}
+.menu-item:hover{background:var(--card2)}
+.menu-item .ic{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.menu-item.danger{color:var(--red)}
+.menu-item.danger:hover{background:var(--red-bg)}
+.menu-divider{height:1px;background:var(--border);margin:5px 4px}
 
 /* ─── Badges ───────────────────────────────── */
 .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}

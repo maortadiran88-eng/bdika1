@@ -26,6 +26,7 @@ function App() {
   const [histData,       setHistData]       = useState([]);
   const [showHistory,    setShowHistory]    = useState(false);
   const [brandMgr,       setBrandMgr]       = useState(false);
+  const [adminMenu,      setAdminMenu]      = useState(false);
   const [chPwd,          setChPwd]          = useState(false);
   const [showXls,        setShowXls]        = useState(false);
   const [showBulkMove,   setShowBulkMove]   = useState(false);
@@ -403,12 +404,12 @@ function App() {
       {/* HEADER */}
       <header ref={headerRef} style={{background:hdrBg,color:'#fff',boxShadow:'0 3px 16px var(--shadow2), 0 1px 0 var(--cyan-glow)',position:'sticky',top:0,zIndex:200,transition:'background .3s'}}>
 
-        {/* Row 1 — all buttons compact */}
+        {/* Row 1 — grouped, tooltipped, same design language as the rest of the app */}
         <div style={{padding:'8px 10px',display:'flex',alignItems:'center',gap:5,flexWrap:'wrap'}}>
-          <button onClick={()=>setSidebar(v=>!v)} style={bB('rgba(255,255,255,.18)')}>☰</button>
-          <button onClick={goHome} style={bB('rgba(255,255,255,.18)')}>🏠</button>
-          {sel&&<button onClick={goBack} style={bB('rgba(255,255,255,.18)')}>◀</button>}
-          <button onClick={()=>{setLoginRole(null);setSel(null);setSidebar(false);}} style={{...bB('rgba(255,255,255,.18)'),display:'flex',alignItems:'center',gap:4}} title="התנתק">
+          <button onClick={()=>setSidebar(v=>!v)} className="hdr-btn tt tt-hdr" data-tt="פתח/סגור תפריט צד">☰</button>
+          <button onClick={goHome} className="hdr-btn tt tt-hdr" data-tt="מסך הבית">🏠</button>
+          {sel&&<button onClick={goBack} className="hdr-btn tt tt-hdr" data-tt="חזור אחורה">◀</button>}
+          <button onClick={()=>{setLoginRole(null);setSel(null);setSidebar(false);}} className="hdr-btn tt tt-hdr" data-tt="התנתק מהמערכת" style={{display:'flex',alignItems:'center',gap:4}}>
             <span style={{fontSize:10,lineHeight:1}}>⬤</span>
             <span>יציאה</span>
           </button>
@@ -423,49 +424,66 @@ function App() {
           {/* Spacer */}
           <div style={{flex:1}}/>
 
-          {/* Common buttons */}
-          <button onClick={()=>{setShowCompare(true);}} title="השוואת דגמים" style={{...bB('rgba(255,255,255,.18)'),position:'relative'}}>
+          {/* Common buttons — everyone */}
+          <button onClick={()=>{setShowCompare(true);}} className="hdr-btn tt tt-hdr" data-tt="השוואת דגמים" style={{position:'relative'}}>
             ⚖️{compareList.length>0&&<span style={{position:'absolute',top:-4,left:-4,background:'#ff6f00',color:'#fff',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold'}}>{compareList.length}</span>}
           </button>
-          <button onClick={()=>setShowCart(true)} style={{...bB('rgba(255,255,255,.18)'),position:'relative'}}>
+          <button onClick={()=>setShowCart(true)} className="hdr-btn tt tt-hdr" data-tt="סל חלקים" style={{position:'relative'}}>
             🛒{cart.length>0&&<span style={{position:'absolute',top:-4,left:-4,background:'#e53935',color:'#fff',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold'}}>{cart.length}</span>}
           </button>
-          <button onClick={()=>setShowHelp(true)} style={bB('rgba(255,255,255,.18)')}>❓</button>
+          <button onClick={()=>setShowHelp(true)} className="hdr-btn tt tt-hdr" data-tt="מדריך שימוש">❓</button>
 
           {/* Notifications — editor + admin */}
           {editor&&(
-            <button onClick={()=>openNotif()} style={{...bB('rgba(255,255,255,.18)'),position:'relative'}}>
+            <button onClick={()=>openNotif()} className="hdr-btn tt tt-hdr" data-tt="התראות" style={{position:'relative'}}>
               🔔{notifCount>0&&<span style={{position:'absolute',top:-4,left:-4,background:'#e53935',color:'#fff',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold'}}>{notifCount}</span>}
             </button>
           )}
 
-          {/* Makat review — admin only */}
+          {/* Makat review — admin only (frequent action, kept one click away) */}
           {admin&&(
-            <button onClick={()=>setShowMakatReview(true)} title="בדיקת מקטים" style={{...bB('rgba(255,255,255,.18)'),position:'relative'}}>
-              ✅
-            </button>
+            <button onClick={()=>setShowMakatReview(true)} className="hdr-btn tt tt-hdr" data-tt="בדיקת מק&quot;טים — סקירה כללית">✅</button>
           )}
 
-          <button onClick={toggleDark} style={bB('rgba(255,255,255,.18)')}>{dark?'☀️':'🌙'}</button>
-          {/* Editor extras */}
-          {editor&&!admin&&<button onClick={()=>setShowNewsEditor(true)} style={bB('#00897b')}>📰</button>}
-          {editor&&!admin&&<button onClick={()=>setShowBroadcast(true)} style={bB('#e65100')}>📢</button>}
-          {editor&&!admin&&<button onClick={()=>setShowDashboard(true)} style={bB('rgba(255,255,255,.18)')}>📊</button>}
-          {editor&&<button onClick={()=>setShowXls(true)} style={bB('#00897b')}>📥</button>}
+          <button onClick={toggleDark} className={'hdr-btn tt tt-hdr'+(dark?' on':'')} data-tt={dark?'עבור למצב בהיר':'עבור למצב כהה'}>{dark?'☀️':'🌙'}</button>
 
-          {/* Admin extras */}
-          {admin&&<button onClick={()=>setBrandMgr(true)}      style={bB('rgba(255,255,255,.18)')}>⚙</button>}
-          {admin&&<button onClick={()=>setShowBulkMove(true)}  style={bB('rgba(255,255,255,.18)')}>🔀</button>}
-          {admin&&<button onClick={()=>setShowBulkDel(true)}   style={bB('#b71c1c')}>🗑</button>}
-          {admin&&<button onClick={()=>{setShowHistory(true);fbGetHist().then(setHistData);}} style={bB('rgba(255,255,255,.18)')}>📋</button>}
-          {admin&&<button onClick={()=>setShowDashboard(true)} style={bB('rgba(255,255,255,.18)')}>📊</button>}
-          {admin&&<button onClick={()=>setShowNewsEditor(true)} style={bB('rgba(255,255,255,.18)')}>📰</button>}
-          {admin&&<button onClick={()=>setShowBroadcast(true)} style={bB('#e65100')}>📢</button>}
-          {admin&&<button onClick={()=>setShowUsersMgr(true)}  style={bB('#7b1fa2')}>👥</button>}
-          {admin&&<button onClick={()=>setChPwd(true)}         style={bB('rgba(255,255,255,.18)')}>🔑</button>}
-          {admin&&<button onClick={expXLS}                     style={bB('#2e7d32')}>📊</button>}
-          {admin&&<button onClick={expJSON}                    style={bB('rgba(255,255,255,.18)')}>💾</button>}
-          {admin&&<label  style={{...bB('rgba(255,255,255,.18)'),cursor:'pointer'}}>📂<input type="file" accept=".json" onChange={impFile} style={{display:'none'}}/></label>}
+          {/* Editor extras (not admin) */}
+          {editor&&!admin&&<button onClick={()=>setShowNewsEditor(true)} className="hdr-btn tt tt-hdr" data-tt="עריכת חדשות">📰</button>}
+          {editor&&!admin&&<button onClick={()=>setShowBroadcast(true)} className="hdr-btn tt tt-hdr" data-tt="שליחת הודעת מערכת">📢</button>}
+          {editor&&!admin&&<button onClick={()=>setShowDashboard(true)} className="hdr-btn tt tt-hdr" data-tt="דשבורד">📊</button>}
+          {editor&&<button onClick={()=>setShowXls(true)} className="hdr-btn tt tt-hdr" data-tt="ייבוא מ-Excel">📥</button>}
+
+          {/* Admin tools — consolidated into one clean menu instead of a long row of icons */}
+          {admin&&(
+            <div className="menu-wrap">
+              <button onClick={()=>setAdminMenu(v=>!v)} className={'hdr-btn tt tt-hdr'+(adminMenu?' on':'')} data-tt="הגדרות מנהל" style={{display:'flex',alignItems:'center',gap:4}}>
+                <span>⚙</span><span style={{fontSize:11,fontWeight:700}}>הגדרות</span>
+              </button>
+              {adminMenu&&<>
+                <div onClick={()=>setAdminMenu(false)} style={{position:'fixed',inset:0,zIndex:240}}/>
+                <div className="menu-panel" dir="rtl">
+                  <button className="menu-item" onClick={()=>{setBrandMgr(true);setAdminMenu(false);}}><span className="ic">⚙</span>ניהול מותגים</button>
+                  <button className="menu-item" onClick={()=>{setShowDashboard(true);setAdminMenu(false);}}><span className="ic">📊</span>דשבורד</button>
+                  <button className="menu-item" onClick={()=>{setShowUsersMgr(true);setAdminMenu(false);}}><span className="ic">👥</span>ניהול משתמשים</button>
+                  <button className="menu-item" onClick={()=>{setChPwd(true);setAdminMenu(false);}}><span className="ic">🔑</span>שינוי סיסמה</button>
+                  <div className="menu-divider"/>
+                  <button className="menu-item" onClick={()=>{setShowNewsEditor(true);setAdminMenu(false);}}><span className="ic">📰</span>עריכת חדשות</button>
+                  <button className="menu-item" onClick={()=>{setShowBroadcast(true);setAdminMenu(false);}}><span className="ic">📢</span>הודעת מערכת</button>
+                  <button className="menu-item" onClick={()=>{setShowHistory(true);fbGetHist().then(setHistData);setAdminMenu(false);}}><span className="ic">📋</span>היסטוריה / גרסאות</button>
+                  <div className="menu-divider"/>
+                  <button className="menu-item" onClick={()=>{setShowBulkMove(true);setAdminMenu(false);}}><span className="ic">🔀</span>העברה גורפת</button>
+                  <button className="menu-item danger" onClick={()=>{setShowBulkDel(true);setAdminMenu(false);}}><span className="ic">🗑</span>מחיקה גורפת</button>
+                  <div className="menu-divider"/>
+                  <button className="menu-item" onClick={()=>{expXLS();setAdminMenu(false);}}><span className="ic">📊</span>ייצוא ל-Excel</button>
+                  <button className="menu-item" onClick={()=>{expJSON();setAdminMenu(false);}}><span className="ic">💾</span>ייצוא גיבוי (JSON)</button>
+                  <label className="menu-item" style={{cursor:'pointer'}}>
+                    <span className="ic">📂</span>ייבוא גיבוי (JSON)
+                    <input type="file" accept=".json" onChange={e=>{impFile(e);setAdminMenu(false);}} style={{display:'none'}}/>
+                  </label>
+                </div>
+              </>}
+            </div>
+          )}
         </div>
 
         {/* Row 2 — compact search, shown only inside a brand/model (Home has its own hero search) */}
