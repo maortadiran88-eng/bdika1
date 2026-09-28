@@ -1,388 +1,2485 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="he">
+<html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>קטלוג חלקי חילוף — תדיראן VRF</title>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-/* ══════════════════════════════════════════════════════════
-   DESIGN SYSTEM — Tadiran VRF Parts Catalog
-   Professional, calm, information-first. RTL native.
-   ══════════════════════════════════════════════════════════ */
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tadiran VRF — כלי טכנאים</title>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blue: #003399;
+            --orange: #ff6600;
+            --red: #e4002b;
+            --accent: #00c6ff;
 
-/* ─── Reset ───────────────────────────────── */
-*{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{
-  font-family:'Rubik','Segoe UI',Arial,sans-serif;
-  direction:rtl;background:var(--bg);color:var(--text);
-  transition:background .25s,color .25s;
-  -webkit-font-smoothing:antialiased;
-  font-size:14px;line-height:1.5;
-}
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --surface2: #f8fafc;
+            --border: #e2e8f0;
+            --text: #1a202c;
+            --text2: #4a5568;
+            --text3: #94a3b8;
+            --shadow: 0 4px 24px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.13);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.25s cubic-bezier(.4,0,.2,1);
+        }
 
-/* ─── Light mode — 2026 Deep Premium Blue + Cyan ─── */
-:root{
-  --bg:#eef2f9;
-  --card:#ffffff;
-  --card2:#f3f7fc;
-  --text:#0a1730;
-  --text2:#33415c;
-  --sub:#64748b;
-  --border:#e1e8f5;
-  --border2:#c8d4ea;
-  --inp:#0a1730;
-  --row1:#ffffff;
-  --row2:#f3f7fc;
-  --hi:#fef9c3;
-  --sel:#dcfce7;
-  --sidebar:#ffffff;
-  --ibg:#ffffff;
-  --shadow:rgba(10,23,48,.07);
-  --shadow2:rgba(10,23,48,.16);
+        [data-theme="dark"] {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #21262d;
+            --border: #3d444d;
+            --text: #e6edf3;
+            --text2: #b0bec5;
+            --text3: #6e7681;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.6);
+        }
 
-  /* Brand / functional colors */
-  --primary:#0a2a63;
-  --primary-dark:#071b45;
-  --primary-light:#e7f0fb;
-  --accent:#0a2a63;
-  --accent-light:#e7f0fb;
-  --cyan:#0fb8cf;
-  --cyan-glow:rgba(15,184,207,.35);
-  --green:#15803d;
-  --green-bg:#eafaf0;
-  --orange:#b45309;
-  --orange-bg:#fff7e6;
-  --red:#c0242c;
-  --red-bg:#fdecec;
+        /* Dark mode overrides */
+        [data-theme="dark"] .gree-brand    { color: #6ea8ff; background: rgba(110,168,255,0.1); }
+        [data-theme="dark"] .toshiba-brand { color: #ff7b7b; background: rgba(255,123,123,0.1); }
+        [data-theme="dark"] .neutral-brand { color: var(--text2); background: rgba(255,255,255,0.04); }
+        [data-theme="dark"] .urow-unit     { color: var(--text); }
+        [data-theme="dark"] .utab-divider  { color: var(--text2); background: rgba(255,255,255,0.04); }
+        [data-theme="dark"] .uinput        { color: var(--text) !important; }
+        [data-theme="dark"] .conv-card     { background: #1c2128; border-color: #3d444d; }
+        [data-theme="dark"] .conv-card-title { color: var(--text); }
+        [data-theme="dark"] .info-card     { background: #1c2128; border-color: #3d444d; }
+        [data-theme="dark"] .info-card h3  { color: var(--text); }
+        [data-theme="dark"] .info-card p   { color: var(--text2); }
+        [data-theme="dark"] .conv-result-item { background: rgba(255,255,255,0.05); border-color: #3d444d; }
+        [data-theme="dark"] .conv-result-item .val { color: var(--text); }
+        [data-theme="dark"] .conv-result-item .lbl { color: var(--text3); }
+        [data-theme="dark"] .pipe-grid     { background: rgba(255,255,255,0.03); }
+        [data-theme="dark"] .extra-section { background: rgba(255,255,255,0.03); }
+        [data-theme="dark"] .brand-card    { background: rgba(255,255,255,0.04); color: var(--text2); border-color: #3d444d; }
+        [data-theme="dark"] select, [data-theme="dark"] input { background: #21262d; color: var(--text); border-color: #3d444d; }
+        [data-theme="dark"] .result-box    { opacity: 0.95; }
+        [data-theme="dark"] .top-nav       { background: #161b22; border-color: #3d444d; }
+        [data-theme="dark"] .tab-bar       { background: #161b22; border-color: #3d444d; }
+        [data-theme="dark"] .tab-btn       { color: var(--text2); }
+        [data-theme="dark"] #satStatus     { color: var(--text2) !important; }
 
-  --radius-sm:8px;
-  --radius-md:12px;
-  --radius-lg:18px;
-  --radius-xl:26px;
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  --glass-bg:rgba(255,255,255,.55);
-  --glass-border:rgba(255,255,255,.75);
-}
+        body {
+            font-family: 'Assistant', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background var(--transition), color var(--transition);
+        }
 
-/* ─── Dark mode — Midnight Tech ──────────── */
-.dark{
-  --bg:#060c1c;
-  --card:#0d1b33;
-  --card2:#101f3d;
-  --text:#eaf1fb;
-  --text2:#c3cede;
-  --sub:#8695b3;
-  --border:#1c3054;
-  --border2:#2c4570;
-  --inp:#eaf1fb;
-  --row1:#0d1b33;
-  --row2:#101f3d;
-  --hi:#3d3510;
-  --sel:#0d3321;
-  --sidebar:#0d1b33;
-  --ibg:#101f3d;
-  --shadow:rgba(0,0,0,.4);
-  --shadow2:rgba(0,0,0,.6);
+        /* ===== TOP NAV ===== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+            box-shadow: var(--shadow);
+            transition: background var(--transition), border-color var(--transition);
+        }
 
-  --primary:#2f8fe0;
-  --primary-dark:#2270b8;
-  --primary-light:#132846;
-  --accent:#2f8fe0;
-  --accent-light:#132846;
-  --cyan:#31d7e8;
-  --cyan-glow:rgba(49,215,232,.45);
-  --green:#3fcf76;
-  --green-bg:#0f2a1c;
-  --orange:#ffb74d;
-  --orange-bg:#332309;
-  --red:#ff6b6b;
-  --red-bg:#3a1414;
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-  --glass-bg:rgba(13,27,51,.55);
-  --glass-border:rgba(255,255,255,.12);
-}
+        .logo-badge {
+            background: var(--blue);
+            color: white;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+        }
 
-/* ─── Scrollbar ───────────────────────────── */
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
-::-webkit-scrollbar-thumb:hover{background:var(--sub)}
+        .logo-text {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.3px;
+        }
 
-/* ─── Animations ──────────────────────────── */
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@keyframes tipFadeIn{from{opacity:0}to{opacity:1}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-@keyframes popIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+        .nav-actions { display: flex; align-items: center; gap: 8px; }
 
-/* ─── Typography scale ───────────────────── */
-.tc-page-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.2px}
-.tc-section-title{font-size:15px;font-weight:700;color:var(--text)}
-.tc-sub-title{font-size:12.5px;font-weight:600;color:var(--sub);text-transform:none}
-.tc-body{font-size:14px;color:var(--text2)}
-.tc-meta{font-size:11.5px;color:var(--sub)}
+        .dark-toggle {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border);
+            background: var(--surface2);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            transition: all var(--transition);
+        }
+        .dark-toggle:active { transform: scale(0.9); }
 
-/* ─── Form elements ───────────────────────── */
-input,textarea,select{font-family:inherit;transition:border-color .15s,box-shadow .15s}
-input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary)!important;box-shadow:0 0 0 3px var(--primary-light)!important}
-::placeholder{color:var(--sub);opacity:.85}
+        /* ===== TAB BAR ===== */
+        .tab-bar {
+            display: flex;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 12px;
+            gap: 4px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            transition: background var(--transition);
+        }
+        .tab-bar::-webkit-scrollbar { display: none; }
 
-/* ─── Card elevation system ───────────────── */
-.card-sm{background:var(--card);border-radius:var(--radius-sm);box-shadow:0 1px 3px var(--shadow);border:1px solid var(--border)}
-.card-md{background:var(--card);border-radius:var(--radius-md);box-shadow:0 2px 10px var(--shadow);border:1px solid var(--border)}
-.card-lg{background:var(--card);border-radius:var(--radius-lg);box-shadow:0 6px 24px var(--shadow2)}
+        .tab-btn {
+            flex-shrink: 0;
+            padding: 12px 16px;
+            font-family: 'Assistant', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text2);
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition);
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            color: var(--blue);
+            border-bottom-color: var(--blue);
+        }
+        [data-theme="dark"] .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-/* ─── Buttons — unified system ────────────── */
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  font-family:inherit;font-weight:600;font-size:13.5px;cursor:pointer;
-  border-radius:10px;border:1px solid transparent;padding:9px 16px;
-  transition:opacity .15s,transform .08s,background .15s,border-color .15s;
-  white-space:nowrap;
-}
-.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-primary:hover{background:var(--primary-dark)}
-.btn-secondary{background:var(--card2);color:var(--text);border-color:var(--border2)}
-.btn-secondary:hover{background:var(--border)}
-.btn-ghost{background:transparent;color:var(--text2);border-color:transparent}
-.btn-ghost:hover{background:var(--card2)}
-.btn-danger{background:var(--red);color:#fff}
-.btn-icon{width:36px;height:36px;padding:0;border-radius:10px}
-.btn-sm{padding:6px 12px;font-size:12.5px;border-radius:8px}
+        /* ===== PAGE ===== */
+        .page { display: none; padding: 16px; max-width: 520px; margin: 0 auto; }
+        .page.active { display: block; animation: fadeUp 0.3s ease; }
 
-/* Header icon buttons (glass header — see .header-glass) */
-.hdr-btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:5px;
-  background:rgba(127,140,165,.14);color:var(--text);border:none;border-radius:9px;
-  padding:8px 11px;cursor:pointer;font-size:14px;transition:background .15s,transform .08s;
-  flex-shrink:0;position:relative;
-}
-.hdr-btn:hover{background:rgba(127,140,165,.26)}
-.hdr-btn:active{transform:scale(.94)}
-.hdr-btn.on{background:var(--primary);color:#fff}
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-/* Header tooltip variant — bubble drops downward from a sticky top bar */
-.tt-hdr::after{bottom:auto;top:calc(100% + 9px);transform:translateX(-50%) translateY(-4px)}
-.tt-hdr::before{bottom:auto;top:calc(100% + 4px);border-top-color:transparent;border-bottom-color:var(--text);transform:translateX(-50%) translateY(-4px)}
-.tt-hdr:hover::after,.tt-hdr:hover::before{transform:translateX(-50%) translateY(0)}
+        /* ===== BRAND SELECTOR ===== */
+        .brand-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
 
-/* Dropdown menu (e.g. admin tools) */
-.menu-wrap{position:relative}
-.menu-panel{
-  position:absolute;top:calc(100% + 10px);left:0;z-index:250;min-width:230px;
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);
-  box-shadow:0 16px 40px var(--shadow2);padding:6px;animation:popIn .16s ease-out;
-  max-height:70vh;overflow-y:auto;
-}
-.menu-item{
-  display:flex;align-items:center;gap:10px;width:100%;padding:9px 11px;border-radius:9px;
-  border:none;background:transparent;color:var(--text);font-family:inherit;font-size:13px;font-weight:600;
-  cursor:pointer;transition:background .15s ease;text-align:right;
-}
-.menu-item:hover{background:var(--card2)}
-.menu-item .ic{font-size:15px;width:20px;text-align:center;flex-shrink:0}
-.menu-item.danger{color:var(--red)}
-.menu-item.danger:hover{background:var(--red-bg)}
-.menu-divider{height:1px;background:var(--border);margin:5px 4px}
+        .brand-card {
+            padding: 14px 8px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 14px;
+            background: var(--surface2);
+            color: var(--text2);
+            transition: all var(--transition);
+            user-select: none;
+        }
+        .brand-card:active { transform: scale(0.96); }
+        .brand-card.active-gree { border-color: var(--blue); background: rgba(0,51,153,0.08); color: var(--blue); }
+        .brand-card.active-prime { border-color: var(--orange); background: rgba(255,102,0,0.08); color: var(--orange); }
+        .brand-card.active-toshiba { border-color: var(--red); background: rgba(228,0,43,0.08); color: var(--red); }
 
-/* ─── Badges ───────────────────────────────── */
-.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+        /* ===== SECTION LABEL ===== */
+        .section-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text3);
+            margin-bottom: 8px;
+            margin-top: 4px;
+        }
 
-/* ─── Table improvements ──────────────────── */
-table{border-collapse:separate;border-spacing:0}
-.tc-table{width:100%;font-size:13.5px}
-.tc-table thead th{
-  position:sticky;top:0;background:var(--card2);color:var(--sub);
-  font-weight:700;font-size:11.5px;text-align:right;padding:11px 12px;
-  border-bottom:2px solid var(--border);white-space:nowrap;z-index:1;
-}
-.tc-table tbody td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text)}
-.tc-table tbody tr{transition:background .1s}
-.tc-table tbody tr:hover{background:var(--card2)}
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
 
-/* ─── Layout helpers ───────────────────────── */
-.tc-container{max-width:1160px;margin:0 auto;width:100%}
-.tc-breadcrumb{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--sub)}
-.tc-breadcrumb .seg{cursor:pointer;color:var(--sub);transition:color .12s}
-.tc-breadcrumb .seg:hover{color:var(--primary)}
-.tc-breadcrumb .seg.current{color:var(--text);font-weight:700;cursor:default}
-.tc-breadcrumb .sep{color:var(--border2)}
+        /* ===== INPUTS ===== */
+        .input-wrap { margin-bottom: 14px; }
 
-/* ─── Hero search (Home) ──────────────────── */
-.hero-search-wrap{position:relative;max-width:640px;margin:0 auto}
-.hero-search{
-  width:100%;padding:16px 52px 16px 20px;border-radius:16px;
-  border:2px solid var(--border);background:var(--card);
-  font-size:16px;color:var(--text);box-shadow:0 4px 20px var(--shadow);
-}
-.hero-search:focus{border-color:var(--cyan);box-shadow:0 4px 24px var(--shadow2),0 0 0 4px var(--cyan-glow)!important}
+        select, input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-family: 'Assistant', sans-serif;
+            background: var(--surface);
+            color: var(--text);
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            transition: border-color var(--transition), background var(--transition);
+        }
+        select:focus, input:focus { border-color: var(--blue); }
+        [data-theme="dark"] select:focus, [data-theme="dark"] input:focus { border-color: var(--accent); }
 
-/* ─── Brand cards / Bento tiles ─────────────── */
-.brand-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);
-  padding:18px 16px;cursor:pointer;transition:transform .14s,box-shadow .14s,border-color .14s;
-  display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
-}
-.brand-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px var(--shadow);border-color:var(--border2)}
+        /* ===== PIPE GRID ===== */
+        .pipe-section-label {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--red);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid rgba(228,0,43,0.2);
+        }
 
-/* Glass surface — used for hero, login, header overlays */
-.glass{
-  background:var(--glass-bg);border:1px solid var(--glass-border);
-  backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);
-}
+        .pipe-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+        }
 
-/* Bento tile — 3D tilt + cursor-tracked cyan glow (transform/--mx/--my set via JS) */
-.bento-tile{
-  position:relative;border-radius:var(--radius-xl);overflow:hidden;transform-style:preserve-3d;
-  transition:transform .18s ease,box-shadow .3s ease;will-change:transform;cursor:pointer;
-}
-.bento-tile .glow-layer{
-  position:absolute;inset:0;border-radius:inherit;opacity:0;transition:opacity .25s ease;pointer-events:none;z-index:1;
-  background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%), var(--cyan-glow), transparent 60%);
-}
-.bento-tile:hover .glow-layer{opacity:1}
-.bento-tile:hover{box-shadow:0 20px 50px var(--shadow2)}
+        .pipe-item label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text2);
+            display: block;
+            margin-bottom: 4px;
+        }
 
-/* Scroll-reveal (Fade & Slide) */
-.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
-.reveal.show{opacity:1;transform:none}
+        .pipe-item .factor-tag {
+            font-weight: 400;
+            color: var(--text3);
+            font-size: 11px;
+        }
 
-/* Cool-air particle canvas — decorative, sits behind hero content */
-.air-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.65;z-index:0}
+        .pipe-item input {
+            padding: 9px 10px;
+            font-size: 14px;
+        }
 
-/* ─── Login screen — adaptive background (light pastel aurora / dark tech navy) ─── */
-.login-bg{background:linear-gradient(160deg,#dfe9ff,#f4f0ff)}
-.dark .login-bg{background:linear-gradient(160deg,#060c1c,#0d1b33,#060c1c)}
-.login-blob-a{background:#a9c8ff}.dark .login-blob-a{background:var(--cyan)}
-.login-blob-b{background:#ffc6e8}.dark .login-blob-b{background:#3b6fd6}
-.login-blob-c{background:#bdf7dd}.dark .login-blob-c{background:#7c5cff}
+        /* ===== RESULT BOX ===== */
+        .result-box {
+            margin-top: 20px;
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: background var(--transition);
+        }
 
-/* ─── Management toolbar — same design language as the home screen ─── */
-.toolbar-panel{
-  background:var(--glass-bg);border:1px solid var(--glass-border);
-  backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
-  border-radius:var(--radius-lg);padding:10px;box-shadow:0 4px 20px var(--shadow);
-}
-.tool-group{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
-.tool-sep{width:1px;align-self:stretch;background:var(--border2);margin:2px 6px;flex-shrink:0}
-.tool-group-label{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;width:100%;margin-bottom:2px}
+        .result-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
 
-.tool-btn{
-  position:relative;display:inline-flex;align-items:center;gap:7px;
-  padding:8px 12px;border-radius:12px;border:1px solid transparent;background:transparent;
-  color:var(--text2);font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
-  transition:background .18s ease,color .18s ease,transform .12s ease,box-shadow .18s ease,border-color .18s ease;
-  white-space:nowrap;
-}
-.tool-btn .ic{font-size:15px;line-height:1;transition:transform .18s ease;display:inline-block}
-.tool-btn:hover{background:var(--card2);color:var(--text)}
-.tool-btn:hover .ic{transform:scale(1.15)}
-.tool-btn:active{transform:scale(.94)}
-.tool-btn.active{background:var(--primary);color:#fff;box-shadow:0 4px 14px var(--cyan-glow);border-color:transparent}
-.tool-btn.active:hover{background:var(--primary-dark);color:#fff}
-.tool-btn.warn{color:var(--orange)}
-.tool-btn.warn:hover{background:var(--orange-bg)}
-.tool-btn.danger{color:var(--red)}
-.tool-btn.danger:hover{background:var(--red-bg)}
-.tool-btn:disabled{opacity:.4;cursor:default}
-.tool-btn:disabled:hover{background:transparent;color:var(--text2)}
+        .result-label { font-size: 13px; opacity: 0.85; margin-bottom: 4px; }
+        .result-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 44px;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+        .result-unit { font-size: 18px; opacity: 0.8; margin-top: 2px; }
 
-/* Icon-only round button (row-level actions) */
-.icon-btn{
-  display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;
-  border:1px solid transparent;background:transparent;color:var(--sub);cursor:pointer;font-size:14px;
-  transition:background .15s ease,color .15s ease,transform .12s ease;
-}
-.icon-btn:hover{background:var(--card2);color:var(--text);transform:scale(1.08)}
-.icon-btn:active{transform:scale(.92)}
-.icon-btn.active{background:var(--orange-bg);color:var(--orange)}
+        /* ===== BUTTONS ===== */
+        .btn-clear {
+            width: 100%;
+            background: transparent;
+            border: 1.5px solid var(--red);
+            color: var(--red);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-family: 'Assistant', sans-serif;
+            font-weight: 800;
+            font-size: 15px;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .btn-clear:active { background: var(--red); color: white; transform: scale(0.98); }
 
-/* Tooltip — lightweight, CSS-only, fast */
-.tt{position:relative}
-.tt::after{
-  content:attr(data-tt);position:absolute;bottom:calc(100% + 9px);left:50%;
-  transform:translateX(-50%) translateY(4px);
-  background:var(--text);color:var(--card);font-size:11px;font-weight:600;padding:6px 11px;border-radius:8px;
-  white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s ease,transform .15s ease;z-index:60;
-  box-shadow:0 6px 16px var(--shadow2);
-}
-.tt::before{
-  content:'';position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);
-  border:5px solid transparent;border-top-color:var(--text);opacity:0;transition:opacity .15s ease;pointer-events:none;z-index:60;
-}
-.tt:hover::after,.tt:hover::before{opacity:1;transform:translateX(-50%) translateY(0)}
+        /* ===== HIDDEN ===== */
+        .hidden { display: none !important; }
 
-/* Hidden-from-customers badge */
-.badge-hidden{
-  display:inline-flex;align-items:center;gap:4px;background:var(--orange-bg);color:var(--orange);
-  border:1px solid var(--orange);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;
-}
+        /* ===== CONVERSION CALCULATOR ===== */
+        .conv-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow);
+            transition: background var(--transition), border-color var(--transition);
+        }
 
-@keyframes tapPop{0%{transform:scale(1)}45%{transform:scale(.9)}100%{transform:scale(1)}}
+        .conv-card-title {
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text3);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .conv-card-title span { font-size: 16px; }
 
-@media(max-width:640px){
-  .tool-btn .lbl{display:none}
-  .tool-btn{padding:9px;border-radius:11px}
-  .tool-group-label{font-size:9px}
-}
+        .conv-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 8px;
+            align-items: end;
+            margin-bottom: 8px;
+        }
 
-/* Empty / loading states ───────────────── */
-.empty-state{text-align:center;padding:48px 20px;color:var(--sub)}
-.empty-state .icon{font-size:38px;margin-bottom:10px;opacity:.7}
+        .conv-arrow {
+            font-size: 18px;
+            color: var(--text3);
+            text-align: center;
+            padding-bottom: 10px;
+        }
 
-/* ─── Mobile ──────────────────────────────── */
-@media(max-width:640px){
-  .hide-mobile{display:none!important}
-  .tc-page-title{font-size:19px}
-  .hero-search{font-size:15px;padding:14px 46px 14px 16px}
-}
-</style>
+        .conv-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text3);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .conv-result-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .conv-result-item {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 8px;
+            text-align: center;
+            transition: all var(--transition);
+        }
+
+        .conv-result-item .val {
+            font-family: 'Space Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+            display: block;
+        }
+
+        .conv-result-item .lbl {
+            font-size: 11px;
+            color: var(--text3);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .conv-result-item.highlight {
+            border-color: var(--blue);
+            background: rgba(0,51,153,0.06);
+        }
+        .conv-result-item.highlight .val { color: var(--blue); }
+        [data-theme="dark"] .conv-result-item.highlight {
+            border-color: var(--accent);
+            background: rgba(0,198,255,0.06);
+        }
+        [data-theme="dark"] .conv-result-item.highlight .val { color: var(--accent); }
+
+        /* temp specific */
+        .temp-result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        /* ===== ABOUT / INFO ===== */
+        .info-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .info-card h3 {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        .version-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-family: 'Space Mono', monospace;
+            color: var(--text3);
+            margin-top: 10px;
+        }
+
+        /* ===== BRAND HEADER STRIPE ===== */
+        .brand-stripe {
+            height: 4px;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            transition: background var(--transition);
+            background: var(--blue);
+        }
+
+        /* ===== EXTRA FIELDS ===== */
+        .extra-section {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+
+        /* ===== UNIFIED TABLE ===== */
+        .utab {
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+        .urow {
+            display: grid;
+            grid-template-columns: 72px 52px 1fr;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            transition: background var(--transition);
+        }
+        .urow:last-child { border-bottom: none; }
+        .urow.active-row { background: rgba(0,51,153,0.05); }
+        [data-theme="dark"] .urow.active-row { background: rgba(0,198,255,0.06); }
+        .urow-brand {
+            padding: 0 10px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 1px solid var(--border);
+        }
+        .gree-brand    { color: var(--blue);  background: rgba(0,51,153,0.07); }
+        .toshiba-brand { color: var(--red);   background: rgba(228,0,43,0.07); }
+        .neutral-brand { color: var(--text3); background: var(--surface2); }
+        .urow-unit {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text2);
+            text-align: center;
+            padding: 0 4px;
+            border-left: 1px solid var(--border);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .urow-input-wrap { padding: 4px 8px; }
+        .uinput {
+            width: 100%;
+            border: none !important;
+            border-radius: 6px !important;
+            background: transparent !important;
+            font-family: 'Space Mono', monospace !important;
+            font-size: 17px !important;
+            font-weight: 700 !important;
+            color: var(--text) !important;
+            padding: 10px 8px !important;
+            outline: none;
+            text-align: left;
+        }
+        .uinput:focus { background: var(--surface2) !important; }
+        .uinput::placeholder { color: var(--text3); font-weight: 400; }
+        .utab-divider {
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+        .qref-btn { cursor: pointer; transition: all var(--transition); }
+        .qref-btn:active { transform: scale(0.96); opacity: 0.8; }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        /* ===== LANGUAGE SELECTOR ===== */
+        .lang-selector {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .lang-btn {
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1.5px solid var(--border);
+            background: var(--surface2);
+            color: var(--text2);
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: 'Assistant', sans-serif;
+        }
+        .lang-btn.active {
+            background: var(--blue);
+            border-color: var(--blue);
+            color: white;
+        }
+        [data-theme="dark"] .lang-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
+
+        /* ===== TECHNICIAN PORTAL ===== */
+        .tech-lock {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .tech-lock .lock-icon { font-size: 48px; margin-bottom: 16px; }
+        .tech-lock h2 { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+        .tech-lock p { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+        .tech-lock input {
+            text-align: center;
+            letter-spacing: 4px;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 13px;
+            background: var(--blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Assistant', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .btn-login:active { opacity: 0.85; transform: scale(0.98); }
+        .btn-logout {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Assistant', sans-serif;
+            transition: all var(--transition);
+        }
+
+        /* Tech brand selector */
+        .tech-brand-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .tech-brand-btn {
+            padding: 12px 8px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 13px;
+            background: var(--surface2);
+            color: var(--text2);
+            transition: all var(--transition);
+        }
+        .tech-brand-btn.active { border-color: var(--blue); background: rgba(0,51,153,0.08); color: var(--blue); }
+        [data-theme="dark"] .tech-brand-btn.active { border-color: var(--accent); background: rgba(0,198,255,0.08); color: var(--accent); }
+
+        /* Tech content */
+        .tech-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .tech-section-header {
+            padding: 14px 16px;
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface2);
+            user-select: none;
+            transition: background var(--transition);
+        }
+        .tech-section-header:active { opacity: 0.8; }
+        .tech-section-body {
+            padding: 14px 16px;
+            display: none;
+        }
+        .tech-section-body.open { display: block; }
+        .tech-param {
+            display: grid;
+            grid-template-columns: 52px 1fr;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            align-items: start;
+        }
+        .tech-param:last-child { border-bottom: none; }
+        .tech-param-code {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: var(--blue);
+            font-size: 12px;
+            padding: 2px 6px;
+            background: rgba(0,51,153,0.08);
+            border-radius: 4px;
+            text-align: center;
+            direction: ltr;
+            white-space: nowrap;
+        }
+        [data-theme="dark"] .tech-param-code { color: var(--accent); background: rgba(0,198,255,0.08); }
+        .tech-param-text { color: var(--text2); line-height: 1.5; }
+        .tech-note {
+            background: rgba(255,193,7,0.1);
+            border: 1px solid rgba(255,193,7,0.3);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: var(--text2);
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+        .tech-sub-title {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text3);
+            margin: 14px 0 8px;
+        }
+    </style>
 </head>
 <body>
-<div id="root"></div>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+    <div class="nav-logo">
+        <div class="logo-badge">VRF</div>
+        <span class="logo-text">Tadiran Tools</span>
+    </div>
+    <div class="nav-actions">
+        <div class="lang-selector">
+            <button class="lang-btn active" onclick="setLang('he')">עב</button>
+            <button class="lang-btn" onclick="setLang('en')">EN</button>
+            <button class="lang-btn" onclick="setLang('ar')">عر</button>
+        </div>
+        <button class="dark-toggle" onclick="toggleDark()" id="darkBtn" title="מצב לילה">🌙</button>
+    </div>
+</nav>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('gas', this)" data-i18n-tab="gas">⚙️ תוספת גז</button>
+    <button class="tab-btn" onclick="switchTab('conv', this)" data-i18n-tab="conv">🔄 המרות</button>
+    <button class="tab-btn" onclick="switchTab('tech', this)" data-i18n-tab="tech">🔧 טכנאים</button>
+    <button class="tab-btn" onclick="switchTab('videos', this)" data-i18n-tab="videos">🎥 סרטוני הדרכה</button>
+    <button class="tab-btn" onclick="switchTab('about', this)" data-i18n-tab="about">ℹ️ אודות</button>
+</div>
+
+<!-- ==============================
+     PAGE 1: GAS CALCULATOR
+================================= -->
+<div class="page active" id="page-gas">
+
+    <div class="brand-stripe" id="brandStripe"></div>
+
+    <div style="background:rgba(255,193,7,0.12);border:1.5px solid rgba(255,193,7,0.45);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:16px;display:flex;gap:8px;align-items:flex-start;">
+        <span style="font-size:15px;flex-shrink:0;">⚠️</span>
+        <p style="font-size:12px;color:var(--text2);line-height:1.6;margin:0;">
+            <strong style="color:var(--text);" data-i18n="warning_title">הערות שימוש</strong><br>
+            <span data-i18n="warning_text">נתוני תוספת הגז מבוססים על מפרטי היצרן. יש לאמת תמיד מול הוראות ההתקנה הרשמיות. החברה לא אחראית לטעויות שימוש.</span>
+        </p>
+    </div>
+
+    <div class="section-label" id="sectionBrand">בחר מותג</div>
+    <div class="brand-grid">
+        <div class="brand-card" id="cardGree"    onclick="selectBrand('GREE')">GREE</div>
+        <div class="brand-card" id="cardPrime"   onclick="selectBrand('PRIME')">PRIME</div>
+        <div class="brand-card" id="cardToshiba" onclick="selectBrand('TOSHIBA')">TOSHIBA</div>
+    </div>
+
+    <div id="calculatorBody" class="hidden">
+
+        <div class="input-wrap">
+            <div class="section-label" id="sectionSysType">סוג מערכת</div>
+            <select id="sysType" onchange="initModels()">
+                <option value="MINI">MINI — מיני VRF</option>
+                <option value="MODULAR">MODULAR — מודולרי</option>
+            </select>
+        </div>
+
+        <div class="input-wrap">
+            <div class="section-label" id="modelLabel">בחר דגם</div>
+            <div id="modelList"></div>
+        </div>
+
+        <!-- PIPE INPUTS -->
+        <div class="pipe-section-label" id="pipeSectionLabel">אורך צנרת נוזל בלבד (מטרים)</div>
+        <div class="pipe-grid" id="pipeGrid">
+            <div class="pipe-item hidden" id="row14"><label>1/4" <span class="factor-tag" id="f14"></span></label><input type="number" id="p14" placeholder="0" inputmode="decimal" oninput="calculate()"></div>
+            <div class="pipe-item hidden" id="row38"><label>3/8" <span class="factor-tag" id="f38"></span></label><input type="number" id="p38" placeholder="0" inputmode="decimal" oninput="calculate()"></div>
+            <div class="pipe-item hidden" id="row12"><label>1/2" <span class="factor-tag" id="f12"></span></label><input type="number" id="p12" placeholder="0" inputmode="decimal" oninput="calculate()"></div>
+            <div class="pipe-item hidden" id="row58"><label>5/8" <span class="factor-tag" id="f58"></span></label><input type="number" id="p58" placeholder="0" inputmode="decimal" oninput="calculate()"></div>
+            <div class="pipe-item hidden" id="row34"><label>3/4" <span class="factor-tag" id="f34"></span></label><input type="number" id="p34" placeholder="0" inputmode="decimal" oninput="calculate()"></div>
+            <div class="pipe-item hidden" id="row78"><label>7/8" <span class="factor-tag" id="f78"></span></label><input type="number" id="p78" placeholder="0" inputmode="decimal" oninput="calculate()"></div>
+            <div class="pipe-item hidden" id="row10"><label>1" <span class="factor-tag" id="f10"></span></label><input type="number" id="p10" placeholder="0" inputmode="decimal" oninput="calculate()"></div>
+            <div class="pipe-item hidden" id="row118"><label>1 1/8" <span class="factor-tag" id="f118"></span></label><input type="number" id="p118" placeholder="0" inputmode="decimal" oninput="calculate()"></div>
+        </div>
+
+        <!-- EXTRA FIELDS -->
+        <div id="extraFields" class="hidden extra-section" style="margin-top:14px;">
+            <div class="input-wrap" id="unitCountWrapper">
+                <div class="section-label" id="unitCountLabel">כמות מאיידים</div>
+                <input type="number" id="unitCount" placeholder="0" inputmode="numeric" oninput="calculate()">
+            </div>
+            <div id="ratioWrapper">
+                <div class="section-label" id="ratioLabel">יחס העמסה (Ratio)</div>
+                <select id="ratio" onchange="calculate()">
+                    <option value="">— בחר יחס —</option>
+                    <option value="50-70">50–70%</option>
+                    <option value="70-90">70–90%</option>
+                    <option value="90-105">90–105%</option>
+                    <option value="105-135">105–135%</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- TOSHIBA INDOOR UNITS -->
+        <div id="toshibaFields" class="hidden" style="margin-top:14px;">
+            <div class="pipe-section-label">מאיידים מחוברים</div>
+            <div id="toshibaUnitsList"></div>
+            <button type="button" onclick="addToshibaUnit()" style="
+                width:100%; margin-top:8px; padding:10px;
+                border: 1.5px dashed var(--border); border-radius: var(--radius-sm);
+                background: transparent; color: var(--text2);
+                font-family: 'Assistant', sans-serif; font-size:14px; font-weight:700;
+                cursor:pointer;">+ הוסף מאייד</button>
+        </div>
+
+        <!-- TOSHIBA SMMSU MODULAR -->
+        <div id="smmsuFields" class="hidden" style="margin-top:14px;">
+
+            <!-- System HP -->
+            <div class="input-wrap">
+                <div class="pipe-section-label">בחר קומבינציית מעבים</div>
+                <select id="smmsuSystem" onchange="smmsuSystemChanged();calculate()">
+                    <option value="">— בחר עוצמת מערכת —</option>
+                    <option value="manual">➕ שילוב ידני — הוסף מעבים בנפרד</option>
+                    <optgroup label="יחידה בודדת">
+                        <option value="8">8HP — מעבה 8HP בודד</option>
+                        <option value="10">10HP — מעבה 10HP בודד</option>
+                        <option value="12">12HP — מעבה 12HP בודד</option>
+                        <option value="14">14HP — מעבה 14HP בודד</option>
+                        <option value="16">16HP — מעבה 16HP בודד</option>
+                        <option value="18">18HP — מעבה 18HP בודד</option>
+                        <option value="20">20HP — מעבה 20HP בודד</option>
+                        <option value="22">22HP — מעבה 22HP בודד</option>
+                        <option value="24">24HP — מעבה 24HP בודד</option>
+                    </optgroup>
+                    <optgroup label="שתי יחידות">
+                        <option value="26">26HP — 14+12</option>
+                        <option value="28">28HP — 14+14</option>
+                        <option value="30">30HP — 18+12</option>
+                        <option value="32">32HP — 20+12</option>
+                        <option value="34">34HP — 20+14</option>
+                        <option value="36">36HP — 24+12</option>
+                        <option value="38">38HP — 24+14</option>
+                        <option value="40">40HP — 20+20</option>
+                        <option value="42">42HP — 24+18</option>
+                        <option value="44">44HP — 24+20</option>
+                        <option value="46">46HP — 24+22</option>
+                        <option value="48">48HP — 24+24</option>
+                    </optgroup>
+                    <optgroup label="שלוש יחידות">
+                        <option value="50">50HP — 24+14+12</option>
+                        <option value="52">52HP — 24+14+14</option>
+                        <option value="54">54HP — 20+20+14</option>
+                        <option value="56">56HP — 24+20+12</option>
+                        <option value="58">58HP — 24+20+14</option>
+                        <option value="60">60HP — 24+24+12</option>
+                        <option value="62">62HP — 24+24+14</option>
+                        <option value="64">64HP — 24+24+20</option>
+                        <option value="66">66HP — 24+22+20</option>
+                        <option value="68">68HP — 24+24+20</option>
+                        <option value="70">70HP — 24+24+22</option>
+                        <option value="72">72HP — 24+24+24</option>
+                    </optgroup>
+                    <optgroup label="ארבע יחידות">
+                        <option value="74">74HP — 24+24+14+12</option>
+                        <option value="76">76HP — 24+24+14+14</option>
+                        <option value="78">78HP — 24+24+20+14</option>
+                        <option value="80">80HP — 24+24+20+12</option>
+                        <option value="82">82HP — 24+24+20+14</option>
+                        <option value="84">84HP — 24+24+24+12</option>
+                        <option value="86">86HP — 24+24+24+14</option>
+                        <option value="88">88HP — 24+24+20+20</option>
+                        <option value="90">90HP — 24+24+22+20</option>
+                        <option value="92">92HP — 24+24+24+20</option>
+                        <option value="94">94HP — 24+24+24+22</option>
+                        <option value="96">96HP — 24+24+24+24</option>
+                    </optgroup>
+                    <optgroup label="חמש יחידות">
+                        <option value="98">98HP — 24+24+24+14+12</option>
+                        <option value="100">100HP — 24+24+24+14+14</option>
+                        <option value="102">102HP — 24+24+24+20+14</option>
+                        <option value="104">104HP — 24+24+24+20+12</option>
+                        <option value="106">106HP — 24+24+24+20+14</option>
+                        <option value="108">108HP — 24+24+24+24+12</option>
+                        <option value="110">110HP — 24+24+24+24+14</option>
+                        <option value="112">112HP — 24+24+24+24+20</option>
+                        <option value="114">114HP — 24+24+24+22+20</option>
+                        <option value="116">116HP — 24+24+24+24+20</option>
+                        <option value="118">118HP — 24+24+24+24+22</option>
+                        <option value="120">120HP — 24+24+24+24+24</option>
+                    </optgroup>
+                </select>
+                <div id="smmsuSystemBonus" style="font-size:12px;color:var(--text3);margin-top:4px;text-align:left;"></div>
+            </div>
+
+            <!-- Manual outdoor units -->
+            <div id="smmsuManualOutdoor" class="hidden" style="margin-bottom:14px;">
+                <div class="pipe-section-label">מעבים — שילוב ידני</div>
+                <div id="smmsuOutdoorList"></div>
+                <button type="button" onclick="addSMMSUOutdoor()" style="
+                    width:100%; margin-top:8px; padding:10px;
+                    border:1.5px dashed var(--border); border-radius:var(--radius-sm);
+                    background:transparent; color:var(--text2);
+                    font-family:'Assistant',sans-serif; font-size:14px; font-weight:700;
+                    cursor:pointer;">+ הוסף מעבה</button>
+                <div id="smmsuManualTotal" style="font-size:12px;color:var(--text3);margin-top:6px;text-align:left;"></div>
+            </div>
+
+            <!-- Indoor units -->
+            <div class="pipe-section-label" style="margin-top:8px;">מאיידים מחוברים</div>
+            <div id="smmsuUnitsList"></div>
+            <button type="button" onclick="addSMMSUUnit()" style="
+                width:100%; margin-top:8px; padding:10px;
+                border:1.5px dashed var(--border); border-radius:var(--radius-sm);
+                background:transparent; color:var(--text2);
+                font-family:'Assistant',sans-serif; font-size:14px; font-weight:700;
+                cursor:pointer;">+ הוסף מאייד</button>
+
+            <!-- Diversity display -->
+            <div id="smmsuDiversityBox" style="
+                margin-top:14px;
+                background:var(--surface2);
+                border:1px solid var(--border);
+                border-radius:var(--radius-sm);
+                padding:12px;
+                font-size:13px;
+                color:var(--text2);
+                line-height:1.8;
+                display:none;">
+            </div>
+        </div>
+
+        <!-- RESULT -->
+        <div class="result-box" id="resultBox" style="background: var(--blue);">
+            <div class="result-label" id="resultLabel">תוספת גז סופית נדרשת</div>
+            <div class="result-value" id="totalResult">0.000</div>
+            <div class="result-unit">ק"ג</div>
+        </div>
+
+        <button class="btn-clear" onclick="clearAll()">↺ נקה נתונים</button>
+    </div>
+</div>
+
+<!-- ==============================
+     PAGE 2: R410A SATURATION TABLE
+================================= -->
+<div class="page" id="page-conv">
+
+    <div class="conv-card">
+        <div class="conv-card-title"><span>❄️</span> <span id="satTitle">R410A — לחץ ↔ טמפרטורת רוויה</span></div>
+        <p id="satSub" style="font-size:12px; color:var(--text3); margin-bottom:16px; line-height:1.6;">
+            מלא <strong>לחץ</strong> <em>או</em> <strong>טמפרטורה</strong> — הכל יחושב אוטומטית
+        </p>
+
+        <div class="utab">
+            <div class="utab-divider" id="satPressureDiv">🔵 לחץ רוויה</div>
+
+            <div class="urow" data-key="mpa">
+                <div class="urow-brand toshiba-brand">TOSHIBA</div>
+                <div class="urow-unit">MPa</div>
+                <div class="urow-input-wrap">
+                    <input type="number" class="uinput" id="u-mpa" inputmode="decimal" placeholder="—" oninput="satConvert('mpa')">
+                </div>
+            </div>
+
+            <div class="urow" data-key="kpa">
+                <div class="urow-brand gree-brand">GREE</div>
+                <div class="urow-unit">kPa</div>
+                <div class="urow-input-wrap">
+                    <input type="number" class="uinput" id="u-kpa" inputmode="decimal" placeholder="—" oninput="satConvert('kpa')">
+                </div>
+            </div>
+
+            <div class="urow" data-key="psi">
+                <div class="urow-brand neutral-brand">—</div>
+                <div class="urow-unit">PSI</div>
+                <div class="urow-input-wrap">
+                    <input type="number" class="uinput" id="u-psi" inputmode="decimal" placeholder="—" oninput="satConvert('psi')">
+                </div>
+            </div>
+
+            <div class="urow" data-key="bar">
+                <div class="urow-brand neutral-brand">—</div>
+                <div class="urow-unit">BAR</div>
+                <div class="urow-input-wrap">
+                    <input type="number" class="uinput" id="u-bar" inputmode="decimal" placeholder="—" oninput="satConvert('bar')">
+                </div>
+            </div>
+
+            <div class="utab-divider" id="satTempDiv">🌡️ המרה לטמפרטורת רוויה</div>
+
+            <div class="urow" data-key="tc">
+                <div class="urow-brand neutral-brand">—</div>
+                <div class="urow-unit">°C</div>
+                <div class="urow-input-wrap">
+                    <input type="number" class="uinput" id="u-tc" inputmode="decimal" placeholder="—" oninput="satConvert('tc')">
+                </div>
+            </div>
+
+            <div class="urow" data-key="tf">
+                <div class="urow-brand neutral-brand">—</div>
+                <div class="urow-unit">°F</div>
+                <div class="urow-input-wrap">
+                    <input type="number" class="uinput" id="u-tf" inputmode="decimal" placeholder="—" oninput="satConvert('tf')">
+                </div>
+            </div>
+        </div>
+
+        <div id="satStatus" style="margin-top:10px; font-size:12px; color:var(--text3); text-align:center; min-height:18px;"></div>
+        <button class="btn-clear" onclick="clearSat()" style="margin-top:10px;">↺ נקה הכל</button>
+    </div>
+
+</div>
+
+<!-- ==============================
+     PAGE 3: TECHNICIAN PORTAL
+================================= -->
+<div class="page" id="page-tech">
+
+    <!-- LOCK SCREEN -->
+    <div id="techLock">
+        <div class="tech-lock">
+            <div class="lock-icon">🔐</div>
+            <h2 data-i18n="tech_title">אזור טכנאים</h2>
+            <p data-i18n="tech_subtitle">הזן סיסמה לגישה למידע טכני</p>
+            <input type="password" id="techPassword" placeholder="••••••••••" onkeydown="if(event.key==='Enter')techLogin()">
+            <button class="btn-login" onclick="techLogin()" data-i18n="tech_login">כניסה</button>
+            <div id="techError" style="margin-top:10px;font-size:12px;color:var(--red);display:none;" data-i18n="tech_error">סיסמה שגויה</div>
+        </div>
+    </div>
+
+    <!-- PORTAL CONTENT -->
+    <div id="techPortal" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:var(--text2);" data-i18n="tech_welcome">👨‍🔧 שלום טכנאי</div>
+            <button class="btn-logout" onclick="techLogout()" data-i18n="tech_logout">יציאה</button>
+        </div>
+
+        <!-- BRAND SELECTOR -->
+        <div class="section-label" data-i18n="tech_choose_brand">בחר מותג</div>
+        <div class="tech-brand-grid">
+            <div class="tech-brand-btn" onclick="selectTechBrand('GREE',this)">GREE</div>
+            <div class="tech-brand-btn" onclick="selectTechBrand('PRIME',this)">PRIME</div>
+            <div class="tech-brand-btn" onclick="selectTechBrand('TOSHIBA',this)">TOSHIBA</div>
+        </div>
+
+        <!-- GREE CONTENT -->
+        <div id="tech-gree" class="hidden">
+
+            <!-- עדכון פרמטרים -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>⚙️ עדכון פרמטרים — טרמוסטט</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-note">כניסה לעדכון פרמטרים: לחיצה ארוכה על <strong>FUNCTION</strong> ← לחיצה <strong>3 פעמים</strong> על MODE ← שוב לחיצה ארוכה על <strong>FUNCTION</strong></div>
+                    <div style="height:10px;"></div>
+                    <div class="tech-param"><span class="tech-param-code">P10</span><span class="tech-param-text">קביעת יחידת מאסטר — להעביר ל-<strong>01</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">P11</span><span class="tech-param-text">ביטול שידור העינית בטרמוסטט</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P13</span><span class="tech-param-text">2 טרמוסטטים לאותו מאייד — 01 = Master, 02 = Slave</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P14</span><span class="tech-param-text">מספר מאיידים המחוברים לטרמוסטט אחד (00–16)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P15</span><span class="tech-param-text">הגדרת זיכרון חזרת חשמל (Auto Restart)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P16</span><span class="tech-param-text">מעבר בין יחידות מידה — צלזיוס / פרנהייט</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P20</span><span class="tech-param-text">מיקום רגש אוויר חוזר (ערכים 01–04)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P21</span><span class="tech-param-text">כיול רגש אוויר חוזר — <strong>קירור</strong> (טווח: −15 עד +15)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P22</span><span class="tech-param-text">כיול רגש אוויר חוזר — <strong>חימום</strong> (טווח: −15 עד +15)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P30</span><span class="tech-param-text">שינוי לחץ סטטי למאייד (01–09 בהתאם לדגם)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P31</span><span class="tech-param-text">גובה תקרה — 00 = רגיל, 01 = תקרה גבוהה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P33</span><span class="tech-param-text">הגדרת טיימרים בטרמוסטט</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P42</span><span class="tech-param-text">שינוי כתובת מאייד — לחץ MODE, השתמש בחיצים לבחירת כתובת</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P48</span><span class="tech-param-text">פתיחת שסתום בחימום במאייד שאינו פעיל</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P50</span><span class="tech-param-text">טמפרטורת יציאת אוויר צח — <strong>קירור</strong> (16–30°C)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P51</span><span class="tech-param-text">טמפרטורת יציאת אוויר צח — <strong>חימום</strong> (16–30°C)</span></div>
+                </div>
+            </div>
+
+            <!-- בדיקת פרמטרים -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🔍 בדיקת פרמטרים — טרמוסטט</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-note">כניסה למצב צפייה: לחיצה ארוכה על <strong>FUNCTION</strong> (יופיע C00) ← לחיצה <strong>3 פעמים</strong> על MODE</div>
+                    <div style="height:10px;"></div>
+                    <div class="tech-param"><span class="tech-param-code">C00</span><span class="tech-param-text">כתובת המאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C02</span><span class="tech-param-text">גודל (הספק) המאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C03</span><span class="tech-param-text">כמות מאיידים מחוברים במערכת</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C07</span><span class="tech-param-text">טמפרטורת אוויר חוזר (מהמאייד או מהטרמוסטט)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C12</span><span class="tech-param-text">טמפרטורת סביבה של המעבה (יחידת החוץ)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C14</span><span class="tech-param-text">טמפרטורת כניסה לסוללת מאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C15</span><span class="tech-param-text">טמפרטורת סוף סוללת מאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C16</span><span class="tech-param-text">מצב פתיחת שסתום התפשטות PMV (0–20)</span></div>
+                </div>
+            </div>
+
+            <!-- הגדרות מעבה -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🏭 הגדרות מעבה</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-param"><span class="tech-param-code">A6</span><span class="tech-param-text">ביטול מצב קירור / חימום</span></div>
+                    <div class="tech-param"><span class="tech-param-code">A7</span><span class="tech-param-text">הגדרת מצב שקט של המעבה (00–12)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">A8</span><span class="tech-param-text">פתיחת שסתומים</span></div>
+                    <div class="tech-param"><span class="tech-param-code">N5</span><span class="tech-param-text">סידור כתובות דרך מעגל גז 1 — לשימוש כאשר יש כמה מעגלים מחוברים לבקר מרכזי</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C8</span><span class="tech-param-text">ביטול מדחס — 00 = לא מבוטל. <strong>ניתן לבטל רק כאשר יש מודול בודד</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">C9</span><span class="tech-param-text">ביטול מנוע מעבה — 00 = לא מבוטל. <strong>ניתן לבטל רק כאשר יש מודול בודד</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">CA</span><span class="tech-param-text">ביטול מעבה — 00 = לא מבוטל</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1G</span><span class="tech-param-text">הגדלת לחץ סטטי במעבה (01–04)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">NL</span><span class="tech-param-text">הגדרת יעד טמפרטורה בלחץ הנמוך</span></div>
+                    <div class="tech-param"><span class="tech-param-code">NH</span><span class="tech-param-text">הגדרת יעד טמפרטורה בלחץ הגבוה</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRIME CONTENT -->
+        <div id="tech-prime" class="hidden">
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🔍 בדיקת פרמטרים — טרמוסטט</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-note">כניסה: לחיצה על <strong>MENU</strong> למשך <strong>5 שניות</strong></div>
+                    <div style="height:10px;"></div>
+                    <div class="tech-param"><span class="tech-param-code">A</span><span class="tech-param-text">חיישן טמפרטורת פנים — <strong>Tai</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">B</span><span class="tech-param-text">חיישן טמפרטורת פנים — <strong>Tc1</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">C</span><span class="tech-param-text">חיישן טמפרטורת פנים — <strong>Tc2</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">D</span><span class="tech-param-text">מצב פתיחת שסתום PMV של יחידת פנים</span></div>
+                    <div class="tech-param"><span class="tech-param-code">E</span><span class="tech-param-text">כתובת (ADDRESS) של יחידת הפנים</span></div>
+                    <div class="tech-param"><span class="tech-param-code">F</span><span class="tech-param-text">כתובת ראשית (CENTRAL ADDRESS) של יחידת הפנים</span></div>
+                </div>
+            </div>
+
+            <!-- הגדרות דרך שלט -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🎮 הגדרות דרך שלט</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+
+                    <!-- סגירת שסתום -->
+                    <div class="tech-sub-title">1. סגירת שסתום במאייד עילי</div>
+                    <div class="tech-note" style="background:rgba(255,193,7,0.18);border-color:rgba(255,193,7,0.6);font-size:13px;">
+                        ⚠️ במידה ורוצים לסגור שסתום במאייד במצב חימום
+                    </div>
+                    <div style="height:8px;"></div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+                            <span style="font-size:14px;color:var(--text);">הדלק את המאייד במצב <strong>חימום</strong> על <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">16 מעלות</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+                            <span style="font-size:14px;color:var(--text);">לחץ על כפתור <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">SLEEP</strong> — <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">3 פעמים</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+                            <span style="font-size:14px;color:var(--text);">המזגן <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">יצפצף</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
+                            <span style="font-size:14px;color:var(--text);">עלה ל-<strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">17 מעלות</strong> ואז <strong>כבה</strong> את המזגן</span>
+                        </div>
+                    </div>
+
+                    <div style="height:16px;"></div>
+
+                    <!-- חזרה מהפסקת חשמל -->
+                    <div class="tech-sub-title">2. חזרה מהפסקת חשמל (Auto Restart)</div>
+                    <div class="tech-note">בטרמוסטט — לחץ על <strong>MENU</strong> | בשלט — לחץ על <strong>SLEEP</strong><br>יש ללחוץ <strong>10 פעמים</strong> בהפרש של <strong>5 שניות</strong> בין כל לחיצה</div>
+                    <div style="height:8px;"></div>
+                    <div class="tech-param">
+                        <span class="tech-param-code">🔔🔔</span>
+                        <span class="tech-param-text"><strong>2 צפצופים</strong> — Auto Restart <strong>מבוטל</strong></span>
+                    </div>
+                    <div class="tech-param">
+                        <span class="tech-param-code">🔔🔔🔔🔔</span>
+                        <span class="tech-param-text"><strong>4 צפצופים</strong> — Auto Restart <strong>פעיל</strong> (ידלק בחזרת חשמל)</span>
+                    </div>
+
+                    <div style="height:16px;"></div>
+
+                    <!-- צפייה באוויר חוזר -->
+                    <div class="tech-sub-title">3. צפייה באוויר חוזר במאייד עילי</div>
+                    <div class="tech-note">על מנת לראות את האוויר חוזר במאייד עילי יש ללחוץ <strong>10 פעמים</strong> על כפתור <strong>LIGHT</strong></div>
+
+                    <div style="height:16px;"></div>
+
+                    <!-- זיוף רגש אוויר חוזר בחימום -->
+                    <div class="tech-sub-title">4. זיוף רגש אוויר חוזר בחימום — מאייד עילי</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+                            <span style="font-size:14px;color:var(--text);">הדלק במצב <strong>חימום</strong> על <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">30 מעלות</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+                            <span style="font-size:14px;color:var(--text);">לחץ על כפתור <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">SLEEP</strong> — <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">7 פעמים</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+                            <span style="font-size:14px;color:var(--text);">המזגן <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">יצפצף</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
+                            <span style="font-size:14px;color:var(--text);">הורד טמפרטורה ואשר <strong>בכיבוי</strong> המזגן</span>
+                        </div>
+                    </div>
+                    <div class="tech-note" style="margin-top:8px;">💡 כל <strong>מעלה</strong> שמורידים = <strong>מעלה</strong> זיוף. לדוגמה: הורדה של 2 מעלות = זיוף של 2 מעלות</div>
+
+                    <div style="height:16px;"></div>
+
+                    <!-- זיוף רגש אוויר חוזר בקירור -->
+                    <div class="tech-sub-title">5. זיוף רגש אוויר חוזר בקירור — מאייד עילי</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+                            <span style="font-size:14px;color:var(--text);">הדלק במצב <strong>קירור</strong> על <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">23 מעלות</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+                            <span style="font-size:14px;color:var(--text);">לחץ על כפתור <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">SLEEP</strong> — <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">7 פעמים</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+                            <span style="font-size:14px;color:var(--text);">המזגן <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">יצפצף</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
+                            <span style="font-size:14px;color:var(--text);">הורד או העלה טמפרטורה ואשר <strong>בכיבוי</strong> המזגן</span>
+                        </div>
+                    </div>
+
+                    <div style="height:16px;"></div>
+
+                    <!-- משאבת מים מדגם 7G -->
+                    <div class="tech-sub-title">6. משאבת מים מובנית — מאייד עילי מדגם 7G</div>
+                    <div class="tech-note">מאייד עילי מדגם <strong>7G</strong> מגיע עם משאבת מים מובנית. להפעלה יש ללחוץ <strong>6 פעמים</strong> על כפתור <strong>HEALTH</strong></div>
+                    <div style="height:8px;"></div>
+                    <div class="tech-param">
+                        <span class="tech-param-code">🔔🔔🔔🔔</span>
+                        <span class="tech-param-text"><strong>4 צפצופים</strong> — המשאבה <strong>עובדת</strong></span>
+                    </div>
+                    <div class="tech-param">
+                        <span class="tech-param-code">🔔🔔</span>
+                        <span class="tech-param-text"><strong>2 צפצופים</strong> — המשאבה <strong>כבויה</strong></span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- TOSHIBA CONTENT -->
+        <div id="tech-toshiba" class="hidden">
+
+            <!-- בדיקת פרמטרים מאייד -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🔍 בדיקת פרמטרים — מאייד (טרמוסטט)</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-param"><span class="tech-param-code">00</span><span class="tech-param-text">בדיקת טמפרטורה אחרי תיקון</span></div>
+                    <div class="tech-param"><span class="tech-param-code">01</span><span class="tech-param-text">טמפרטורת טרמוסטט</span></div>
+                    <div class="tech-param"><span class="tech-param-code">02</span><span class="tech-param-text">טמפרטורת אוויר חוזר</span></div>
+                    <div class="tech-param"><span class="tech-param-code">03</span><span class="tech-param-text">טמפרטורת אמצע סוללה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">04</span><span class="tech-param-text">טמפרטורת כניסה לסוללה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">05</span><span class="tech-param-text">טמפרטורת סוף סוללה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">08</span><span class="tech-param-text">מצב פתיחת שסתום (טווח: 3–150)</span></div>
+                </div>
+            </div>
+
+            <!-- בדיקת פרמטרים מעבה -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🌡️ בדיקת פרמטרים — מעבה</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-sub-title">לחץ וטמפרטורה</div>
+                    <div class="tech-param"><span class="tech-param-code">1/1/2</span><span class="tech-param-text">לחץ גבוה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/2/2</span><span class="tech-param-text">לחץ נמוך</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/4/2</span><span class="tech-param-text">רגש דחיסה 1</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/5/2</span><span class="tech-param-text">רגש דחיסה 2</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/7/2</span><span class="tech-param-text">רגש יניקה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/9/2</span><span class="tech-param-text">רגש יניקה 3</span></div>
+                    <div class="tech-sub-title">עבודת מדחס</div>
+                    <div class="tech-param"><span class="tech-param-code">1/5/1</span><span class="tech-param-text">תדר עבודה נוכחי של המדחס</span></div>
+                    <div class="tech-sub-title">נתוני חוץ ושמן</div>
+                    <div class="tech-param"><span class="tech-param-code">1/16/2</span><span class="tech-param-text">רגש אוויר חוזר מעבה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/1-5/5</span><span class="tech-param-text">רגשי שמן TK1–TK5</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/16/1</span><span class="tech-param-text">בדיקת רמת שמן — 0=תקין, 1/2=רמה נמוכה</span></div>
+                    <div class="tech-sub-title">נתוני מערכת</div>
+                    <div class="tech-param"><span class="tech-param-code">1/4/3</span><span class="tech-param-text">כמות מאיידים במערכת (ניתן לבדוק גם ב-4/1/1)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">6/*/*</span><span class="tech-param-text">כוח סוס של המאיידים</span></div>
+                    <div class="tech-sub-title">בדיקות עבודה (Test Mode)</div>
+                    <div class="tech-param"><span class="tech-param-code">2/1/4</span><span class="tech-param-text">טסט מאווררי מעבה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">2/5/1</span><span class="tech-param-text">טסט קירור</span></div>
+                    <div class="tech-param"><span class="tech-param-code">2/6/1</span><span class="tech-param-text">טסט חימום</span></div>
+                    <div class="tech-sub-title">שסתומים</div>
+                    <div class="tech-param"><span class="tech-param-code">2/1/3</span><span class="tech-param-text">פתיחת שסתומי מעבה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">2/3/1</span><span class="tech-param-text">פתיחת שסתומי מאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">8/*/*</span><span class="tech-param-text">פתיחת שסתום במאיידים</span></div>
+                    <div class="tech-sub-title">חיישני מאיידים (מהמעבה)</div>
+                    <div class="tech-param"><span class="tech-param-code">9/*/*</span><span class="tech-param-text">אוויר חוזר מאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">10/*/*</span><span class="tech-param-text">רגש יציאת אוויר</span></div>
+                    <div class="tech-param"><span class="tech-param-code">11/*/*</span><span class="tech-param-text">אמצע סוללה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">12/*/*</span><span class="tech-param-text">סוף סוללה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">13/*/*</span><span class="tech-param-text">כניסה לסוללה</span></div>
+                    <div class="tech-note">⚠️ חלק מהנתונים לא תקפים למעבה דגם U</div>
+                    <div class="tech-note">💡 <strong>*</strong> = מעבר בין המאיידים באמצעות המפסקים הצהובים</div>
+                    <div class="tech-sub-title">דיאגנוסטיקה</div>
+                    <div class="tech-param"><span class="tech-param-code">1/1/16</span><span class="tech-param-text">בדיקת תקלה אחרונה — דורש לחיצה על SW04 למשך 5 שניות</span></div>
+                </div>
+            </div>
+
+            <!-- DN Code -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🛠️ שינוי DN CODE — הגדרות שירות</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-param"><span class="tech-param-code">01</span><span class="tech-param-text">זמן הגדרת ניקוי פילטר</span></div>
+                    <div class="tech-param"><span class="tech-param-code">03</span><span class="tech-param-text">כתובת בקר מרכזי</span></div>
+                    <div class="tech-param"><span class="tech-param-code">04</span><span class="tech-param-text">הגדרת מאייד כ-Master — <strong>רק לאחר שמגדירים במעבה</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">06</span><span class="tech-param-text">שינוי רגש בחימום</span></div>
+                    <div class="tech-param"><span class="tech-param-code">10</span><span class="tech-param-text">הגדרת דגם המאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">11</span><span class="tech-param-text">הגדרת גודל (הספק) המאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">12</span><span class="tech-param-text">הגדרת קו גז מעבה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">13</span><span class="tech-param-text">הגדרת כתובת מאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">14</span><span class="tech-param-text">שליטת קבוצה — Group Control</span></div>
+                    <div class="tech-param"><span class="tech-param-code">17</span><span class="tech-param-text">שינוי רגש בקירור</span></div>
+                    <div class="tech-param"><span class="tech-param-code">28</span><span class="tech-param-text">חזרה מהפסקת חשמל — Auto Restart</span></div>
+                    <div class="tech-param"><span class="tech-param-code">32</span><span class="tech-param-text">מדידת טמפרטורה מהטרמוסטט — Remote Sensor</span></div>
+                    <div class="tech-param"><span class="tech-param-code">33</span><span class="tech-param-text">יחידות מידה — פרנהייט / צלזיוס</span></div>
+                    <div class="tech-param"><span class="tech-param-code">36</span><span class="tech-param-text">תצוגת הטמפרטורה שהמזגן מרגיש בפועל</span></div>
+                    <div class="tech-param"><span class="tech-param-code">5D</span><span class="tech-param-text">שינוי לחץ סטטי — External Static Pressure (לפי טבלה)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">103</span><span class="tech-param-text">הגדרה לדגמי U ללא טרמוסטט מחובר</span></div>
+                    <div class="tech-param"><span class="tech-param-code">A0</span><span class="tech-param-text">עבודת פן ומשאבת ניקוז בזמן החזרת שמן</span></div>
+                </div>
+            </div>
+
+        </div><!-- end tech-toshiba -->
+    </div><!-- end techPortal -->
+</div><!-- end page-tech -->
+
+<!-- ==============================
+     PAGE: VIDEO TUTORIALS
+================================= -->
+<div class="page" id="page-videos">
+    <div class="conv-card">
+        <div class="conv-card-title"><span>🎥</span> <span id="videosTitle">סרטוני הדרכה</span></div>
+        <p id="videosSub" style="font-size:12px; color:var(--text3); margin-bottom:16px; line-height:1.6;">
+            בחר מותג לצפייה בפלייליסט סרטוני ההדרכה
+        </p>
+
+        <div class="brand-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="brand-card" onclick="openVideoPlaylist('gree')">GREE</div>
+            <div class="brand-card" onclick="openVideoPlaylist('remote')" id="videoRemoteCard">שליטה מרחוק</div>
+            <div class="brand-card" onclick="openVideoPlaylist('toshiba')">TOSHIBA</div>
+            <div class="brand-card" onclick="openVideoPlaylist('prime')">PRIME</div>
+        </div>
+    </div>
+</div>
+
+<!-- ==============================
+     PAGE 4: ABOUT
+================================= -->
+<div class="page" id="page-about">
+    <div class="info-card">
+        <h3 id="aboutTitle">🛠️ Tadiran VRF Tools</h3>
+        <p id="aboutDesc">כלי עזר מקצועיים לטכנאי VRF — מחשבון תוספת גז ומחשבון המרות לחץ וטמפרטורה.</p>
+        <div class="version-badge">v2.0.0 · 2025</div>
+    </div>
+
+    <div class="info-card">
+        <h3 id="aboutInstallTitle">📱 כיצד להתקין כקיצור דרך?</h3>
+        <p><strong>iPhone/iPad:</strong> <span id="aboutIphone">פתח ב-Safari ← לחץ שתף ← "הוסף למסך הבית"</span><br><br>
+           <strong>Android:</strong> <span id="aboutAndroid">פתח בכרום ← תפריט ⋮ ← "הוסף למסך הבית"</span></p>
+    </div>
+
+    <div class="info-card">
+        <h3 id="aboutDarkTitle">🌙 מצב לילה</h3>
+        <p id="aboutDarkDesc">לחץ על כפתור הירח בפינה השמאלית העליונה למעבר בין מצב יום ולילה. ההגדרה נשמרת אוטומטית.</p>
+    </div>
+</div>
 
 <script>
-  firebase.initializeApp({
-    apiKey:"AIzaSyA5SsSCkhQg1R5bi5FitJeB9uzrNm-1L8o",
-    authDomain:"helkey-hiluf.firebaseapp.com",
-    projectId:"helkey-hiluf",
-    storageBucket:"helkey-hiluf.firebasestorage.app",
-    messagingSenderId:"622794251696",
-    appId:"1:622794251696:web:aafcaf67b729d653de4a75"
-  });
-  window._db = firebase.firestore();
-</script>
+// ===========================
+// TRANSLATIONS
+// ===========================
+const TRANSLATIONS = {
+    he: {
+        tab_gas: '⚙️ תוספת גז', tab_conv: '🔄 המרות', tab_tech: '🔧 טכנאים', tab_videos: '🎥 סרטוני הדרכה', tab_about: 'ℹ️ אודות',
+        warning_title: 'הערות שימוש',
+        warning_text: 'נתוני תוספת הגז מבוססים על מפרטי היצרן. יש לאמת תמיד מול הוראות ההתקנה הרשמיות. החברה לא אחראית לטעויות שימוש.',
+        choose_brand: 'בחר מותג', sys_type: 'סוג מערכת', choose_model: 'בחר דגם',
+        pipe_label: 'אורך צנרת נוזל בלבד (מטרים)',
+        unit_count: 'כמות מאיידים', ratio: 'יחס העמסה (Ratio)',
+        result_label: 'תוספת גז סופית נדרשת', clear: '↺ נקה נתונים',
+        mini: 'MINI — מיני VRF', modular: 'MODULAR — מודולרי',
+        choose_ratio: '— בחר יחס —',
+        sat_title: 'R410A — לחץ ↔ טמפרטורת רוויה',
+        sat_sub: 'מלא לחץ או טמפרטורה — הכל יחושב אוטומטית',
+        sat_pressure: '🔵 לחץ רוויה', sat_temp: '🌡️ המרה לטמפרטורת רוויה',
+        clear_all: '↺ נקה הכל',
+        videos_title: 'סרטוני הדרכה', videos_sub: 'בחר מותג לצפייה בפלייליסט סרטוני ההדרכה', videos_remote: 'שליטה מרחוק',
+        tech_title: 'אזור טכנאים', tech_subtitle: 'הזן סיסמה לגישה למידע טכני',
+        tech_login: 'כניסה', tech_error: 'סיסמה שגויה', tech_welcome: '👨‍🔧 שלום טכנאי',
+        tech_logout: 'יציאה', tech_choose_brand: 'בחר מותג',
+        about_title: 'Tadiran VRF Tools', about_desc: 'כלי עזר מקצועיים לטכנאי VRF — מחשבון תוספת גז ומחשבון המרות לחץ וטמפרטורה.',
+        about_install: 'כיצד להתקין כקיצור דרך?',
+        about_iphone: 'פתח ב-Safari ← לחץ שתף ← "הוסף למסך הבית"',
+        about_android: 'פתח בכרום ← תפריט ⋮ ← "הוסף למסך הבית"',
+        about_dark: 'מצב לילה', about_dark_desc: 'לחץ על כפתור הירח בפינה השמאלית העליונה למעבר בין מצב יום ולילה.',
+        dir: 'rtl'
+    },
+    en: {
+        tab_gas: '⚙️ Gas Charge', tab_conv: '🔄 Conversions', tab_tech: '🔧 Technicians', tab_videos: '🎥 Video Tutorials', tab_about: 'ℹ️ About',
+        warning_title: 'Usage Notes',
+        warning_text: 'Gas charge data is based on manufacturer specifications. Always verify against official installation instructions. The company is not responsible for usage errors.',
+        choose_brand: 'Select Brand', sys_type: 'System Type', choose_model: 'Select Model',
+        pipe_label: 'Liquid line length only (meters)',
+        unit_count: 'Number of Indoor Units', ratio: 'Loading Ratio',
+        result_label: 'Required Gas Charge', clear: '↺ Clear',
+        mini: 'MINI — Mini VRF', modular: 'MODULAR — Modular',
+        choose_ratio: '— Select ratio —',
+        sat_title: 'R410A — Pressure ↔ Saturation Temp',
+        sat_sub: 'Enter pressure or temperature — all fields update automatically',
+        sat_pressure: '🔵 Saturation Pressure', sat_temp: '🌡️ Saturation Temperature',
+        clear_all: '↺ Clear All',
+        videos_title: 'Video Tutorials', videos_sub: 'Select a brand to view its tutorial playlist', videos_remote: 'Remote Control',
+        tech_title: 'Technician Portal', tech_subtitle: 'Enter password to access technical data',
+        tech_login: 'Login', tech_error: 'Incorrect password', tech_welcome: '👨‍🔧 Welcome, Technician',
+        tech_logout: 'Logout', tech_choose_brand: 'Select Brand',
+        about_title: 'Tadiran VRF Tools', about_desc: 'Professional tools for VRF technicians — gas charge calculator and pressure/temperature converter.',
+        about_install: 'How to install as a shortcut?',
+        about_iphone: 'Open in Safari ← Share ← "Add to Home Screen"',
+        about_android: 'Open in Chrome ← Menu ⋮ ← "Add to Home Screen"',
+        about_dark: 'Dark Mode', about_dark_desc: 'Press the moon button in the top left corner to toggle dark mode.',
+        dir: 'ltr'
+    },
+    ar: {
+        tab_gas: '⚙️ شحن الغاز', tab_conv: '🔄 تحويلات', tab_tech: '🔧 الفنيون', tab_videos: '🎥 فيديوهات تعليمية', tab_about: 'ℹ️ حول',
+        warning_title: 'ملاحظات الاستخدام',
+        warning_text: 'بيانات شحن الغاز مستندة إلى مواصفات الشركة المصنعة. يجب دائمًا التحقق من تعليمات التركيب الرسمية. الشركة غير مسؤولة عن أخطاء الاستخدام.',
+        choose_brand: 'اختر العلامة التجارية', sys_type: 'نوع النظام', choose_model: 'اختر الطراز',
+        pipe_label: 'طول أنبوب السائل فقط (بالأمتار)',
+        unit_count: 'عدد الوحدات الداخلية', ratio: 'نسبة التحميل',
+        result_label: 'كمية الغاز المطلوبة', clear: '↺ مسح',
+        mini: 'MINI — ميني VRF', modular: 'MODULAR — موديولار',
+        choose_ratio: '— اختر النسبة —',
+        sat_title: 'R410A — الضغط ↔ درجة حرارة التشبع',
+        sat_sub: 'أدخل الضغط أو درجة الحرارة — يتم التحديث تلقائيًا',
+        sat_pressure: '🔵 ضغط التشبع', sat_temp: '🌡️ درجة حرارة التشبع',
+        clear_all: '↺ مسح الكل',
+        videos_title: 'فيديوهات تعليمية', videos_sub: 'اختر العلامة التجارية لمشاهدة قائمة الفيديوهات', videos_remote: 'التحكم عن بعد',
+        tech_title: 'منطقة الفنيين', tech_subtitle: 'أدخل كلمة المرور للوصول إلى البيانات التقنية',
+        tech_login: 'دخول', tech_error: 'كلمة مرور غير صحيحة', tech_welcome: '👨‍🔧 مرحبًا أيها الفني',
+        tech_logout: 'خروج', tech_choose_brand: 'اختر العلامة التجارية',
+        about_title: 'Tadiran VRF Tools', about_desc: 'أدوات احترافية لفنيي VRF — حاسبة شحن الغاز ومحول الضغط والحرارة.',
+        about_install: 'كيفية التثبيت كاختصار؟',
+        about_iphone: 'افتح في Safari ← مشاركة ← "إضافة إلى الشاشة الرئيسية"',
+        about_android: 'افتح في Chrome ← القائمة ⋮ ← "إضافة إلى الشاشة الرئيسية"',
+        about_dark: 'الوضع الليلي', about_dark_desc: 'اضغط على زر القمر في الزاوية اليسرى العليا للتبديل بين وضعي النهار والليل.',
+        dir: 'rtl'
+    }
+};
 
-<script>
-  Babel.registerPreset("my-react-env", {
-    presets: [
-      Babel.availablePresets["env"],
-      [Babel.availablePresets["react"], { runtime: "classic" }]
-    ]
-  });
-</script>
+let currentLang = localStorage.getItem('vrf-lang') || 'he';
 
-<script type="text/babel" data-presets="my-react-env" src="js/constants.js?v=1790566116"></script>
-<script type="text/babel" data-presets="my-react-env" src="js/firebase.js?v=1790566116"></script>
-<script type="text/babel" data-presets="my-react-env" src="js/helpers.js?v=1790566116"></script>
-<script type="text/babel" data-presets="my-react-env" src="js/components.js?v=1790566116"></script>
-<script type="text/babel" data-presets="my-react-env" src="js/modals.js?v=1790566116"></script>
-<script type="text/babel" data-presets="my-react-env" src="js/ModelView.js?v=1790566116"></script>
-<script type="text/babel" data-presets="my-react-env" src="js/compare.js?v=1790566116"></script>
-<script type="text/babel" data-presets="my-react-env" src="js/makat_review.js?v=1790566116"></script>
-<script type="text/babel" data-presets="my-react-env" src="js/App.js?v=1790566116"></script>
+function setLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('vrf-lang', lang);
+    const t = TRANSLATIONS[lang];
+    document.documentElement.setAttribute('dir', t.dir);
+
+    // lang buttons
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    const map = {he:0,en:1,ar:2};
+    document.querySelectorAll('.lang-btn')[map[lang]]?.classList.add('active');
+
+    // tabs
+    const tabKeys = ['gas','conv','tech','videos','about'];
+    document.querySelectorAll('[data-i18n-tab]').forEach(btn => {
+        const key = btn.getAttribute('data-i18n-tab');
+        btn.textContent = t['tab_' + key] || btn.textContent;
+    });
+
+    // all data-i18n elements
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+    });
+
+    // dynamic UI labels
+    const ids = {
+        'warningTitle': 'warning_title', 'warningText': 'warning_text',
+    };
+
+    // Warning box
+    const warnTitle = document.querySelector('#page-gas strong[data-i18n]');
+    const warnPara  = document.querySelector('#page-gas p[data-i18n]');
+
+    // Section labels — update key static labels
+    updateLabel('sectionBrand', t.choose_brand);
+    updateLabel('sectionSysType', t.sys_type);
+    updateLabel('modelLabel', t.choose_model);
+    updateLabel('pipeSectionLabel', t.pipe_label);
+    updateLabel('unitCountLabel', t.unit_count);
+    updateLabel('ratioLabel', t.ratio);
+    updateLabel('resultLabel', t.result_label);
+
+    // Select options
+    const sysType = document.getElementById('sysType');
+    if (sysType) {
+        sysType.options[0].text = t.mini;
+        sysType.options[1].text = t.modular;
+    }
+    const ratio = document.getElementById('ratio');
+    if (ratio && ratio.options[0]) ratio.options[0].text = t.choose_ratio;
+
+    // Buttons
+    const clearBtn = document.querySelector('.btn-clear');
+    if (clearBtn) clearBtn.textContent = t.clear;
+
+    // Saturation table labels
+    updateLabel('satTitle', t.sat_title);
+    updateLabel('satSub', t.sat_sub);
+    updateLabel('satPressureDiv', t.sat_pressure);
+    updateLabel('satTempDiv', t.sat_temp);
+
+    // Video tutorials page
+    updateLabel('videosTitle', t.videos_title);
+    updateLabel('videosSub', t.videos_sub);
+    updateLabel('videoRemoteCard', t.videos_remote);
+
+    // About page
+    updateLabel('aboutTitle', t.about_title);
+    updateLabel('aboutDesc', t.about_desc);
+    updateLabel('aboutInstallTitle', t.about_install);
+    updateLabel('aboutIphone', t.about_iphone);
+    updateLabel('aboutAndroid', t.about_android);
+    updateLabel('aboutDarkTitle', t.about_dark);
+    updateLabel('aboutDarkDesc', t.about_dark_desc);
+}
+
+function updateLabel(id, text) {
+    if (!text) return;
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+}
+
+// Apply saved language on load
+window.addEventListener('DOMContentLoaded', () => setLang(currentLang));
+
+// ===========================
+// TECHNICIAN PORTAL
+// ===========================
+const TECH_PASSWORD = 'Tadiran2026';
+
+function techLogin() {
+    const pw = document.getElementById('techPassword').value;
+    if (pw === TECH_PASSWORD) {
+        localStorage.setItem('vrf-tech-auth', '1');
+        showTechPortal();
+    } else {
+        document.getElementById('techError').style.display = 'block';
+        document.getElementById('techPassword').value = '';
+    }
+}
+
+function techLogout() {
+    localStorage.removeItem('vrf-tech-auth');
+    document.getElementById('techPortal').classList.add('hidden');
+    document.getElementById('techLock').style.display = 'block';
+    document.getElementById('techPassword').value = '';
+    document.getElementById('techError').style.display = 'none';
+}
+
+function showTechPortal() {
+    document.getElementById('techLock').style.display = 'none';
+    document.getElementById('techPortal').classList.remove('hidden');
+}
+
+// Check on tab switch
+function checkTechAuth() {
+    if (localStorage.getItem('vrf-tech-auth') === '1') showTechPortal();
+    else {
+        document.getElementById('techLock').style.display = 'block';
+        document.getElementById('techPortal').classList.add('hidden');
+    }
+}
+
+let currentTechBrand = '';
+function selectTechBrand(brand, el) {
+    currentTechBrand = brand;
+    document.querySelectorAll('.tech-brand-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    ['tech-gree','tech-prime','tech-toshiba'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    document.getElementById('tech-' + brand.toLowerCase()).classList.remove('hidden');
+}
+
+function toggleTechSection(header) {
+    const body = header.nextElementSibling;
+    const arrow = header.querySelector('span:last-child');
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    arrow.textContent = isOpen ? '▾' : '▴';
+}
+const savedTheme = localStorage.getItem('vrf-theme') || 'light';
+if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('darkBtn').textContent = '☀️';
+}
+
+function toggleDark() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        document.getElementById('darkBtn').textContent = '🌙';
+        localStorage.setItem('vrf-theme', 'light');
+    } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.getElementById('darkBtn').textContent = '☀️';
+        localStorage.setItem('vrf-theme', 'dark');
+    }
+}
+
+// ===========================
+// TABS
+// ===========================
+function switchTab(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    btn.classList.add('active');
+    if (id === 'tech') checkTechAuth();
+}
+
+// ===========================
+// VIDEO TUTORIALS
+// ===========================
+const videoPlaylists = {
+    gree:    'https://youtube.com/playlist?list=PLGgbMH8Jkwx8&si=dT2czsFcQzvmH32S',
+    remote:  'https://youtube.com/playlist?list=PLGxAskMKig-4&si=iy0zMWy8l-EsE-_U',
+    toshiba: 'https://youtube.com/playlist?list=PLf0SoTR7GNgI&si=vbNXdg077jIKs018',
+    prime:   'https://youtube.com/playlist?list=PLcaQAGucEk50&si=jGMND-No53AigtQu'
+};
+
+function openVideoPlaylist(brand) {
+    const url = videoPlaylists[brand];
+    if (url) window.open(url, '_blank', 'noopener');
+}
+
+// ===========================
+// GAS CALCULATOR
+// ===========================
+let currentBrand = '';
+
+const pipeFactors = {
+    GREE:    { "1/4": 22, "3/8": 54, "1/2": 110, "5/8": 170, "3/4": 250, "7/8": 350, "1": 520, "1 1/8": 680 },
+    PRIME:   { "1/4": 22, "3/8": 54, "1/2": 110, "5/8": 170, "3/4": 250, "7/8": 350 },
+    TOSHIBA: { "1/4": 25, "3/8": 55, "1/2": 105, "5/8": 160, "3/4": 250, "7/8": 350, "1": 470 }
+};
+
+const greeFullData = {
+    "224":  { "50-70":[0,0.5], "70-90":[0.5,1],   "90-105":[1,2],   "105-135":[2,3.5] },
+    "280":  { "50-70":[0,1],   "70-90":[1,1],     "90-105":[1,2],   "105-135":[2,4]   },
+    "335":  { "50-70":[0,1],   "70-90":[1,1],     "90-105":[1,2],   "105-135":[2,4]   },
+    "400":  { "50-70":[0,1],   "70-90":[2,2],     "90-105":[2,4],   "105-135":[3,5]   },
+    "450":  { "50-70":[0,1],   "70-90":[2,2],     "90-105":[2,4],   "105-135":[3,5]   },
+    "504":  { "50-70":[0,0.5], "70-90":[1.5,2.5], "90-105":[2.5,4], "105-135":[3.5,5.5] },
+    "560":  { "50-70":[0,1],   "70-90":[2,3],     "90-105":[3,5],   "105-135":[4,6]   },
+    "615":  { "50-70":[0,1.5], "70-90":[2,3.5],   "90-105":[3.5,5], "105-135":[4,6]   },
+    "680":  { "50-70":[0,1.5], "70-90":[2,3.5],   "90-105":[3.5,5], "105-135":[4,6]   },
+    "730":  { "50-70":[0,2],   "70-90":[3,4],     "90-105":[5,6],   "105-135":[6,7]   },
+    "785":  { "50-70":[0,2],   "70-90":[3,4],     "90-105":[5,6],   "105-135":[6,7]   },
+    "850":  { "50-70":[0,2],   "70-90":[3,4],     "90-105":[5,6],   "105-135":[6,7]   },
+    "900":  { "50-70":[0,2],   "70-90":[3,4],     "90-105":[5,7],   "105-135":[7,8]   },
+    "952":  { "50-70":[0,2],   "70-90":[3,4],     "90-105":[5,7],   "105-135":[7,8]   },
+    "1010": { "50-70":[0,2],   "70-90":[3,4],     "90-105":[5,7],   "105-135":[7,8]   }
+};
+
+const brandColors = { GREE: '#003399', PRIME: '#ff6600', TOSHIBA: '#e4002b' };
+
+function selectBrand(brand) {
+    currentBrand = brand;
+    document.getElementById('calculatorBody').classList.remove('hidden');
+    document.getElementById('cardGree').className    = 'brand-card' + (brand==='GREE'    ? ' active-gree'    : '');
+    document.getElementById('cardPrime').className   = 'brand-card' + (brand==='PRIME'   ? ' active-prime'   : '');
+    document.getElementById('cardToshiba').className = 'brand-card' + (brand==='TOSHIBA' ? ' active-toshiba' : '');
+
+    const color = brandColors[brand];
+    document.getElementById('resultBox').style.background = color;
+    document.getElementById('brandStripe').style.background = color;
+
+    const f = pipeFactors[brand];
+    [['14','1/4'],['38','3/8'],['12','1/2'],['58','5/8'],['34','3/4'],['78','7/8']].forEach(([id, key]) => {
+        const el = document.getElementById('f'+id);
+        if (el) el.innerText = f[key] ? `(${f[key]}g)` : '';
+    });
+    const f10  = document.getElementById('f10');
+    const f118 = document.getElementById('f118');
+    if (f10)  f10.innerText  = f["1"]     ? `(${f["1"]}g)`     : '';
+    if (f118) f118.innerText = f["1 1/8"] ? `(${f["1 1/8"]}g)` : '';
+
+    initModels();
+}
+
+function initModels() {
+    if (!currentBrand) return;
+    const type = document.getElementById('sysType').value;
+    const list = document.getElementById('modelList');
+    const label = document.getElementById('modelLabel');
+    list.innerHTML = '';
+
+    const count = (currentBrand === 'GREE' && type === 'MODULAR') ? 4 : 1;
+    label.innerText = count > 1 ? 'בחר עד 4 מעבים:' : 'בחר דגם:';
+
+    for (let i = 1; i <= count; i++) {
+        const sel = document.createElement('select');
+        sel.id = 'modelSelect' + i;
+        sel.style.marginBottom = '8px';
+        sel.onchange = () => { toggleUI(); calculate(); };
+
+        const def = document.createElement('option');
+        def.value = '';
+        def.innerText = count > 1 ? `— מעבה ${i} —` : '— בחר דגם —';
+        sel.appendChild(def);
+
+        let models = [];
+        if (currentBrand === 'TOSHIBA') {
+            models = type === 'MINI' ? [
+                'MCY-MHP0404','MCY-MHP0504','MCY-MHP0604',
+                'MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'
+            ] : ['SMMSU'];
+        } else if (currentBrand === 'PRIME') {
+            models = type === 'MINI'
+                ? ['PRIME 032','PRIME 04','PRIME 05','PRIME 06','PRIME 07','PRIME 08','PRIME 10','PRIME 12']
+                : ['MODULAR 08','MODULAR 10','MODULAR 12','MODULAR 14','MODULAR 16','MODULAR 18','MODULAR 20','MODULAR 22','MODULAR 24','MODULAR 26'];
+        } else {
+            models = type === 'MINI'
+                ? ['80','100','120','140','160','224','280','335']
+                : Object.keys(greeFullData);
+        }
+
+        models.forEach(m => {
+            const o = document.createElement('option');
+            o.value = m;
+            // GREE — הצג עם קידומת GMV-
+            o.innerText = (currentBrand === 'GREE') ? 'GMV-' + m : m;
+            sel.appendChild(o);
+        });
+        list.appendChild(sel);
+    }
+    toggleUI();
+    calculate();
+}
+
+function toggleUI() {
+    const type  = document.getElementById('sysType').value;
+    const model = document.getElementById('modelSelect1')?.value;
+
+    document.querySelectorAll('.pipe-item').forEach(el => el.classList.add('hidden'));
+
+    if (currentBrand === 'TOSHIBA' && type === 'MINI') {
+        // דגמים עם 1/2 נוספת
+        const with12 = ['MCY-1204','MCY-1206'];
+        document.getElementById('row14').classList.remove('hidden');
+        document.getElementById('row38').classList.remove('hidden');
+        if (with12.includes(model)) document.getElementById('row12').classList.remove('hidden');
+    } else if (currentBrand === 'GREE' && type === 'MINI') {
+        document.getElementById('row14').classList.remove('hidden');
+        document.getElementById('row38').classList.remove('hidden');
+        if (model === '335') document.getElementById('row12').classList.remove('hidden');
+    } else if (currentBrand === 'PRIME' && type === 'MINI') {
+        document.getElementById('row14').classList.remove('hidden');
+        document.getElementById('row38').classList.remove('hidden');
+        if (model === 'PRIME 12') document.getElementById('row12').classList.remove('hidden');
+    } else {
+        ['row14','row38','row12','row58','row34','row78'].forEach(id => document.getElementById(id).classList.remove('hidden'));
+        if (currentBrand !== 'PRIME') document.getElementById('row10').classList.remove('hidden');
+        if (currentBrand === 'GREE')  document.getElementById('row118').classList.remove('hidden');
+    }
+
+    const isPrimeModular = (currentBrand === 'PRIME' && type === 'MODULAR');
+    const isToshiba      = currentBrand === 'TOSHIBA';
+    const isPrimeMini    = (currentBrand === 'PRIME' && type === 'MINI');
+    document.getElementById('extraFields').classList.toggle('hidden', isPrimeModular || isToshiba || isPrimeMini);
+
+    // Toshiba: הצג מאיידים רק לדגמים החדשים
+    const toshibaNewModels = ['MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'];
+    const showToshibaUnits = isToshiba && toshibaNewModels.includes(model);
+    document.getElementById('toshibaFields').classList.toggle('hidden', !showToshibaUnits);
+    if (showToshibaUnits && document.getElementById('toshibaUnitsList').children.length === 0) addToshibaUnit();
+    if (!showToshibaUnits && isToshiba) {
+        document.getElementById('toshibaUnitsList').innerHTML = '';
+        toshibaUnitCount = 0;
+    }
+
+    // SMMSU Modular
+    const showSMMSU = isToshiba && type === 'MODULAR' && model === 'SMMSU';
+    document.getElementById('smmsuFields').classList.toggle('hidden', !showSMMSU);
+    if (!showSMMSU) {
+        document.getElementById('smmsuDiversityBox').style.display = 'none';
+    }
+
+    const isGreeMiniLarge = (currentBrand === 'GREE' && type === 'MINI' && ['224','280','335'].includes(model));
+    document.getElementById('unitCountWrapper').classList.toggle('hidden', isGreeMiniLarge || isPrimeModular);
+    document.getElementById('ratioWrapper').classList.toggle('hidden', currentBrand !== 'GREE' || type === 'MINI');
+}
+
+function calculate() {
+    if (!currentBrand) return;
+    const factors = pipeFactors[currentBrand];
+    const units   = parseInt(document.getElementById('unitCount').value) || 0;
+    const ratio   = document.getElementById('ratio').value;
+    const type    = document.getElementById('sysType').value;
+
+    let totalG =
+        (parseFloat(document.getElementById('p14').value)  || 0) * (factors["1/4"]   || 0) +
+        (parseFloat(document.getElementById('p38').value)  || 0) * (factors["3/8"]   || 0) +
+        (parseFloat(document.getElementById('p12').value)  || 0) * (factors["1/2"]   || 0) +
+        (parseFloat(document.getElementById('p58').value)  || 0) * (factors["5/8"]   || 0) +
+        (parseFloat(document.getElementById('p34').value)  || 0) * (factors["3/4"]   || 0) +
+        (parseFloat(document.getElementById('p78').value)  || 0) * (factors["7/8"]   || 0);
+
+    if (factors["1"])     totalG += (parseFloat(document.getElementById('p10').value)  || 0) * factors["1"];
+    if (factors["1 1/8"]) totalG += (parseFloat(document.getElementById('p118').value) || 0) * factors["1 1/8"];
+
+    for (let i = 1; i <= 4; i++) {
+        const sel = document.getElementById('modelSelect' + i);
+        if (!sel) continue;
+        const model = sel.value;
+        if (!model) continue;
+
+        if (currentBrand === 'GREE') {
+            if (type === 'MINI') {
+                const small = ['80','100','120','140','160'];
+                if (small.includes(model) && units > 2) totalG += (units - 2) * 300;
+            } else if (ratio && greeFullData[model]) {
+                totalG += greeFullData[model][ratio][units >= 4 ? 1 : 0] * 1000;
+            }
+        } else if (currentBrand === 'PRIME' && type === 'MODULAR') {
+            const primeMap = {"MODULAR 18":0.5,"MODULAR 20":4,"MODULAR 22":4.5,"MODULAR 24":4.5,"MODULAR 26":5};
+            totalG += (primeMap[model] || 0) * 1000;
+        }
+    }
+
+    if (currentBrand === 'TOSHIBA') {
+        totalG += toshibaCalcExtra();
+        if (type === 'MODULAR') totalG += smmsuCalcExtra();
+    }
+    document.getElementById('totalResult').innerText = (totalG / 1000).toFixed(3);
+}
+
+function clearAll() {
+    document.querySelectorAll('#page-gas input[type="number"]').forEach(i => i.value = '');
+    document.getElementById('ratio').value = '';
+    if (currentBrand === 'TOSHIBA') clearToshibaUnits();
+    calculate();
+}
+
+// ===========================
+// R410A SATURATION TABLE
+// לחץ רוויה ↔ טמפרטורת רוויה
+// נתונים מתוך טבלת תרמודינמיקה ASHRAE R410A
+// ===========================
+
+// טבלת נקודות R410A: [Tsat °C, Psat MPa]
+const R410A_TABLE = [
+    [-60, 0.0282], [-55, 0.0397], [-50, 0.0549], [-48, 0.0618],
+    [-46, 0.0694], [-44, 0.0778], [-42, 0.0870], [-40, 0.1012],
+    [-38, 0.1110], [-36, 0.1238], [-34, 0.1376], [-32, 0.1527],
+    [-30, 0.1691], [-28, 0.1869], [-26, 0.2062], [-24, 0.2271],
+    [-22, 0.2497], [-20, 0.2740], [-18, 0.3002], [-16, 0.3284],
+    [-14, 0.3587], [-12, 0.3912], [-10, 0.4260], [-8,  0.4633],
+    [-6,  0.5031], [-4,  0.5456], [-2,  0.5909], [0,   0.6392],
+    [2,   0.6905], [4,   0.7450], [5,   0.7733], [6,   0.8027],
+    [8,   0.8638], [10,  0.9285], [12,  0.9969], [14,  1.0691],
+    [16,  1.1453], [18,  1.2257], [20,  1.3102], [22,  1.3992],
+    [24,  1.4927], [26,  1.5909], [28,  1.6939], [30,  1.8019],
+    [32,  1.9150], [34,  2.0334], [36,  2.1572], [38,  2.2866],
+    [40,  2.4218], [42,  2.5629], [44,  2.7102], [46,  2.8637],
+    [48,  3.0237], [50,  3.1904], [52,  3.3640], [54,  3.5447],
+    [56,  3.7327], [58,  3.9282], [60,  4.1315], [65,  4.6889],
+    [70,  5.3003]
+];
+
+// אינטרפולציה לינארית
+function r410a_P_from_T(tc) {
+    const tbl = R410A_TABLE;
+    if (tc <= tbl[0][0]) return tbl[0][1];
+    if (tc >= tbl[tbl.length-1][0]) return tbl[tbl.length-1][1];
+    for (let i = 0; i < tbl.length - 1; i++) {
+        if (tc >= tbl[i][0] && tc <= tbl[i+1][0]) {
+            const t0 = tbl[i][0], t1 = tbl[i+1][0];
+            const p0 = tbl[i][1], p1 = tbl[i+1][1];
+            return p0 + (p1 - p0) * (tc - t0) / (t1 - t0);
+        }
+    }
+    return null;
+}
+
+function r410a_T_from_P(mpa) {
+    const tbl = R410A_TABLE;
+    if (mpa <= tbl[0][1]) return tbl[0][0];
+    if (mpa >= tbl[tbl.length-1][1]) return tbl[tbl.length-1][0];
+    for (let i = 0; i < tbl.length - 1; i++) {
+        if (mpa >= tbl[i][1] && mpa <= tbl[i+1][1]) {
+            const p0 = tbl[i][1], p1 = tbl[i+1][1];
+            const t0 = tbl[i][0], t1 = tbl[i+1][0];
+            return t0 + (t1 - t0) * (mpa - p0) / (p1 - p0);
+        }
+    }
+    return null;
+}
+
+let _satBusy = false;
+
+function satConvert(source) {
+    if (_satBusy) return;
+    _satBusy = true;
+
+    // Highlight active row
+    document.querySelectorAll('.urow').forEach(r => r.classList.remove('active-row'));
+    const activeRow = document.querySelector(`.urow[data-key="${source}"]`);
+    if (activeRow) activeRow.classList.add('active-row');
+
+    const rawVal = document.getElementById('u-' + source).value;
+    const val = parseFloat(rawVal);
+    const status = document.getElementById('satStatus');
+
+    if (rawVal === '' || isNaN(val)) {
+        ['mpa','kpa','psi','bar','tc','tf'].forEach(k => {
+            if (k !== source) document.getElementById('u-'+k).value = '';
+        });
+        status.textContent = '';
+        _satBusy = false;
+        return;
+    }
+
+    let mpa = null;
+    let tc  = null;
+
+    const pressureKeys = ['mpa','kpa','psi','bar'];
+    const tempKeys     = ['tc','tf'];
+
+    if (pressureKeys.includes(source)) {
+        // קלט לחץ → המר ל-MPa → חשב Tsat
+        if (source === 'mpa') mpa = val;
+        else if (source === 'kpa') mpa = val * 0.001;
+        else if (source === 'psi') mpa = val * 0.00689476;
+        else if (source === 'bar') mpa = val * 0.1;
+
+        if (mpa < 0.02 || mpa > 5.5) {
+            status.textContent = '⚠️ הלחץ מחוץ לטווח R410A (-60°C עד 70°C)';
+            _satBusy = false; return;
+        }
+
+        tc = r410a_T_from_P(mpa);
+        if (tc === null) { status.textContent = '⚠️ שגיאה בחישוב'; _satBusy = false; return; }
+
+        // מלא לחצים
+        if (source !== 'mpa') document.getElementById('u-mpa').value = mpa.toFixed(4);
+        if (source !== 'kpa') document.getElementById('u-kpa').value = (mpa / 0.001).toFixed(1);
+        if (source !== 'psi') document.getElementById('u-psi').value = (mpa / 0.00689476).toFixed(2);
+        if (source !== 'bar') document.getElementById('u-bar').value = (mpa / 0.1).toFixed(3);
+
+        // מלא טמפרטורות
+        document.getElementById('u-tc').value = tc.toFixed(2);
+        document.getElementById('u-tf').value = (tc * 9/5 + 32).toFixed(2);
+
+        status.textContent = `✅ Tsat = ${tc.toFixed(1)}°C בלחץ ${mpa.toFixed(3)} MPa`;
+
+    } else {
+        // קלט טמפרטורה → המר ל-°C → חשב Psat
+        if (source === 'tc') tc = val;
+        else if (source === 'tf') tc = (val - 32) * 5/9;
+
+        if (tc < -60 || tc > 70) {
+            status.textContent = '⚠️ הטמפרטורה מחוץ לטווח R410A (-60°C עד 70°C)';
+            _satBusy = false; return;
+        }
+
+        mpa = r410a_P_from_T(tc);
+        if (mpa === null) { status.textContent = '⚠️ שגיאה בחישוב'; _satBusy = false; return; }
+
+        // מלא טמפרטורות
+        if (source !== 'tc') document.getElementById('u-tc').value = tc.toFixed(2);
+        if (source !== 'tf') document.getElementById('u-tf').value = (tc * 9/5 + 32).toFixed(2);
+
+        // מלא לחצים
+        document.getElementById('u-mpa').value = mpa.toFixed(4);
+        document.getElementById('u-kpa').value = (mpa / 0.001).toFixed(1);
+        document.getElementById('u-psi').value = (mpa / 0.00689476).toFixed(2);
+        document.getElementById('u-bar').value = (mpa / 0.1).toFixed(3);
+
+        status.textContent = `✅ Psat = ${mpa.toFixed(3)} MPa בטמפרטורה ${tc.toFixed(1)}°C`;
+    }
+
+    _satBusy = false;
+}
+
+function clearSat() {
+    _satBusy = true;
+    ['mpa','kpa','psi','bar','tc','tf'].forEach(k => document.getElementById('u-'+k).value = '');
+    document.querySelectorAll('.urow').forEach(r => r.classList.remove('active-row'));
+    document.getElementById('satStatus').textContent = '';
+    _satBusy = false;
+}
+
+function fillSatRef(unit, val) {
+    document.getElementById('u-'+unit).value = val;
+    satConvert(unit);
+}
+
+// ===========================
+// TOSHIBA MINI — חישוב מלא
+// ===========================
+
+// Table 2 — תוספת גז לפי סוג מאייד + capacity code (גרמים)
+// null = לא רלוונטי לאותו קוד
+const TOSHIBA_TABLE2 = {
+    "MMU-*P****HP* — קסטה 4 כיוונים": {
+        "005":null,"007":null,"009":400,"012":400,"015":800,"018":800,
+        "024":800,"027":800,"030":800,"036":1200,"048":1200,"056":1200,"072":null,"096":null
+    },
+    "MMU-*P****MH/P* — קסטה קומפקטית": {
+        "005":300,"007":400,"009":400,"012":400,"015":600,"018":600,
+        "024":null,"027":null,"030":null,"036":null,"048":null,"056":null,"072":null,"096":null
+    },
+    "MMU-*P****WH* — קסטה 2 כיוונים": {
+        "005":null,"007":400,"009":400,"012":400,"015":500,"018":700,
+        "024":700,"027":700,"030":700,"036":1100,"048":1100,"056":1100,"072":null,"096":null
+    },
+    "MMU-*P****YH/SH* — קסטה כיוון אחד": {
+        "005":null,"007":400,"009":400,"012":400,"015":500,"018":500,
+        "024":600,"027":null,"030":null,"036":null,"048":null,"056":null,"072":null,"096":null
+    },
+    "MMU-*P****YHP* — קסטה כיוון אחד דקה": {
+        "005":300,"007":300,"009":300,"012":300,"015":400,"018":400,
+        "024":500,"027":500,"030":null,"036":null,"048":null,"056":null,"072":null,"096":null
+    },
+    "MMD-*P****BHP* — נסתר לחץ בינוני": {
+        "005":null,"007":300,"009":300,"012":300,"015":500,"018":500,
+        "024":800,"027":800,"030":800,"036":1100,"048":1100,"056":1100,"072":null,"096":null
+    },
+    "MMD-AP****SPH* — נסתר זריקה ישירה": {
+        "005":300,"007":300,"009":300,"012":300,"015":500,"018":500,
+        "024":800,"027":800,"030":null,"036":null,"048":null,"056":null,"072":null,"096":null
+    },
+    "MMD-*P****SPHY/MPHY* — נסתר זריקה ישירה": {
+        "005":300,"007":400,"009":400,"012":400,"015":500,"018":500,
+        "024":700,"027":700,"030":null,"036":null,"048":null,"056":null,"072":null,"096":null
+    },
+    "MMD-*P****HP* — מתועל לחץ גבוה": {
+        "005":null,"007":null,"009":null,"012":null,"015":null,"018":700,
+        "024":700,"027":700,"030":null,"036":1100,"048":1100,"056":1100,"072":2100,"096":2100
+    },
+    "MMC-*P****HP* — יחידה תקרתית": {
+        "005":null,"007":null,"009":null,"012":null,"015":600,"018":600,
+        "024":800,"027":800,"030":null,"036":1200,"048":1200,"056":1200,"072":null,"096":null
+    },
+    "MMK-AP****H* — יחידה עילית": {
+        "005":null,"007":500,"009":500,"012":500,"015":700,"018":700,
+        "024":700,"027":null,"030":null,"036":null,"048":null,"056":null,"072":null,"096":null
+    },
+    "MMK-*P****HP* — יחידה עילית HP": {
+        "005":300,"007":300,"009":300,"012":300,"015":700,"018":700,
+        "024":700,"027":900,"030":900,"036":900,"048":null,"056":null,"072":null,"096":null
+    },
+    "MMF-*P****H* — רצפתי עומד": {
+        "005":null,"007":null,"009":null,"012":null,"015":700,"018":700,
+        "024":1000,"027":1000,"030":null,"036":1300,"048":1300,"056":1300,"072":null,"096":null
+    },
+    "MML-*P****BH/H* — אנכי נסתר": {
+        "005":null,"007":500,"009":500,"012":500,"015":500,"018":800,
+        "024":800,"027":null,"030":null,"036":null,"048":null,"056":null,"072":null,"096":null
+    },
+    "MML-*P****NH(P)* — נסתרת": {
+        "005":null,"007":500,"009":500,"012":500,"015":500,
+        "018":null,"024":null,"027":null,"030":null,"036":null,"048":null,"056":null,"072":null,"096":null
+    }
+};
+
+// capacity codes לתצוגה
+const TOSHIBA_CAP_CODES = ["005","007","009","012","015","018","024","027","030","036","048","056","072","096"];
+const TOSHIBA_UNIT_TYPES = Object.keys(TOSHIBA_TABLE2);
+
+// תוספת/הפחתה קבועה לפי דגם מעבה — בגרמים (שלילי = מורידים)
+// MCY-MHP0404/0504/0604 = דגמים ישנים ללא חישוב מאיידים (תוספת קבועה בלבד)
+const TOSHIBA_MODEL_FIXED = {
+    "MCY-MHP0404": 0,      // צנרת בלבד
+    "MCY-MHP0504": 400,    // + 400 גרם על המעבה
+    "MCY-MHP0604": 800     // + 800 גרם על המעבה
+};
+const TOSHIBA_MODEL_BONUS = {
+    "MCY-0806":  -1000,   // פחות 1.0 ק"ג
+    "MCY-1006":  -1000,   // פחות 1.0 ק"ג
+    "MCY-1004":  -3600,   // פחות 3.6 ק"ג
+    "MCY-1204":  -4000,   // פחות 4.0 ק"ג
+    "MCY-1206":  -200     // פחות 200 גרם
+};
+
+let toshibaUnitCount = 0;
+
+function addToshibaUnit() {
+    toshibaUnitCount++;
+    const idx = toshibaUnitCount;
+    const list = document.getElementById('toshibaUnitsList');
+
+    const wrap = document.createElement('div');
+    wrap.id = 'tunit-' + idx;
+    wrap.style.cssText = 'background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;';
+
+    wrap.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:13px;font-weight:800;color:var(--text2);">מאייד ${idx}</span>
+            <button onclick="removeToshibaUnit(${idx})" style="background:transparent;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:0 4px;">✕</button>
+        </div>
+        <div style="margin-bottom:8px;">
+            <div class="section-label">סוג מאייד</div>
+            <select id="tunit-type-${idx}" onchange="updateCapCodes(${idx});calculate()">
+                <option value="">— בחר סוג —</option>
+                ${TOSHIBA_UNIT_TYPES.map(t => `<option value="${t}">${t}</option>`).join('')}
+            </select>
+        </div>
+        <div>
+            <div class="section-label">Capacity Code</div>
+            <select id="tunit-cap-${idx}" onchange="calculate()">
+                <option value="">— בחר קוד —</option>
+                ${TOSHIBA_CAP_CODES.map(c => `<option value="${c}">${c}</option>`).join('')}
+            </select>
+        </div>
+    `;
+    list.appendChild(wrap);
+    calculate();
+}
+
+function updateCapCodes(idx) {
+    const type = document.getElementById('tunit-type-' + idx).value;
+    const capSel = document.getElementById('tunit-cap-' + idx);
+    const currentVal = capSel.value;
+    capSel.innerHTML = '<option value="">— בחר קוד —</option>';
+    if (!type) return;
+    const row = TOSHIBA_TABLE2[type];
+    TOSHIBA_CAP_CODES.forEach(c => {
+        if (row[c] !== null) {
+            const o = document.createElement('option');
+            o.value = c; o.textContent = c;
+            if (c === currentVal) o.selected = true;
+            capSel.appendChild(o);
+        }
+    });
+}
+
+function removeToshibaUnit(idx) {
+    const el = document.getElementById('tunit-' + idx);
+    if (el) el.remove();
+    calculate();
+}
+
+function toshibaCalcExtra() {
+    const model = document.getElementById('modelSelect1')?.value;
+    if (!model) return 0;
+
+    // דגמים ישנים — תוספת קבועה בלבד, ללא מאיידים
+    if (model in TOSHIBA_MODEL_FIXED) {
+        return TOSHIBA_MODEL_FIXED[model]; // כבר בגרמים
+    }
+
+    // דגמים חדשים — תוספת מאיידים מ-Table 2 + הפחתה קבועה
+    let indoorG = 0;
+    const list = document.getElementById('toshibaUnitsList');
+    const rows = list.querySelectorAll('[id^="tunit-"]:not([id*="type"]):not([id*="cap"])');
+    rows.forEach(row => {
+        const idx = row.id.replace('tunit-','');
+        const type = document.getElementById('tunit-type-' + idx)?.value;
+        const cap  = document.getElementById('tunit-cap-'  + idx)?.value;
+        if (type && cap && TOSHIBA_TABLE2[type] && TOSHIBA_TABLE2[type][cap] !== null) {
+            indoorG += TOSHIBA_TABLE2[type][cap]; // כבר בגרמים
+        }
+    });
+
+    const bonusG = TOSHIBA_MODEL_BONUS[model] || 0;
+    return indoorG + bonusG;
+}
+
+function clearToshibaUnits() {
+    document.getElementById('toshibaUnitsList').innerHTML = '';
+    toshibaUnitCount = 0;
+    addToshibaUnit();
+}
+
+// ===========================
+// TOSHIBA SMMSU MODULAR
+// ===========================
+
+const SMMSU_SYSTEM_BONUS = {
+    8:1500,10:1700,12:2300,14:2300,16:1000,18:2000,20:4000,22:5000,24:5500,
+    26:4600,28:4600,30:4300,32:6300,34:6300,36:7800,38:7800,40:8000,
+    42:7500,44:9500,46:10500,48:11000,
+    50:10100,52:10100,54:10300,56:11800,58:11800,60:13300,62:13300,
+    64:13500,66:14500,68:15000,70:16000,72:16500,
+    74:15600,76:15600,78:15800,80:17300,82:17300,84:18800,86:18800,
+    88:19000,90:20000,92:20500,94:21500,96:22000,
+    98:21100,100:21100,102:21300,104:22800,106:22800,108:24300,
+    110:24300,112:24500,114:25500,116:26000,118:27000,120:27500
+};
+
+const SMMSU_STANDARD = {
+    "003":200,"005":200,"007":200,"008":200,"009":200,"010":200,"012":200,"014":200,
+    "015":400,"018":400,"020":400,"024":400,"027":400,"030":400,
+    "036":600,"048":600,"056":600,"072":1000,"096":1000
+};
+
+const SMMSU_CAP_HP = {
+    "003":0.3,"005":0.5,"007":0.8,"008":0.9,"009":1.0,"010":1.1,"012":1.3,"014":1.5,
+    "015":1.7,"018":2.0,"020":2.3,"024":2.5,"027":3.0,"030":3.2,
+    "036":4.0,"048":5.0,"056":6.0,"072":8.0,"096":10.0
+};
+
+const SMMSU_HE = {
+    "009":200,"012":200,"015":200,"018":200,
+    "024":600,"027":600,"030":600,"036":600,"048":600,"056":600
+};
+
+const SMMSU_DX = {
+    8:1400,10:1800,16:2900,18:3200,20:3600,
+    32:5800,36:6500,40:7200,48:8600,54:9700,60:10800
+};
+
+const SMMSU_HOT_WATER = {"024":200,"048":200};
+
+const SMMSU_DIVERSITY = [
+    {min:50,max:60,cut:2500},{min:60,max:70,cut:2000},
+    {min:70,max:80,cut:1500},{min:80,max:90,cut:1000},
+    {min:90,max:95,cut:500},{min:95,max:999,cut:0}
+];
+
+const SMMSU_STANDARD_CODES = Object.keys(SMMSU_STANDARD).sort();
+const SMMSU_HE_CODES = Object.keys(SMMSU_HE).sort();
+const SMMSU_DX_HPS = Object.keys(SMMSU_DX).map(Number).sort((a,b)=>a-b);
+const SMMSU_HW_CODES = Object.keys(SMMSU_HOT_WATER);
+
+let smmsuOutdoorCount = 0;
+
+// HP יחידות בודדות לשילוב ידני
+const SMMSU_SINGLE_HPS = [8,10,12,14,16,18,20,22,24];
+
+function addSMMSUOutdoor() {
+    smmsuOutdoorCount++;
+    const idx = smmsuOutdoorCount;
+    const list = document.getElementById('smmsuOutdoorList');
+    const wrap = document.createElement('div');
+    wrap.id = 'smout-' + idx;
+    wrap.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
+    wrap.innerHTML = `
+        <select id="smout-hp-${idx}" onchange="updateManualOutdoorTotal();calculate()"
+            style="flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+                   font-size:15px;font-family:Assistant,sans-serif;background:var(--surface);color:var(--text);">
+            <option value="">— HP מעבה —</option>
+            ${SMMSU_SINGLE_HPS.map(hp => `<option value="${hp}">${hp}HP</option>`).join('')}
+        </select>
+        <button onclick="removeSMMSUOutdoor(${idx})"
+            style="background:transparent;border:none;color:var(--red);font-size:18px;cursor:pointer;padding:4px;flex-shrink:0;">✕</button>
+    `;
+    list.appendChild(wrap);
+    updateManualOutdoorTotal();
+}
+
+function removeSMMSUOutdoor(idx) {
+    const el = document.getElementById('smout-' + idx);
+    if (el) el.remove();
+    updateManualOutdoorTotal();
+    calculate();
+}
+
+function updateManualOutdoorTotal() {
+    let totalG = 0, totalHP = 0;
+    document.querySelectorAll('[id^="smout-hp-"]').forEach(sel => {
+        const hp = parseInt(sel.value);
+        if (hp && SMMSU_SYSTEM_BONUS[hp]) {
+            totalG  += SMMSU_SYSTEM_BONUS[hp];
+            totalHP += hp;
+        }
+    });
+    const el = document.getElementById('smmsuManualTotal');
+    if (totalHP > 0) {
+        el.textContent = `סה"כ מעבים: ${totalHP}HP | תוספת: ${(totalG/1000).toFixed(1)} ק"ג`;
+    } else {
+        el.textContent = '';
+    }
+}
+
+function getManualOutdoorData() {
+    let totalBonusG = 0, totalHP = 0;
+    document.querySelectorAll('[id^="smout-hp-"]').forEach(sel => {
+        const hp = parseInt(sel.value);
+        if (hp && SMMSU_SYSTEM_BONUS[hp]) {
+            totalBonusG += SMMSU_SYSTEM_BONUS[hp];
+            totalHP     += hp;
+        }
+    });
+    return { totalBonusG, totalHP };
+}
+
+function smmsuCalcExtra() {
+    const model = document.getElementById('modelSelect1')?.value;
+    if (model !== 'SMMSU') return 0;
+
+    const sysVal = document.getElementById('smmsuSystem').value;
+    if (!sysVal) return 0;
+
+    // תוספת מעבים
+    let systemBonusG = 0, systemHP = 0;
+    if (sysVal === 'manual') {
+        const data = getManualOutdoorData();
+        systemBonusG = data.totalBonusG;
+        systemHP     = data.totalHP;
+    } else {
+        systemHP     = parseInt(sysVal);
+        systemBonusG = SMMSU_SYSTEM_BONUS[systemHP] || 0;
+    }
+    if (systemHP === 0) return 0;
+
+    let totalG = systemBonusG;
+    let indoorHP = 0;
+
+    // תוספת מאיידים
+    const list = document.getElementById('smmsuUnitsList');
+    const rows = list.querySelectorAll('[id^="smunit-"]:not([id*="type"]):not([id*="cap"]):not([id*="label"])');
+    rows.forEach(row => {
+        const idx  = row.id.replace('smunit-','');
+        const type = document.getElementById('smunit-type-' + idx)?.value;
+        const cap  = document.getElementById('smunit-cap-'  + idx)?.value;
+        if (!type || !cap) return;
+        if (type === 'standard' && SMMSU_STANDARD[cap] !== undefined) {
+            totalG += SMMSU_STANDARD[cap]; indoorHP += SMMSU_CAP_HP[cap]||0;
+        } else if (type === 'he' && SMMSU_HE[cap] !== undefined) {
+            totalG += SMMSU_HE[cap]; indoorHP += SMMSU_CAP_HP[cap]||0;
+        } else if (type === 'dx' && SMMSU_DX[Number(cap)] !== undefined) {
+            totalG += SMMSU_DX[Number(cap)]; indoorHP += Number(cap);
+        } else if (type === 'hw' && SMMSU_HOT_WATER[cap] !== undefined) {
+            totalG += SMMSU_HOT_WATER[cap]; indoorHP += SMMSU_CAP_HP[cap]||0;
+        }
+    });
+
+    // דיברסיטי
+    const divBox = document.getElementById('smmsuDiversityBox');
+    if (indoorHP > 0) {
+        const ratio = (indoorHP / systemHP) * 100;
+        let cut = 0, label = '';
+
+        if (ratio < 50) {
+            label = `<strong style="color:var(--red);font-size:14px;">⚠️ חריג — דיברסיטי ${ratio.toFixed(1)}% (מתחת ל-50%)<br>יש לפנות להנדסה</strong>`;
+            divBox.style.background = 'rgba(228,0,43,0.08)';
+            divBox.style.borderColor = 'rgba(228,0,43,0.4)';
+        } else if (ratio > 135) {
+            label = `<strong style="color:var(--red);font-size:14px;">⚠️ חריג — דיברסיטי ${ratio.toFixed(1)}% (מעל 135%)<br>יש לפנות להנדסה</strong>`;
+            divBox.style.background = 'rgba(228,0,43,0.08)';
+            divBox.style.borderColor = 'rgba(228,0,43,0.4)';
+        } else {
+            const range = SMMSU_DIVERSITY.find(r => ratio >= r.min && ratio < r.max);
+            if (range) {
+                cut = range.cut;
+                label = `📊 דיברסיטי ${ratio.toFixed(1)}% (${indoorHP.toFixed(1)}HP ÷ ${systemHP}HP)<br>הפחתה: ${(cut/1000).toFixed(1)} ק"ג`;
+            }
+            divBox.style.background = '';
+            divBox.style.borderColor = '';
+        }
+        totalG -= cut;
+        divBox.innerHTML = label;
+        divBox.style.display = 'block';
+    } else {
+        divBox.style.display = 'none';
+    }
+
+    return totalG;
+}
+
+function smmsuSystemChanged() {
+    const val = document.getElementById('smmsuSystem').value;
+    const bonusEl = document.getElementById('smmsuSystemBonus');
+    const manualSection = document.getElementById('smmsuManualOutdoor');
+
+    if (val === 'manual') {
+        manualSection.classList.remove('hidden');
+        bonusEl.textContent = '';
+        if (document.getElementById('smmsuOutdoorList').children.length === 0) addSMMSUOutdoor();
+    } else {
+        manualSection.classList.add('hidden');
+        const hp = parseInt(val);
+        if (hp && SMMSU_SYSTEM_BONUS[hp]) {
+            bonusEl.textContent = `תוספת מעבים: ${(SMMSU_SYSTEM_BONUS[hp]/1000).toFixed(1)} ק"ג`;
+        } else {
+            bonusEl.textContent = '';
+        }
+    }
+}
+
+let smmsuUnitCount = 0;
+
+function addSMMSUUnit() {
+    smmsuUnitCount++;
+    const idx = smmsuUnitCount;
+    const list = document.getElementById('smmsuUnitsList');
+    const wrap = document.createElement('div');
+    wrap.id = 'smunit-' + idx;
+    wrap.style.cssText = 'background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;';
+    wrap.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:13px;font-weight:800;color:var(--text2);">מאייד ${idx}</span>
+            <button onclick="removeSMMSUUnit(${idx})" style="background:transparent;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:0 4px;">✕</button>
+        </div>
+        <div style="margin-bottom:8px;">
+            <div class="section-label">סוג מאייד</div>
+            <select id="smunit-type-${idx}" onchange="updateSMMSUCodes(${idx});calculate()">
+                <option value="">— בחר סוג —</option>
+                <option value="standard">מאייד סטנדרטי</option>
+                <option value="he">קאסטות עם סיומת H-E</option>
+                <option value="dx">DX Coil Interface (יט"א)</option>
+                <option value="hw">Hot Water Module (חימום מים)</option>
+            </select>
+        </div>
+        <div>
+            <div class="section-label" id="smunit-caplabel-${idx}">Capacity Code</div>
+            <select id="smunit-cap-${idx}" onchange="calculate()">
+                <option value="">— בחר —</option>
+            </select>
+        </div>
+    `;
+    list.appendChild(wrap);
+    calculate();
+}
+
+function updateSMMSUCodes(idx) {
+    const type   = document.getElementById('smunit-type-' + idx).value;
+    const capSel = document.getElementById('smunit-cap-' + idx);
+    const capLbl = document.getElementById('smunit-caplabel-' + idx);
+    capSel.innerHTML = '<option value="">— בחר —</option>';
+    if (!type) return;
+    if (type === 'standard') {
+        capLbl.textContent = 'Capacity Code';
+        SMMSU_STANDARD_CODES.forEach(c => {
+            capSel.innerHTML += `<option value="${c}">${c} (${SMMSU_CAP_HP[c]} HP)</option>`;
+        });
+    } else if (type === 'he') {
+        capLbl.textContent = 'Capacity Code (H-E)';
+        SMMSU_HE_CODES.forEach(c => {
+            const hp = SMMSU_CAP_HP[c] || '';
+            capSel.innerHTML += `<option value="${c}">${c}${hp ? ' (' + hp + ' HP)' : ''}</option>`;
+        });
+    } else if (type === 'dx') {
+        capLbl.textContent = 'HP סוללת קירור';
+        SMMSU_DX_HPS.forEach(hp => {
+            capSel.innerHTML += `<option value="${hp}">${hp} HP</option>`;
+        });
+    } else if (type === 'hw') {
+        capLbl.textContent = 'Capacity Code';
+        SMMSU_HW_CODES.forEach(c => {
+            const hp = SMMSU_CAP_HP[c] || '';
+            capSel.innerHTML += `<option value="${c}">${c}${hp ? ' (' + hp + ' HP)' : ''}</option>`;
+        });
+    }
+}
+
+function removeSMMSUUnit(idx) {
+    const el = document.getElementById('smunit-' + idx);
+    if (el) el.remove();
+    calculate();
+}
+
+
+</script>
 </body>
 </html>
