@@ -403,16 +403,19 @@ function App() {
       {broadcast && <BroadcastBanner msg={broadcast} onDismiss={()=>setBroadcast(null)}/>}
 
       {/* HEADER */}
-      <header ref={headerRef} style={{background:hdrBg,color:'#fff',boxShadow:'0 3px 16px var(--shadow2), 0 1px 0 var(--cyan-glow)',position:'sticky',top:0,zIndex:200,transition:'background .3s'}}>
+      <header ref={headerRef} className="glass" style={{color:'var(--text)',borderBottom:`3px solid ${hdrBg}`,boxShadow:'0 3px 16px var(--shadow)',position:'sticky',top:0,zIndex:200,transition:'border-color .3s'}}>
 
         {/* Row 1 — minimized: identity + search toggle + one consolidated menu */}
         <div style={{padding:'9px 12px',display:'flex',alignItems:'center',gap:10}}>
           <button onClick={()=>setSidebar(v=>!v)} className="hdr-btn tt tt-hdr" data-tt="פתח/סגור תפריט צד">☰</button>
-          <div style={{width:26,height:26,borderRadius:8,background:'rgba(255,255,255,.18)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800,flexShrink:0}}>🔧</div>
+          <div style={{width:26,height:26,borderRadius:8,background:'linear-gradient(135deg,var(--primary),var(--cyan))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,flexShrink:0}}>🔧</div>
           <span style={{fontWeight:'bold',fontSize:13,flexShrink:0,letterSpacing:.3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>חלקי חילוף</span>
+          <span className="tc-meta" style={{fontFamily:'monospace',flexShrink:0}}>
+            {now.toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit'})} · {now.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}
+          </span>
           {saving==='saving'&&<span className="tt tt-hdr" data-tt="שומר..." style={{fontSize:11,flexShrink:0}}>💾</span>}
-          {saving==='saved' &&<span className="tt tt-hdr" data-tt="נשמר" style={{fontSize:11,color:'#a5d6a7',flexShrink:0}}>✓</span>}
-          {saving==='error' &&<button onClick={()=>alert('שגיאת שמירה: '+saveErr)} style={{fontSize:11,color:'#fff',background:'#e53935',border:'none',borderRadius:5,padding:'3px 7px',cursor:'pointer',flexShrink:0}}>⚠</button>}
+          {saving==='saved' &&<span className="tt tt-hdr" data-tt="נשמר" style={{fontSize:11,color:'var(--green)',flexShrink:0}}>✓</span>}
+          {saving==='error' &&<button onClick={()=>alert('שגיאת שמירה: '+saveErr)} style={{fontSize:11,color:'#fff',background:'var(--red)',border:'none',borderRadius:5,padding:'3px 7px',cursor:'pointer',flexShrink:0}}>⚠</button>}
 
           <div style={{flex:1}}/>
 
@@ -425,10 +428,6 @@ function App() {
             {menuOpen&&<>
               <div onClick={()=>setMenuOpen(false)} style={{position:'fixed',inset:0,zIndex:240}}/>
               <div className="menu-panel" dir="rtl" style={{left:0,minWidth:250}}>
-                <div style={{fontSize:10.5,color:'var(--sub)',padding:'4px 11px 8px',fontFamily:'monospace',borderBottom:'1px solid var(--border)',marginBottom:4}}>
-                  {now.toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit',year:'numeric'})} · {now.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}
-                </div>
-
                 <button className="menu-item" onClick={()=>{goHome();setMenuOpen(false);}}><span className="ic">🏠</span>מסך הבית</button>
                 {sel&&<button className="menu-item" onClick={()=>{goBack();setMenuOpen(false);}}><span className="ic">◀</span>חזור אחורה</button>}
                 <button className="menu-item" onClick={()=>{setShowCompare(true);setMenuOpen(false);}}><span className="ic">⚖️</span>השוואת דגמים{compareList.length>0&&<span className="tc-meta" style={{marginRight:'auto'}}>({compareList.length})</span>}</button>
