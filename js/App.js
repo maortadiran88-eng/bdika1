@@ -26,7 +26,8 @@ function App() {
   const [histData,       setHistData]       = useState([]);
   const [showHistory,    setShowHistory]    = useState(false);
   const [brandMgr,       setBrandMgr]       = useState(false);
-  const [adminMenu,      setAdminMenu]      = useState(false);
+  const [menuOpen,       setMenuOpen]       = useState(false);
+  const [searchOpen,     setSearchOpen]     = useState(false);
   const [chPwd,          setChPwd]          = useState(false);
   const [showXls,        setShowXls]        = useState(false);
   const [showBulkMove,   setShowBulkMove]   = useState(false);
@@ -404,97 +405,85 @@ function App() {
       {/* HEADER */}
       <header ref={headerRef} style={{background:hdrBg,color:'#fff',boxShadow:'0 3px 16px var(--shadow2), 0 1px 0 var(--cyan-glow)',position:'sticky',top:0,zIndex:200,transition:'background .3s'}}>
 
-        {/* Row 1 — grouped, tooltipped, same design language as the rest of the app */}
-        <div style={{padding:'8px 10px',display:'flex',alignItems:'center',gap:5,flexWrap:'wrap'}}>
+        {/* Row 1 — minimized: identity + search toggle + one consolidated menu */}
+        <div style={{padding:'9px 12px',display:'flex',alignItems:'center',gap:10}}>
           <button onClick={()=>setSidebar(v=>!v)} className="hdr-btn tt tt-hdr" data-tt="פתח/סגור תפריט צד">☰</button>
-          <button onClick={goHome} className="hdr-btn tt tt-hdr" data-tt="מסך הבית">🏠</button>
-          {sel&&<button onClick={goBack} className="hdr-btn tt tt-hdr" data-tt="חזור אחורה">◀</button>}
-          <button onClick={()=>{setLoginRole(null);setSel(null);setSidebar(false);}} className="hdr-btn tt tt-hdr" data-tt="התנתק מהמערכת" style={{display:'flex',alignItems:'center',gap:4}}>
-            <span style={{fontSize:10,lineHeight:1}}>⬤</span>
-            <span>יציאה</span>
-          </button>
-          <span style={{fontWeight:'bold',fontSize:13,flexShrink:0,letterSpacing:.3}}>🔧 חלקי חילוף</span>
-          <span style={{fontSize:10,color:'rgba(255,255,255,.7)',flexShrink:0,fontFamily:'monospace'}}>
-            {now.toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit'})} {now.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}
-          </span>
-          {saving==='saving'&&<span style={{fontSize:11,color:'rgba(255,255,255,.8)',flexShrink:0}}>💾</span>}
-          {saving==='saved' &&<span style={{fontSize:11,color:'#a5d6a7',flexShrink:0}}>✓</span>}
+          <div style={{width:26,height:26,borderRadius:8,background:'rgba(255,255,255,.18)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800,flexShrink:0}}>🔧</div>
+          <span style={{fontWeight:'bold',fontSize:13,flexShrink:0,letterSpacing:.3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>חלקי חילוף</span>
+          {saving==='saving'&&<span className="tt tt-hdr" data-tt="שומר..." style={{fontSize:11,flexShrink:0}}>💾</span>}
+          {saving==='saved' &&<span className="tt tt-hdr" data-tt="נשמר" style={{fontSize:11,color:'#a5d6a7',flexShrink:0}}>✓</span>}
           {saving==='error' &&<button onClick={()=>alert('שגיאת שמירה: '+saveErr)} style={{fontSize:11,color:'#fff',background:'#e53935',border:'none',borderRadius:5,padding:'3px 7px',cursor:'pointer',flexShrink:0}}>⚠</button>}
 
-          {/* Spacer */}
           <div style={{flex:1}}/>
 
-          {/* Common buttons — everyone */}
-          <button onClick={()=>{setShowCompare(true);}} className="hdr-btn tt tt-hdr" data-tt="השוואת דגמים" style={{position:'relative'}}>
-            ⚖️{compareList.length>0&&<span style={{position:'absolute',top:-4,left:-4,background:'#ff6f00',color:'#fff',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold'}}>{compareList.length}</span>}
-          </button>
-          <button onClick={()=>setShowCart(true)} className="hdr-btn tt tt-hdr" data-tt="סל חלקים" style={{position:'relative'}}>
-            🛒{cart.length>0&&<span style={{position:'absolute',top:-4,left:-4,background:'#e53935',color:'#fff',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold'}}>{cart.length}</span>}
-          </button>
-          <button onClick={()=>setShowHelp(true)} className="hdr-btn tt tt-hdr" data-tt="מדריך שימוש">❓</button>
-
-          {/* Notifications — editor + admin */}
-          {editor&&(
-            <button onClick={()=>openNotif()} className="hdr-btn tt tt-hdr" data-tt="התראות" style={{position:'relative'}}>
-              🔔{notifCount>0&&<span style={{position:'absolute',top:-4,left:-4,background:'#e53935',color:'#fff',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold'}}>{notifCount}</span>}
-            </button>
+          {sel&&(
+            <button onClick={()=>setSearchOpen(v=>!v)} className={'hdr-btn tt tt-hdr'+(searchOpen?' on':'')} data-tt="חיפוש">🔍</button>
           )}
 
-          {/* Makat review — admin only (frequent action, kept one click away) */}
-          {admin&&(
-            <button onClick={()=>setShowMakatReview(true)} className="hdr-btn tt tt-hdr" data-tt="בדיקת מק&quot;טים — סקירה כללית">✅</button>
-          )}
+          <div className="menu-wrap">
+            <button onClick={()=>setMenuOpen(v=>!v)} className={'hdr-btn tt tt-hdr'+(menuOpen?' on':'')} data-tt="תפריט">⋮</button>
+            {menuOpen&&<>
+              <div onClick={()=>setMenuOpen(false)} style={{position:'fixed',inset:0,zIndex:240}}/>
+              <div className="menu-panel" dir="rtl" style={{left:0,minWidth:250}}>
+                <div style={{fontSize:10.5,color:'var(--sub)',padding:'4px 11px 8px',fontFamily:'monospace',borderBottom:'1px solid var(--border)',marginBottom:4}}>
+                  {now.toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit',year:'numeric'})} · {now.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}
+                </div>
 
-          <button onClick={toggleDark} className={'hdr-btn tt tt-hdr'+(dark?' on':'')} data-tt={dark?'עבור למצב בהיר':'עבור למצב כהה'}>{dark?'☀️':'🌙'}</button>
+                <button className="menu-item" onClick={()=>{goHome();setMenuOpen(false);}}><span className="ic">🏠</span>מסך הבית</button>
+                {sel&&<button className="menu-item" onClick={()=>{goBack();setMenuOpen(false);}}><span className="ic">◀</span>חזור אחורה</button>}
+                <button className="menu-item" onClick={()=>{setShowCompare(true);setMenuOpen(false);}}><span className="ic">⚖️</span>השוואת דגמים{compareList.length>0&&<span className="tc-meta" style={{marginRight:'auto'}}>({compareList.length})</span>}</button>
+                <button className="menu-item" onClick={()=>{setShowCart(true);setMenuOpen(false);}}><span className="ic">🛒</span>סל חלקים{cart.length>0&&<span className="tc-meta" style={{marginRight:'auto'}}>({cart.length})</span>}</button>
+                <button className="menu-item" onClick={()=>{setShowHelp(true);setMenuOpen(false);}}><span className="ic">❓</span>מדריך שימוש</button>
+                {editor&&<button className="menu-item" onClick={()=>{openNotif();setMenuOpen(false);}}><span className="ic">🔔</span>התראות{notifCount>0&&<span className="tc-meta" style={{marginRight:'auto'}}>({notifCount})</span>}</button>}
+                <button className="menu-item" onClick={()=>{toggleDark();}}><span className="ic">{dark?'☀️':'🌙'}</span>{dark?'מצב בהיר':'מצב כהה'}</button>
 
-          {/* Editor extras (not admin) */}
-          {editor&&!admin&&<button onClick={()=>setShowNewsEditor(true)} className="hdr-btn tt tt-hdr" data-tt="עריכת חדשות">📰</button>}
-          {editor&&!admin&&<button onClick={()=>setShowBroadcast(true)} className="hdr-btn tt tt-hdr" data-tt="שליחת הודעת מערכת">📢</button>}
-          {editor&&!admin&&<button onClick={()=>setShowDashboard(true)} className="hdr-btn tt tt-hdr" data-tt="דשבורד">📊</button>}
-          {editor&&<button onClick={()=>setShowXls(true)} className="hdr-btn tt tt-hdr" data-tt="ייבוא מ-Excel">📥</button>}
+                {editor&&<div className="menu-divider"/>}
+                {admin&&<button className="menu-item" onClick={()=>{setShowMakatReview(true);setMenuOpen(false);}}><span className="ic">✅</span>בדיקת מק"טים</button>}
+                {editor&&<button className="menu-item" onClick={()=>{setShowXls(true);setMenuOpen(false);}}><span className="ic">📥</span>ייבוא מ-Excel</button>}
+                {editor&&!admin&&<button className="menu-item" onClick={()=>{setShowNewsEditor(true);setMenuOpen(false);}}><span className="ic">📰</span>עריכת חדשות</button>}
+                {editor&&!admin&&<button className="menu-item" onClick={()=>{setShowBroadcast(true);setMenuOpen(false);}}><span className="ic">📢</span>שליחת הודעת מערכת</button>}
+                {editor&&!admin&&<button className="menu-item" onClick={()=>{setShowDashboard(true);setMenuOpen(false);}}><span className="ic">📊</span>דשבורד</button>}
 
-          {/* Admin tools — consolidated into one clean menu instead of a long row of icons */}
-          {admin&&(
-            <div className="menu-wrap">
-              <button onClick={()=>setAdminMenu(v=>!v)} className={'hdr-btn tt tt-hdr'+(adminMenu?' on':'')} data-tt="הגדרות מנהל" style={{display:'flex',alignItems:'center',gap:4}}>
-                <span>⚙</span><span style={{fontSize:11,fontWeight:700}}>הגדרות</span>
-              </button>
-              {adminMenu&&<>
-                <div onClick={()=>setAdminMenu(false)} style={{position:'fixed',inset:0,zIndex:240}}/>
-                <div className="menu-panel" dir="rtl">
-                  <button className="menu-item" onClick={()=>{setBrandMgr(true);setAdminMenu(false);}}><span className="ic">⚙</span>ניהול מותגים</button>
-                  <button className="menu-item" onClick={()=>{setShowDashboard(true);setAdminMenu(false);}}><span className="ic">📊</span>דשבורד</button>
-                  <button className="menu-item" onClick={()=>{setShowUsersMgr(true);setAdminMenu(false);}}><span className="ic">👥</span>ניהול משתמשים</button>
-                  <button className="menu-item" onClick={()=>{setChPwd(true);setAdminMenu(false);}}><span className="ic">🔑</span>שינוי סיסמה</button>
+                {admin&&<>
                   <div className="menu-divider"/>
-                  <button className="menu-item" onClick={()=>{setShowNewsEditor(true);setAdminMenu(false);}}><span className="ic">📰</span>עריכת חדשות</button>
-                  <button className="menu-item" onClick={()=>{setShowBroadcast(true);setAdminMenu(false);}}><span className="ic">📢</span>הודעת מערכת</button>
-                  <button className="menu-item" onClick={()=>{setShowHistory(true);fbGetHist().then(setHistData);setAdminMenu(false);}}><span className="ic">📋</span>היסטוריה / גרסאות</button>
+                  <button className="menu-item" onClick={()=>{setBrandMgr(true);setMenuOpen(false);}}><span className="ic">⚙</span>ניהול מותגים</button>
+                  <button className="menu-item" onClick={()=>{setShowDashboard(true);setMenuOpen(false);}}><span className="ic">📊</span>דשבורד</button>
+                  <button className="menu-item" onClick={()=>{setShowUsersMgr(true);setMenuOpen(false);}}><span className="ic">👥</span>ניהול משתמשים</button>
+                  <button className="menu-item" onClick={()=>{setChPwd(true);setMenuOpen(false);}}><span className="ic">🔑</span>שינוי סיסמה</button>
                   <div className="menu-divider"/>
-                  <button className="menu-item" onClick={()=>{setShowBulkMove(true);setAdminMenu(false);}}><span className="ic">🔀</span>העברה גורפת</button>
-                  <button className="menu-item danger" onClick={()=>{setShowBulkDel(true);setAdminMenu(false);}}><span className="ic">🗑</span>מחיקה גורפת</button>
+                  <button className="menu-item" onClick={()=>{setShowNewsEditor(true);setMenuOpen(false);}}><span className="ic">📰</span>עריכת חדשות</button>
+                  <button className="menu-item" onClick={()=>{setShowBroadcast(true);setMenuOpen(false);}}><span className="ic">📢</span>הודעת מערכת</button>
+                  <button className="menu-item" onClick={()=>{setShowHistory(true);fbGetHist().then(setHistData);setMenuOpen(false);}}><span className="ic">📋</span>היסטוריה / גרסאות</button>
                   <div className="menu-divider"/>
-                  <button className="menu-item" onClick={()=>{expXLS();setAdminMenu(false);}}><span className="ic">📊</span>ייצוא ל-Excel</button>
-                  <button className="menu-item" onClick={()=>{expJSON();setAdminMenu(false);}}><span className="ic">💾</span>ייצוא גיבוי (JSON)</button>
+                  <button className="menu-item" onClick={()=>{setShowBulkMove(true);setMenuOpen(false);}}><span className="ic">🔀</span>העברה גורפת</button>
+                  <button className="menu-item danger" onClick={()=>{setShowBulkDel(true);setMenuOpen(false);}}><span className="ic">🗑</span>מחיקה גורפת</button>
+                  <div className="menu-divider"/>
+                  <button className="menu-item" onClick={()=>{expXLS();setMenuOpen(false);}}><span className="ic">📊</span>ייצוא ל-Excel</button>
+                  <button className="menu-item" onClick={()=>{expJSON();setMenuOpen(false);}}><span className="ic">💾</span>ייצוא גיבוי (JSON)</button>
                   <label className="menu-item" style={{cursor:'pointer'}}>
                     <span className="ic">📂</span>ייבוא גיבוי (JSON)
-                    <input type="file" accept=".json" onChange={e=>{impFile(e);setAdminMenu(false);}} style={{display:'none'}}/>
+                    <input type="file" accept=".json" onChange={e=>{impFile(e);setMenuOpen(false);}} style={{display:'none'}}/>
                   </label>
-                </div>
-              </>}
-            </div>
-          )}
+                </>}
+
+                <div className="menu-divider"/>
+                <button className="menu-item danger" onClick={()=>{setLoginRole(null);setSel(null);setSidebar(false);setMenuOpen(false);}}><span className="ic">⬤</span>יציאה מהמערכת</button>
+              </div>
+            </>}
+          </div>
         </div>
 
-        {/* Row 2 — compact search, shown only inside a brand/model (Home has its own hero search) */}
+        {/* Row 2 — compact search, revealed via the 🔍 toggle (Home has its own hero search) */}
         {sel&&(
-          <div style={{padding:'0 10px 8px'}}>
-            <div style={{position:'relative'}}>
-              <input value={query} onChange={e=>setQuery(e.target.value)}
-                placeholder="🔍 חיפוש — דגם / מק&quot;ט / שם חלק..."
-                style={{width:'100%',padding:'8px 36px 8px 12px',borderRadius:22,border:'none',fontSize:14,outline:'none',color:'#222',background:'rgba(255,255,255,.93)',boxSizing:'border-box',boxShadow:'0 1px 4px rgba(0,0,0,.15)'}}/>
-              {query&&<button onClick={()=>setQuery('')} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'#888',fontSize:16}}>✕</button>}
-              {query&&<SearchResultsPanel results={results} query={query} onClose={()=>setQuery('')} onSelect={r=>nav(r.b.id,r.c.id,r.m.id,query)}/>}
+          <div style={{maxHeight:searchOpen?80:0,overflow:'hidden',transition:'max-height .28s ease'}}>
+            <div style={{padding:'0 10px 8px'}}>
+              <div style={{position:'relative'}}>
+                <input value={query} onChange={e=>setQuery(e.target.value)} autoFocus={searchOpen}
+                  placeholder="🔍 חיפוש — דגם / מק&quot;ט / שם חלק..."
+                  style={{width:'100%',padding:'8px 36px 8px 12px',borderRadius:22,border:'none',fontSize:14,outline:'none',color:'#222',background:'rgba(255,255,255,.93)',boxSizing:'border-box',boxShadow:'0 1px 4px rgba(0,0,0,.15)'}}/>
+                {query&&<button onClick={()=>setQuery('')} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'#888',fontSize:16}}>✕</button>}
+                {query&&<SearchResultsPanel results={results} query={query} onClose={()=>setQuery('')} onSelect={r=>nav(r.b.id,r.c.id,r.m.id,query)}/>}
+              </div>
             </div>
           </div>
         )}
