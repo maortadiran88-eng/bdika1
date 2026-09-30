@@ -716,6 +716,26 @@
 </head>
 <body>
 
+<!-- ==============================
+     GLOBAL LOGIN GATE
+================================= -->
+<div id="globalLock" style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div class="tech-lock" style="max-width:340px; width:100%;">
+        <div class="lock-icon">🔐</div>
+        <h2>Tadiran VRF Tools</h2>
+        <p>הזן סיסמה לכניסה למערכת</p>
+        <input type="password" id="globalPassword" placeholder="••••••••••" onkeydown="if(event.key==='Enter')globalLoginFn()">
+        <button class="btn-login" onclick="globalLoginFn()">כניסה</button>
+        <div id="globalError" style="margin-top:10px;font-size:12px;color:var(--red);display:none;">סיסמה שגויה</div>
+        <div id="globalLoading" style="margin-top:10px;font-size:12px;color:var(--text3);display:none;">מתחבר...</div>
+    </div>
+</div>
+
+<!-- ==============================
+     MAIN APP — visible only after login
+================================= -->
+<div id="appRoot" style="display:none;">
+
 <!-- TOP NAV -->
 <nav class="top-nav">
     <div class="nav-logo">
@@ -723,6 +743,8 @@
         <span class="logo-text">Tadiran Tools</span>
     </div>
     <div class="nav-actions">
+        <span id="roleBadge" style="font-size:11px; padding:5px 10px; border-radius:8px; background:var(--surface2); color:var(--text2); font-weight:700;"></span>
+        <button class="btn-logout" onclick="globalLogout()">יציאה</button>
         <div class="lang-selector">
             <button class="lang-btn active" onclick="setLang('he')">עב</button>
             <button class="lang-btn" onclick="setLang('en')">EN</button>
@@ -1419,6 +1441,96 @@
     </div>
 </div>
 
+</div><!-- end appRoot -->
+
+<!-- Firebase SDK (compat build — no bundler needed) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ===========================
+// FIREBASE INIT — טדיראן VRF
+// ===========================
+// !! הדבק כאן את הערכים המדויקים מהקונסולה שלך (Project settings > Your apps) !!
+const firebaseConfig = {
+    apiKey: "AIzaSyBw4W9wbhjsxNeqB7rdoE_fR6LXJXGOHXE",
+    authDomain: "tadiranvrftool.firebaseapp.com",
+    projectId: "tadiranvrftool",
+    storageBucket: "tadiranvrftool.firebasestorage.app",
+    messagingSenderId: "339784286637",
+    appId: "1:339784286637:web:be8f4e506c04e2e323a124"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// שני המשתמשים הקבועים ב-Firebase Authentication
+const GLOBAL_ACCOUNTS = {
+    'Tadiran2026': { email: 'viewer@tadiran-vrf.app', role: 'viewer' },
+    'Maor2026':    { email: 'admin@tadiran-vrf.app',  role: 'admin'  }
+};
+
+let currentRole = null; // 'viewer' | 'admin'
+
+function globalLoginFn() {
+    const pwEl = document.getElementById('globalPassword');
+    const pw = pwEl.value;
+    const account = GLOBAL_ACCOUNTS[pw];
+    const errEl = document.getElementById('globalError');
+    const loadEl = document.getElementById('globalLoading');
+    errEl.style.display = 'none';
+
+    if (!account) {
+        errEl.style.display = 'block';
+        pwEl.value = '';
+        return;
+    }
+
+    loadEl.style.display = 'block';
+    auth.signInWithEmailAndPassword(account.email, pw)
+        .then(() => {
+            loadEl.style.display = 'none';
+            // onAuthStateChanged יטפל בהצגת האפליקציה
+        })
+        .catch(() => {
+            loadEl.style.display = 'none';
+            errEl.style.display = 'block';
+            pwEl.value = '';
+        });
+}
+
+function globalLogout() {
+    auth.signOut();
+}
+
+function showApp(role) {
+    currentRole = role;
+    document.getElementById('globalLock').style.display = 'none';
+    document.getElementById('appRoot').style.display = 'block';
+    const badge = document.getElementById('roleBadge');
+    if (badge) badge.textContent = role === 'admin' ? '👨‍💼 מנהל' : '👁️ צופה';
+}
+
+function showLock() {
+    currentRole = null;
+    document.getElementById('appRoot').style.display = 'none';
+    document.getElementById('globalLock').style.display = 'flex';
+    document.getElementById('globalPassword').value = '';
+}
+
+// שומר את החיבור אוטומטית בין רענוני דף (Firebase דואג לזה לבד)
+auth.onAuthStateChanged(function(user) {
+    if (user) {
+        const role = user.email === 'admin@tadiran-vrf.app' ? 'admin' : 'viewer';
+        showApp(role);
+    } else {
+        showLock();
+    }
+});
+</script>
+
 <script>
 // ===========================
 // TRANSLATIONS
@@ -1721,8 +1833,8 @@ function switchTab(id, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('page-' + id).classList.add('active');
     btn.classList.add('active');
-    if (id === 'tech') checkTechAuth();
-    if (id === 'videos') checkVideosAuth();
+    if (id === 'tech') showTechPortal();
+    if (id === 'videos') showVideosPortal();
 }
 
 // ===========================
