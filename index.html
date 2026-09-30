@@ -732,6 +732,31 @@
 </div>
 
 <!-- ==============================
+     ADMIN MODAL — add/edit tech item
+================================= -->
+<div id="paramModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface); max-width:420px; width:100%; border-radius:var(--radius,12px); padding:20px;">
+    <h3 style="margin-bottom:14px;font-size:15px;color:var(--text);" id="paramModalTitle">הוספת פריט</h3>
+    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">סוג</label>
+    <select id="paramModalType" onchange="paramModalTypeChanged()" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;">
+        <option value="param">פרמטר (קוד + טקסט)</option>
+        <option value="note">הערה</option>
+        <option value="subtitle">כותרת משנה</option>
+    </select>
+    <div id="paramModalCodeWrap">
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">קוד</label>
+        <input id="paramModalCode" type="text" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid var(--border);">
+    </div>
+    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">טקסט (ניתן להשתמש ב-&lt;strong&gt; להדגשה)</label>
+    <textarea id="paramModalText" rows="3" style="width:100%;margin-bottom:14px;padding:8px;border-radius:8px;border:1px solid var(--border);"></textarea>
+    <div style="display:flex;gap:8px;">
+        <button class="btn-login" style="flex:1;" onclick="saveParamModal()">שמור</button>
+        <button class="btn-logout" style="flex:1;" onclick="closeParamModal()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
      MAIN APP — visible only after login
 ================================= -->
 <div id="appRoot" style="display:none;">
@@ -1074,301 +1099,16 @@
             <div class="tech-brand-btn" onclick="selectTechBrand('TOSHIBA',this)">TOSHIBA</div>
         </div>
 
-        <!-- GREE CONTENT -->
-        <div id="tech-gree" class="hidden">
+        <!-- Dynamic tech content, rendered from Firestore -->
+        <div id="techLoadingMsg" style="text-align:center;padding:30px;color:var(--text3);font-size:13px;">⏳ טוען נתונים...</div>
+        <div id="tech-gree" class="hidden"></div>
+        <div id="tech-prime" class="hidden"></div>
+        <div id="tech-toshiba" class="hidden"></div>
 
-            <!-- עדכון פרמטרים -->
-            <div class="tech-section">
-                <div class="tech-section-header" onclick="toggleTechSection(this)">
-                    <span>⚙️ עדכון פרמטרים — טרמוסטט</span><span>▾</span>
-                </div>
-                <div class="tech-section-body">
-                    <div class="tech-note">כניסה לעדכון פרמטרים: לחיצה ארוכה על <strong>FUNCTION</strong> ← לחיצה <strong>3 פעמים</strong> על MODE ← שוב לחיצה ארוכה על <strong>FUNCTION</strong></div>
-                    <div style="height:10px;"></div>
-                    <div class="tech-param"><span class="tech-param-code">P10</span><span class="tech-param-text">קביעת יחידת מאסטר — להעביר ל-<strong>01</strong></span></div>
-                    <div class="tech-param"><span class="tech-param-code">P11</span><span class="tech-param-text">ביטול שידור העינית בטרמוסטט</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P13</span><span class="tech-param-text">2 טרמוסטטים לאותו מאייד — 01 = Master, 02 = Slave</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P14</span><span class="tech-param-text">מספר מאיידים המחוברים לטרמוסטט אחד (00–16)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P15</span><span class="tech-param-text">הגדרת זיכרון חזרת חשמל (Auto Restart)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P16</span><span class="tech-param-text">מעבר בין יחידות מידה — צלזיוס / פרנהייט</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P20</span><span class="tech-param-text">מיקום רגש אוויר חוזר (ערכים 01–04)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P21</span><span class="tech-param-text">כיול רגש אוויר חוזר — <strong>קירור</strong> (טווח: −15 עד +15)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P22</span><span class="tech-param-text">כיול רגש אוויר חוזר — <strong>חימום</strong> (טווח: −15 עד +15)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P30</span><span class="tech-param-text">שינוי לחץ סטטי למאייד (01–09 בהתאם לדגם)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P31</span><span class="tech-param-text">גובה תקרה — 00 = רגיל, 01 = תקרה גבוהה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P33</span><span class="tech-param-text">הגדרת טיימרים בטרמוסטט</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P42</span><span class="tech-param-text">שינוי כתובת מאייד — לחץ MODE, השתמש בחיצים לבחירת כתובת</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P48</span><span class="tech-param-text">פתיחת שסתום בחימום במאייד שאינו פעיל</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P50</span><span class="tech-param-text">טמפרטורת יציאת אוויר צח — <strong>קירור</strong> (16–30°C)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">P51</span><span class="tech-param-text">טמפרטורת יציאת אוויר צח — <strong>חימום</strong> (16–30°C)</span></div>
-                </div>
-            </div>
-
-            <!-- בדיקת פרמטרים -->
-            <div class="tech-section">
-                <div class="tech-section-header" onclick="toggleTechSection(this)">
-                    <span>🔍 בדיקת פרמטרים — טרמוסטט</span><span>▾</span>
-                </div>
-                <div class="tech-section-body">
-                    <div class="tech-note">כניסה למצב צפייה: לחיצה ארוכה על <strong>FUNCTION</strong> (יופיע C00) ← לחיצה <strong>3 פעמים</strong> על MODE</div>
-                    <div style="height:10px;"></div>
-                    <div class="tech-param"><span class="tech-param-code">C00</span><span class="tech-param-text">כתובת המאייד</span></div>
-                    <div class="tech-param"><span class="tech-param-code">C02</span><span class="tech-param-text">גודל (הספק) המאייד</span></div>
-                    <div class="tech-param"><span class="tech-param-code">C03</span><span class="tech-param-text">כמות מאיידים מחוברים במערכת</span></div>
-                    <div class="tech-param"><span class="tech-param-code">C07</span><span class="tech-param-text">טמפרטורת אוויר חוזר (מהמאייד או מהטרמוסטט)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">C12</span><span class="tech-param-text">טמפרטורת סביבה של המעבה (יחידת החוץ)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">C14</span><span class="tech-param-text">טמפרטורת כניסה לסוללת מאייד</span></div>
-                    <div class="tech-param"><span class="tech-param-code">C15</span><span class="tech-param-text">טמפרטורת סוף סוללת מאייד</span></div>
-                    <div class="tech-param"><span class="tech-param-code">C16</span><span class="tech-param-text">מצב פתיחת שסתום התפשטות PMV (0–20)</span></div>
-                </div>
-            </div>
-
-            <!-- הגדרות מעבה -->
-            <div class="tech-section">
-                <div class="tech-section-header" onclick="toggleTechSection(this)">
-                    <span>🏭 הגדרות מעבה</span><span>▾</span>
-                </div>
-                <div class="tech-section-body">
-                    <div class="tech-param"><span class="tech-param-code">A6</span><span class="tech-param-text">ביטול מצב קירור / חימום</span></div>
-                    <div class="tech-param"><span class="tech-param-code">A7</span><span class="tech-param-text">הגדרת מצב שקט של המעבה (00–12)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">A8</span><span class="tech-param-text">פתיחת שסתומים</span></div>
-                    <div class="tech-param"><span class="tech-param-code">N5</span><span class="tech-param-text">סידור כתובות דרך מעגל גז 1 — לשימוש כאשר יש כמה מעגלים מחוברים לבקר מרכזי</span></div>
-                    <div class="tech-param"><span class="tech-param-code">C8</span><span class="tech-param-text">ביטול מדחס — 00 = לא מבוטל. <strong>ניתן לבטל רק כאשר יש מודול בודד</strong></span></div>
-                    <div class="tech-param"><span class="tech-param-code">C9</span><span class="tech-param-text">ביטול מנוע מעבה — 00 = לא מבוטל. <strong>ניתן לבטל רק כאשר יש מודול בודד</strong></span></div>
-                    <div class="tech-param"><span class="tech-param-code">CA</span><span class="tech-param-text">ביטול מעבה — 00 = לא מבוטל</span></div>
-                    <div class="tech-param"><span class="tech-param-code">1G</span><span class="tech-param-text">הגדלת לחץ סטטי במעבה (01–04)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">NL</span><span class="tech-param-text">הגדרת יעד טמפרטורה בלחץ הנמוך</span></div>
-                    <div class="tech-param"><span class="tech-param-code">NH</span><span class="tech-param-text">הגדרת יעד טמפרטורה בלחץ הגבוה</span></div>
-                </div>
-            </div>
+        <div id="techAddCategoryWrap" class="hidden" style="margin-top:20px;text-align:center;">
+            <button class="btn-login" style="width:auto;padding:10px 24px;display:inline-block;" onclick="addTechCategory()">➕ הוסף קטגוריה</button>
         </div>
 
-        <!-- PRIME CONTENT -->
-        <div id="tech-prime" class="hidden">
-            <div class="tech-section">
-                <div class="tech-section-header" onclick="toggleTechSection(this)">
-                    <span>🔍 בדיקת פרמטרים — טרמוסטט</span><span>▾</span>
-                </div>
-                <div class="tech-section-body">
-                    <div class="tech-note">כניסה: לחיצה על <strong>MENU</strong> למשך <strong>5 שניות</strong></div>
-                    <div style="height:10px;"></div>
-                    <div class="tech-param"><span class="tech-param-code">A</span><span class="tech-param-text">חיישן טמפרטורת פנים — <strong>Tai</strong></span></div>
-                    <div class="tech-param"><span class="tech-param-code">B</span><span class="tech-param-text">חיישן טמפרטורת פנים — <strong>Tc1</strong></span></div>
-                    <div class="tech-param"><span class="tech-param-code">C</span><span class="tech-param-text">חיישן טמפרטורת פנים — <strong>Tc2</strong></span></div>
-                    <div class="tech-param"><span class="tech-param-code">D</span><span class="tech-param-text">מצב פתיחת שסתום PMV של יחידת פנים</span></div>
-                    <div class="tech-param"><span class="tech-param-code">E</span><span class="tech-param-text">כתובת (ADDRESS) של יחידת הפנים</span></div>
-                    <div class="tech-param"><span class="tech-param-code">F</span><span class="tech-param-text">כתובת ראשית (CENTRAL ADDRESS) של יחידת הפנים</span></div>
-                </div>
-            </div>
-
-            <!-- הגדרות דרך שלט -->
-            <div class="tech-section">
-                <div class="tech-section-header" onclick="toggleTechSection(this)">
-                    <span>🎮 הגדרות דרך שלט</span><span>▾</span>
-                </div>
-                <div class="tech-section-body">
-
-                    <!-- סגירת שסתום -->
-                    <div class="tech-sub-title">1. סגירת שסתום במאייד עילי</div>
-                    <div class="tech-note" style="background:rgba(255,193,7,0.18);border-color:rgba(255,193,7,0.6);font-size:13px;">
-                        ⚠️ במידה ורוצים לסגור שסתום במאייד במצב חימום
-                    </div>
-                    <div style="height:8px;"></div>
-                    <div style="display:flex;flex-direction:column;gap:8px;">
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
-                            <span style="font-size:14px;color:var(--text);">הדלק את המאייד במצב <strong>חימום</strong> על <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">16 מעלות</strong></span>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
-                            <span style="font-size:14px;color:var(--text);">לחץ על כפתור <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">SLEEP</strong> — <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">3 פעמים</strong></span>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
-                            <span style="font-size:14px;color:var(--text);">המזגן <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">יצפצף</strong></span>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
-                            <span style="font-size:14px;color:var(--text);">עלה ל-<strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">17 מעלות</strong> ואז <strong>כבה</strong> את המזגן</span>
-                        </div>
-                    </div>
-
-                    <div style="height:16px;"></div>
-
-                    <!-- חזרה מהפסקת חשמל -->
-                    <div class="tech-sub-title">2. חזרה מהפסקת חשמל (Auto Restart)</div>
-                    <div class="tech-note">בטרמוסטט — לחץ על <strong>MENU</strong> | בשלט — לחץ על <strong>SLEEP</strong><br>יש ללחוץ <strong>10 פעמים</strong> בהפרש של <strong>5 שניות</strong> בין כל לחיצה</div>
-                    <div style="height:8px;"></div>
-                    <div class="tech-param">
-                        <span class="tech-param-code">🔔🔔</span>
-                        <span class="tech-param-text"><strong>2 צפצופים</strong> — Auto Restart <strong>מבוטל</strong></span>
-                    </div>
-                    <div class="tech-param">
-                        <span class="tech-param-code">🔔🔔🔔🔔</span>
-                        <span class="tech-param-text"><strong>4 צפצופים</strong> — Auto Restart <strong>פעיל</strong> (ידלק בחזרת חשמל)</span>
-                    </div>
-
-                    <div style="height:16px;"></div>
-
-                    <!-- צפייה באוויר חוזר -->
-                    <div class="tech-sub-title">3. צפייה באוויר חוזר במאייד עילי</div>
-                    <div class="tech-note">על מנת לראות את האוויר חוזר במאייד עילי יש ללחוץ <strong>10 פעמים</strong> על כפתור <strong>LIGHT</strong></div>
-
-                    <div style="height:16px;"></div>
-
-                    <!-- זיוף רגש אוויר חוזר בחימום -->
-                    <div class="tech-sub-title">4. זיוף רגש אוויר חוזר בחימום — מאייד עילי</div>
-                    <div style="display:flex;flex-direction:column;gap:8px;">
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
-                            <span style="font-size:14px;color:var(--text);">הדלק במצב <strong>חימום</strong> על <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">30 מעלות</strong></span>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
-                            <span style="font-size:14px;color:var(--text);">לחץ על כפתור <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">SLEEP</strong> — <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">7 פעמים</strong></span>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
-                            <span style="font-size:14px;color:var(--text);">המזגן <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">יצפצף</strong></span>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
-                            <span style="font-size:14px;color:var(--text);">הורד טמפרטורה ואשר <strong>בכיבוי</strong> המזגן</span>
-                        </div>
-                    </div>
-                    <div class="tech-note" style="margin-top:8px;">💡 כל <strong>מעלה</strong> שמורידים = <strong>מעלה</strong> זיוף. לדוגמה: הורדה של 2 מעלות = זיוף של 2 מעלות</div>
-
-                    <div style="height:16px;"></div>
-
-                    <!-- זיוף רגש אוויר חוזר בקירור -->
-                    <div class="tech-sub-title">5. זיוף רגש אוויר חוזר בקירור — מאייד עילי</div>
-                    <div style="display:flex;flex-direction:column;gap:8px;">
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
-                            <span style="font-size:14px;color:var(--text);">הדלק במצב <strong>קירור</strong> על <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">23 מעלות</strong></span>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
-                            <span style="font-size:14px;color:var(--text);">לחץ על כפתור <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">SLEEP</strong> — <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">7 פעמים</strong></span>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
-                            <span style="font-size:14px;color:var(--text);">המזגן <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">יצפצף</strong></span>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
-                            <span style="font-size:14px;color:var(--text);">הורד או העלה טמפרטורה ואשר <strong>בכיבוי</strong> המזגן</span>
-                        </div>
-                    </div>
-
-                    <div style="height:16px;"></div>
-
-                    <!-- משאבת מים מדגם 7G -->
-                    <div class="tech-sub-title">6. משאבת מים מובנית — מאייד עילי מדגם 7G</div>
-                    <div class="tech-note">מאייד עילי מדגם <strong>7G</strong> מגיע עם משאבת מים מובנית. להפעלה יש ללחוץ <strong>6 פעמים</strong> על כפתור <strong>HEALTH</strong></div>
-                    <div style="height:8px;"></div>
-                    <div class="tech-param">
-                        <span class="tech-param-code">🔔🔔🔔🔔</span>
-                        <span class="tech-param-text"><strong>4 צפצופים</strong> — המשאבה <strong>עובדת</strong></span>
-                    </div>
-                    <div class="tech-param">
-                        <span class="tech-param-code">🔔🔔</span>
-                        <span class="tech-param-text"><strong>2 צפצופים</strong> — המשאבה <strong>כבויה</strong></span>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- TOSHIBA CONTENT -->
-        <div id="tech-toshiba" class="hidden">
-
-            <!-- בדיקת פרמטרים מאייד -->
-            <div class="tech-section">
-                <div class="tech-section-header" onclick="toggleTechSection(this)">
-                    <span>🔍 בדיקת פרמטרים — מאייד (טרמוסטט)</span><span>▾</span>
-                </div>
-                <div class="tech-section-body">
-                    <div class="tech-param"><span class="tech-param-code">00</span><span class="tech-param-text">בדיקת טמפרטורה אחרי תיקון</span></div>
-                    <div class="tech-param"><span class="tech-param-code">01</span><span class="tech-param-text">טמפרטורת טרמוסטט</span></div>
-                    <div class="tech-param"><span class="tech-param-code">02</span><span class="tech-param-text">טמפרטורת אוויר חוזר</span></div>
-                    <div class="tech-param"><span class="tech-param-code">03</span><span class="tech-param-text">טמפרטורת אמצע סוללה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">04</span><span class="tech-param-text">טמפרטורת כניסה לסוללה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">05</span><span class="tech-param-text">טמפרטורת סוף סוללה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">08</span><span class="tech-param-text">מצב פתיחת שסתום (טווח: 3–150)</span></div>
-                </div>
-            </div>
-
-            <!-- בדיקת פרמטרים מעבה -->
-            <div class="tech-section">
-                <div class="tech-section-header" onclick="toggleTechSection(this)">
-                    <span>🌡️ בדיקת פרמטרים — מעבה</span><span>▾</span>
-                </div>
-                <div class="tech-section-body">
-                    <div class="tech-sub-title">לחץ וטמפרטורה</div>
-                    <div class="tech-param"><span class="tech-param-code">1/1/2</span><span class="tech-param-text">לחץ גבוה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">1/2/2</span><span class="tech-param-text">לחץ נמוך</span></div>
-                    <div class="tech-param"><span class="tech-param-code">1/4/2</span><span class="tech-param-text">רגש דחיסה 1</span></div>
-                    <div class="tech-param"><span class="tech-param-code">1/5/2</span><span class="tech-param-text">רגש דחיסה 2</span></div>
-                    <div class="tech-param"><span class="tech-param-code">1/7/2</span><span class="tech-param-text">רגש יניקה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">1/9/2</span><span class="tech-param-text">רגש יניקה 3</span></div>
-                    <div class="tech-sub-title">עבודת מדחס</div>
-                    <div class="tech-param"><span class="tech-param-code">1/5/1</span><span class="tech-param-text">תדר עבודה נוכחי של המדחס</span></div>
-                    <div class="tech-sub-title">נתוני חוץ ושמן</div>
-                    <div class="tech-param"><span class="tech-param-code">1/16/2</span><span class="tech-param-text">רגש אוויר חוזר מעבה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">1/1-5/5</span><span class="tech-param-text">רגשי שמן TK1–TK5</span></div>
-                    <div class="tech-param"><span class="tech-param-code">1/16/1</span><span class="tech-param-text">בדיקת רמת שמן — 0=תקין, 1/2=רמה נמוכה</span></div>
-                    <div class="tech-sub-title">נתוני מערכת</div>
-                    <div class="tech-param"><span class="tech-param-code">1/4/3</span><span class="tech-param-text">כמות מאיידים במערכת (ניתן לבדוק גם ב-4/1/1)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">6/*/*</span><span class="tech-param-text">כוח סוס של המאיידים</span></div>
-                    <div class="tech-sub-title">בדיקות עבודה (Test Mode)</div>
-                    <div class="tech-param"><span class="tech-param-code">2/1/4</span><span class="tech-param-text">טסט מאווררי מעבה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">2/5/1</span><span class="tech-param-text">טסט קירור</span></div>
-                    <div class="tech-param"><span class="tech-param-code">2/6/1</span><span class="tech-param-text">טסט חימום</span></div>
-                    <div class="tech-sub-title">שסתומים</div>
-                    <div class="tech-param"><span class="tech-param-code">2/1/3</span><span class="tech-param-text">פתיחת שסתומי מעבה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">2/3/1</span><span class="tech-param-text">פתיחת שסתומי מאייד</span></div>
-                    <div class="tech-param"><span class="tech-param-code">8/*/*</span><span class="tech-param-text">פתיחת שסתום במאיידים</span></div>
-                    <div class="tech-sub-title">חיישני מאיידים (מהמעבה)</div>
-                    <div class="tech-param"><span class="tech-param-code">9/*/*</span><span class="tech-param-text">אוויר חוזר מאייד</span></div>
-                    <div class="tech-param"><span class="tech-param-code">10/*/*</span><span class="tech-param-text">רגש יציאת אוויר</span></div>
-                    <div class="tech-param"><span class="tech-param-code">11/*/*</span><span class="tech-param-text">אמצע סוללה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">12/*/*</span><span class="tech-param-text">סוף סוללה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">13/*/*</span><span class="tech-param-text">כניסה לסוללה</span></div>
-                    <div class="tech-note">⚠️ חלק מהנתונים לא תקפים למעבה דגם U</div>
-                    <div class="tech-note">💡 <strong>*</strong> = מעבר בין המאיידים באמצעות המפסקים הצהובים</div>
-                    <div class="tech-sub-title">דיאגנוסטיקה</div>
-                    <div class="tech-param"><span class="tech-param-code">1/1/16</span><span class="tech-param-text">בדיקת תקלה אחרונה — דורש לחיצה על SW04 למשך 5 שניות</span></div>
-                </div>
-            </div>
-
-            <!-- DN Code -->
-            <div class="tech-section">
-                <div class="tech-section-header" onclick="toggleTechSection(this)">
-                    <span>🛠️ שינוי DN CODE — הגדרות שירות</span><span>▾</span>
-                </div>
-                <div class="tech-section-body">
-                    <div class="tech-param"><span class="tech-param-code">01</span><span class="tech-param-text">זמן הגדרת ניקוי פילטר</span></div>
-                    <div class="tech-param"><span class="tech-param-code">03</span><span class="tech-param-text">כתובת בקר מרכזי</span></div>
-                    <div class="tech-param"><span class="tech-param-code">04</span><span class="tech-param-text">הגדרת מאייד כ-Master — <strong>רק לאחר שמגדירים במעבה</strong></span></div>
-                    <div class="tech-param"><span class="tech-param-code">06</span><span class="tech-param-text">שינוי רגש בחימום</span></div>
-                    <div class="tech-param"><span class="tech-param-code">10</span><span class="tech-param-text">הגדרת דגם המאייד</span></div>
-                    <div class="tech-param"><span class="tech-param-code">11</span><span class="tech-param-text">הגדרת גודל (הספק) המאייד</span></div>
-                    <div class="tech-param"><span class="tech-param-code">12</span><span class="tech-param-text">הגדרת קו גז מעבה</span></div>
-                    <div class="tech-param"><span class="tech-param-code">13</span><span class="tech-param-text">הגדרת כתובת מאייד</span></div>
-                    <div class="tech-param"><span class="tech-param-code">14</span><span class="tech-param-text">שליטת קבוצה — Group Control</span></div>
-                    <div class="tech-param"><span class="tech-param-code">17</span><span class="tech-param-text">שינוי רגש בקירור</span></div>
-                    <div class="tech-param"><span class="tech-param-code">28</span><span class="tech-param-text">חזרה מהפסקת חשמל — Auto Restart</span></div>
-                    <div class="tech-param"><span class="tech-param-code">32</span><span class="tech-param-text">מדידת טמפרטורה מהטרמוסטט — Remote Sensor</span></div>
-                    <div class="tech-param"><span class="tech-param-code">33</span><span class="tech-param-text">יחידות מידה — פרנהייט / צלזיוס</span></div>
-                    <div class="tech-param"><span class="tech-param-code">36</span><span class="tech-param-text">תצוגת הטמפרטורה שהמזגן מרגיש בפועל</span></div>
-                    <div class="tech-param"><span class="tech-param-code">5D</span><span class="tech-param-text">שינוי לחץ סטטי — External Static Pressure (לפי טבלה)</span></div>
-                    <div class="tech-param"><span class="tech-param-code">103</span><span class="tech-param-text">הגדרה לדגמי U ללא טרמוסטט מחובר</span></div>
-                    <div class="tech-param"><span class="tech-param-code">A0</span><span class="tech-param-text">עבודת פן ומשאבת ניקוז בזמן החזרת שמן</span></div>
-                </div>
-            </div>
-
-        </div><!-- end tech-toshiba -->
     </div><!-- end techPortal -->
 </div><!-- end page-tech -->
 
@@ -1791,12 +1531,210 @@ function checkVideosAuth() {
 }
 
 let currentTechBrand = '';
+let techCache = {}; // brand -> { categories: [...], itemsByCat: { catId: [...] } }
+
 function selectTechBrand(brand, el) {
     currentTechBrand = brand;
     document.querySelectorAll('.tech-brand-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
     ['tech-gree','tech-prime','tech-toshiba'].forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById('tech-' + brand.toLowerCase()).classList.remove('hidden');
+    document.getElementById('techAddCategoryWrap').classList.toggle('hidden', currentRole !== 'admin');
+    loadTechBrand(brand);
+}
+
+function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+}
+
+async function loadTechBrand(brand, forceRefresh) {
+    const container = document.getElementById('tech-' + brand.toLowerCase());
+    if (techCache[brand] && !forceRefresh) { renderTechBrand(brand); return; }
+
+    document.getElementById('techLoadingMsg').style.display = 'block';
+    container.innerHTML = '';
+    try {
+        const catSnap = await db.collection('techCategories').where('brand', '==', brand).orderBy('order').get();
+        const categories = [];
+        catSnap.forEach(doc => categories.push({ id: doc.id, ...doc.data() }));
+
+        const itemSnap = await db.collection('techItems').where('brand', '==', brand).orderBy('order').get();
+        const itemsByCat = {};
+        itemSnap.forEach(doc => {
+            const data = { id: doc.id, ...doc.data() };
+            if (!itemsByCat[data.catId]) itemsByCat[data.catId] = [];
+            itemsByCat[data.catId].push(data);
+        });
+
+        techCache[brand] = { categories, itemsByCat };
+        renderTechBrand(brand);
+    } catch (e) {
+        container.innerHTML = '<div class="tech-note">⚠️ שגיאה בטעינת הנתונים: ' + escapeHtml(e.message) + '</div>';
+    } finally {
+        document.getElementById('techLoadingMsg').style.display = 'none';
+    }
+}
+
+function renderTechBrand(brand) {
+    const data = techCache[brand];
+    const container = document.getElementById('tech-' + brand.toLowerCase());
+    const isAdmin = currentRole === 'admin';
+    if (!data.categories.length) {
+        container.innerHTML = '<div class="tech-note">אין עדיין תוכן למותג זה.</div>';
+        return;
+    }
+    let html = '';
+    data.categories.forEach(cat => {
+        html += '<div class="tech-section">';
+        html += '<div class="tech-section-header" onclick="toggleTechSection(this)"><span>' + escapeHtml(cat.title) + '</span><span>▾</span></div>';
+        html += '<div class="tech-section-body">';
+        (data.itemsByCat[cat.id] || []).forEach(item => { html += renderTechItem(item, isAdmin); });
+        if (isAdmin) {
+            html += '<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">';
+            html += '<button class="btn-login" style="width:auto;padding:6px 14px;font-size:12px;" onclick="addTechItem(\'' + cat.id + '\')">➕ הוסף שורה</button>';
+            html += '<button class="btn-logout" style="padding:6px 14px;font-size:12px;" onclick="editCategoryTitle(\'' + cat.id + '\')">✏️ שם קטגוריה</button>';
+            html += '<button class="btn-logout" style="padding:6px 14px;font-size:12px;" onclick="deleteTechCategory(\'' + cat.id + '\')">🗑 מחק קטגוריה</button>';
+            html += '</div>';
+        }
+        html += '</div></div>';
+    });
+    container.innerHTML = html;
+}
+
+function renderTechItem(item, isAdmin) {
+    let inner = '';
+    if (item.type === 'subtitle') inner = '<div class="tech-sub-title">' + item.text + '</div>';
+    else if (item.type === 'note') inner = '<div class="tech-note">' + item.text + '</div>';
+    else inner = '<div class="tech-param"><span class="tech-param-code">' + escapeHtml(item.code) + '</span><span class="tech-param-text">' + item.text + '</span></div>';
+
+    if (!isAdmin) return inner;
+    return '<div style="display:flex;align-items:center;gap:6px;">' +
+           '<div style="flex:1;min-width:0;">' + inner + '</div>' +
+           '<button onclick="editTechItem(\'' + item.id + '\')" title="ערוך" style="border:none;background:none;cursor:pointer;font-size:14px;flex-shrink:0;">✏️</button>' +
+           '<button onclick="deleteTechItem(\'' + item.id + '\')" title="מחק" style="border:none;background:none;cursor:pointer;font-size:14px;flex-shrink:0;">🗑</button>' +
+           '</div>';
+}
+
+// ---- Category CRUD ----
+async function addTechCategory() {
+    if (currentRole !== 'admin' || !currentTechBrand) return;
+    const title = prompt('שם הקטגוריה החדשה:');
+    if (!title) return;
+    const data = techCache[currentTechBrand] || { categories: [] };
+    const nextOrder = data.categories.length ? Math.max(...data.categories.map(c => c.order || 0)) + 1 : 1;
+    try {
+        await db.collection('techCategories').add({ brand: currentTechBrand, title, order: nextOrder });
+        await loadTechBrand(currentTechBrand, true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+async function editCategoryTitle(catId) {
+    const data = techCache[currentTechBrand];
+    const cat = data.categories.find(c => c.id === catId);
+    const title = prompt('שם קטגוריה חדש:', cat ? cat.title : '');
+    if (!title) return;
+    try {
+        await db.collection('techCategories').doc(catId).update({ title });
+        await loadTechBrand(currentTechBrand, true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+async function deleteTechCategory(catId) {
+    if (!confirm('למחוק את הקטגוריה וכל הפריטים שבתוכה? פעולה זו בלתי הפיכה.')) return;
+    try {
+        const data = techCache[currentTechBrand];
+        const items = data.itemsByCat[catId] || [];
+        const batch = db.batch();
+        items.forEach(it => batch.delete(db.collection('techItems').doc(it.id)));
+        batch.delete(db.collection('techCategories').doc(catId));
+        await batch.commit();
+        await loadTechBrand(currentTechBrand, true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+// ---- Item (param/note/subtitle) CRUD via modal ----
+let paramModalState = null; // { mode: 'add'|'edit', catId, item }
+
+function paramModalTypeChanged() {
+    const type = document.getElementById('paramModalType').value;
+    document.getElementById('paramModalCodeWrap').style.display = (type === 'param') ? 'block' : 'none';
+}
+
+function addTechItem(catId) {
+    paramModalState = { mode: 'add', catId };
+    document.getElementById('paramModalTitle').textContent = 'הוספת פריט';
+    document.getElementById('paramModalType').value = 'param';
+    document.getElementById('paramModalCode').value = '';
+    document.getElementById('paramModalText').value = '';
+    paramModalTypeChanged();
+    openParamModal();
+}
+
+function editTechItem(itemId) {
+    const data = techCache[currentTechBrand];
+    let found = null;
+    Object.keys(data.itemsByCat).forEach(cid => {
+        const hit = data.itemsByCat[cid].find(i => i.id === itemId);
+        if (hit) found = hit;
+    });
+    if (!found) return;
+    paramModalState = { mode: 'edit', item: found };
+    document.getElementById('paramModalTitle').textContent = 'עריכת פריט';
+    document.getElementById('paramModalType').value = found.type || 'param';
+    document.getElementById('paramModalCode').value = found.code || '';
+    document.getElementById('paramModalText').value = found.text || '';
+    paramModalTypeChanged();
+    openParamModal();
+}
+
+async function deleteTechItem(itemId) {
+    if (!confirm('למחוק פריט זה?')) return;
+    try {
+        await db.collection('techItems').doc(itemId).delete();
+        await loadTechBrand(currentTechBrand, true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+function openParamModal() {
+    const modal = document.getElementById('paramModal');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+}
+
+function closeParamModal() {
+    const modal = document.getElementById('paramModal');
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    paramModalState = null;
+}
+
+async function saveParamModal() {
+    if (!paramModalState) return;
+    const type = document.getElementById('paramModalType').value;
+    const code = document.getElementById('paramModalCode').value.trim();
+    const text = document.getElementById('paramModalText').value.trim();
+    if (!text) { alert('חובה להזין טקסט'); return; }
+    if (type === 'param' && !code) { alert('חובה להזין קוד עבור פרמטר'); return; }
+
+    try {
+        if (paramModalState.mode === 'add') {
+            const data = techCache[currentTechBrand];
+            const existing = data.itemsByCat[paramModalState.catId] || [];
+            const nextOrder = existing.length ? Math.max(...existing.map(i => i.order || 0)) + 1 : 1;
+            await db.collection('techItems').add({
+                brand: currentTechBrand, catId: paramModalState.catId,
+                type, code: type === 'param' ? code : '', text, order: nextOrder
+            });
+        } else {
+            await db.collection('techItems').doc(paramModalState.item.id).update({
+                type, code: type === 'param' ? code : '', text
+            });
+        }
+        closeParamModal();
+        await loadTechBrand(currentTechBrand, true);
+    } catch (e) { alert('שגיאה בשמירה: ' + e.message); }
 }
 
 function toggleTechSection(header) {
