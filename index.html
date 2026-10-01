@@ -717,21 +717,6 @@
 <body>
 
 <!-- ==============================
-     GLOBAL LOGIN GATE
-================================= -->
-<div id="globalLock" style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
-    <div class="tech-lock" style="max-width:340px; width:100%;">
-        <div class="lock-icon">🔐</div>
-        <h2>Tadiran VRF Tools</h2>
-        <p>הזן סיסמה לכניסה למערכת</p>
-        <input type="password" id="globalPassword" placeholder="••••••••••" onkeydown="if(event.key==='Enter')globalLoginFn()">
-        <button class="btn-login" onclick="globalLoginFn()">כניסה</button>
-        <div id="globalError" style="margin-top:10px;font-size:12px;color:var(--red);display:none;">סיסמה שגויה</div>
-        <div id="globalLoading" style="margin-top:10px;font-size:12px;color:var(--text3);display:none;">מתחבר...</div>
-    </div>
-</div>
-
-<!-- ==============================
      ADMIN MODAL — add/edit tech item
 ================================= -->
 <div id="paramModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:20px;">
@@ -757,9 +742,9 @@
 </div>
 
 <!-- ==============================
-     MAIN APP — visible only after login
+     MAIN APP — open to everyone; tech & videos have their own locks
 ================================= -->
-<div id="appRoot" style="display:none;">
+<div id="appRoot">
 
 <!-- TOP NAV -->
 <nav class="top-nav">
@@ -769,7 +754,7 @@
     </div>
     <div class="nav-actions">
         <span id="roleBadge" style="font-size:11px; padding:5px 10px; border-radius:8px; background:var(--surface2); color:var(--text2); font-weight:700;"></span>
-        <button class="btn-logout" onclick="globalLogout()">יציאה</button>
+        <button class="btn-logout hidden" id="logoutBtn" onclick="doLogout()">יציאה</button>
         <div class="lang-selector">
             <button class="lang-btn active" onclick="setLang('he')">עב</button>
             <button class="lang-btn" onclick="setLang('en')">EN</button>
@@ -1207,66 +1192,40 @@ const GLOBAL_ACCOUNTS = {
     'Maor2026':    { email: 'admin@tadiran-vrf.app',  role: 'admin'  }
 };
 
-let currentRole = null; // 'viewer' | 'admin'
+let currentRole = null;   // 'viewer' | 'admin' | null
+let techUnlocked = false; // האם הוזנה סיסמה תקינה באזור הטכנאים בסשן הנוכחי
 
-function globalLoginFn() {
-    const pwEl = document.getElementById('globalPassword');
-    const pw = pwEl.value;
-    const account = GLOBAL_ACCOUNTS[pw];
-    const errEl = document.getElementById('globalError');
-    const loadEl = document.getElementById('globalLoading');
-    errEl.style.display = 'none';
-
-    if (!account) {
-        errEl.style.display = 'block';
-        pwEl.value = '';
-        return;
-    }
-
-    loadEl.style.display = 'block';
-    auth.signInWithEmailAndPassword(account.email, pw)
-        .then(() => {
-            loadEl.style.display = 'none';
-            // onAuthStateChanged יטפל בהצגת האפליקציה
-        })
-        .catch(() => {
-            loadEl.style.display = 'none';
-            errEl.style.display = 'block';
-            pwEl.value = '';
-        });
-}
-
-function globalLogout() {
-    auth.signOut();
-}
-
-function showApp(role) {
-    currentRole = role;
-    document.getElementById('globalLock').style.display = 'none';
-    document.getElementById('appRoot').style.display = 'block';
+function updateRoleUI() {
     const badge = document.getElementById('roleBadge');
-    if (badge) badge.textContent = role === 'admin' ? '👨‍💼 מנהל' : '';
+    if (badge) badge.textContent = currentRole === 'admin' ? '👨‍💼 מנהל' : '';
     const adminTabBtn = document.getElementById('adminTabBtn');
-    if (adminTabBtn) adminTabBtn.classList.toggle('hidden', role !== 'admin');
-    renderSmmsuSystemSelect();
-    loadAllGasCalcOverrides();
+    if (adminTabBtn) adminTabBtn.classList.toggle('hidden', currentRole !== 'admin');
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.classList.toggle('hidden', !currentRole);
 }
 
-function showLock() {
-    currentRole = null;
-    document.getElementById('appRoot').style.display = 'none';
-    document.getElementById('globalLock').style.display = 'flex';
-    document.getElementById('globalPassword').value = '';
+function doLogout() {
+    auth.signOut();
+    // נעילה חוזרת של אזור הטכנאים
+    const techPortal = document.getElementById('techPortal');
+    const techLock = document.getElementById('techLock');
+    if (techPortal && techLock) {
+        techPortal.classList.add('hidden');
+        techLock.style.display = 'block';
+    }
 }
 
-// שומר את החיבור אוטומטית בין רענוני דף (Firebase דואג לזה לבד)
+// שומר את ההתחברות אוטומטית בין רענוני דף (Firebase דואג לזה לבד) —
+// כך שאם כבר הוזנה סיסמה פעם אחת, לא צריך להזין שוב בכל כניסה לאזור הטכנאים.
 auth.onAuthStateChanged(function(user) {
     if (user) {
-        const role = user.email === 'admin@tadiran-vrf.app' ? 'admin' : 'viewer';
-        showApp(role);
+        currentRole = (user.email === 'admin@tadiran-vrf.app') ? 'admin' : 'viewer';
+        techUnlocked = true;
     } else {
-        showLock();
+        currentRole = null;
+        techUnlocked = false;
     }
+    updateRoleUI();
 });
 </script>
 
@@ -1449,37 +1408,47 @@ function updateLabel(id, text) {
 window.addEventListener('DOMContentLoaded', () => setLang(currentLang));
 
 // ===========================
-// TECHNICIAN PORTAL
+// TECHNICIAN PORTAL — סיסמת צופה (Tadiran2026) או מנהל (Maor2026), דרך Firebase
 // ===========================
-const TECH_PASSWORD = 'Tadiran2026';
-
 function techLogin() {
     const pw = document.getElementById('techPassword').value;
-    if (pw === TECH_PASSWORD) {
-        localStorage.setItem('vrf-tech-auth', '1');
-        showTechPortal();
-    } else {
-        document.getElementById('techError').style.display = 'block';
+    const account = GLOBAL_ACCOUNTS[pw];
+    const errEl = document.getElementById('techError');
+    errEl.style.display = 'none';
+
+    if (!account) {
+        errEl.style.display = 'block';
         document.getElementById('techPassword').value = '';
+        return;
     }
+
+    auth.signInWithEmailAndPassword(account.email, pw)
+        .then(() => {
+            currentRole = account.role;
+            techUnlocked = true;
+            updateRoleUI();
+            showTechPortal();
+        })
+        .catch(() => {
+            errEl.style.display = 'block';
+            document.getElementById('techPassword').value = '';
+        });
 }
 
 function techLogout() {
-    localStorage.removeItem('vrf-tech-auth');
-    document.getElementById('techPortal').classList.add('hidden');
-    document.getElementById('techLock').style.display = 'block';
-    document.getElementById('techPassword').value = '';
-    document.getElementById('techError').style.display = 'none';
+    doLogout();
 }
 
 function showTechPortal() {
     document.getElementById('techLock').style.display = 'none';
     document.getElementById('techPortal').classList.remove('hidden');
+    const addCatWrap = document.getElementById('techAddCategoryWrap');
+    if (addCatWrap) addCatWrap.classList.toggle('hidden', currentRole !== 'admin');
 }
 
-// Check on tab switch
+// בדיקה במעבר ללשונית — אם כבר מחובר מסשן קודם (Firebase שומר את זה לבד), לא צריך סיסמה שוב
 function checkTechAuth() {
-    if (localStorage.getItem('vrf-tech-auth') === '1') showTechPortal();
+    if (techUnlocked) showTechPortal();
     else {
         document.getElementById('techLock').style.display = 'block';
         document.getElementById('techPortal').classList.add('hidden');
@@ -1860,8 +1829,8 @@ function switchTab(id, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('page-' + id).classList.add('active');
     btn.classList.add('active');
-    if (id === 'tech') showTechPortal();
-    if (id === 'videos') showVideosPortal();
+    if (id === 'tech') checkTechAuth();
+    if (id === 'videos') checkVideosAuth();
     if (id === 'admin') populateGasTableSelect();
 }
 
@@ -2915,6 +2884,11 @@ function removeSMMSUUnit(idx) {
     calculate();
 }
 
+// ===========================
+// INIT — האתר פתוח לכולם; טוענים נתוני מחשבון גז מהענן מיד (ללא תלות בהתחברות)
+// ===========================
+renderSmmsuSystemSelect();
+loadAllGasCalcOverrides();
 
 </script>
 </body>
