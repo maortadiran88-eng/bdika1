@@ -875,77 +875,7 @@
             <!-- System HP -->
             <div class="input-wrap">
                 <div class="pipe-section-label">בחר קומבינציית מעבים</div>
-                <select id="smmsuSystem" onchange="smmsuSystemChanged();calculate()">
-                    <option value="">— בחר עוצמת מערכת —</option>
-                    <option value="manual">➕ שילוב ידני — הוסף מעבים בנפרד</option>
-                    <optgroup label="יחידה בודדת">
-                        <option value="8">8HP — מעבה 8HP בודד</option>
-                        <option value="10">10HP — מעבה 10HP בודד</option>
-                        <option value="12">12HP — מעבה 12HP בודד</option>
-                        <option value="14">14HP — מעבה 14HP בודד</option>
-                        <option value="16">16HP — מעבה 16HP בודד</option>
-                        <option value="18">18HP — מעבה 18HP בודד</option>
-                        <option value="20">20HP — מעבה 20HP בודד</option>
-                        <option value="22">22HP — מעבה 22HP בודד</option>
-                        <option value="24">24HP — מעבה 24HP בודד</option>
-                    </optgroup>
-                    <optgroup label="שתי יחידות">
-                        <option value="26">26HP — 14+12</option>
-                        <option value="28">28HP — 14+14</option>
-                        <option value="30">30HP — 18+12</option>
-                        <option value="32">32HP — 20+12</option>
-                        <option value="34">34HP — 20+14</option>
-                        <option value="36">36HP — 24+12</option>
-                        <option value="38">38HP — 24+14</option>
-                        <option value="40">40HP — 20+20</option>
-                        <option value="42">42HP — 24+18</option>
-                        <option value="44">44HP — 24+20</option>
-                        <option value="46">46HP — 24+22</option>
-                        <option value="48">48HP — 24+24</option>
-                    </optgroup>
-                    <optgroup label="שלוש יחידות">
-                        <option value="50">50HP — 24+14+12</option>
-                        <option value="52">52HP — 24+14+14</option>
-                        <option value="54">54HP — 20+20+14</option>
-                        <option value="56">56HP — 24+20+12</option>
-                        <option value="58">58HP — 24+20+14</option>
-                        <option value="60">60HP — 24+24+12</option>
-                        <option value="62">62HP — 24+24+14</option>
-                        <option value="64">64HP — 24+24+20</option>
-                        <option value="66">66HP — 24+22+20</option>
-                        <option value="68">68HP — 24+24+20</option>
-                        <option value="70">70HP — 24+24+22</option>
-                        <option value="72">72HP — 24+24+24</option>
-                    </optgroup>
-                    <optgroup label="ארבע יחידות">
-                        <option value="74">74HP — 24+24+14+12</option>
-                        <option value="76">76HP — 24+24+14+14</option>
-                        <option value="78">78HP — 24+24+20+14</option>
-                        <option value="80">80HP — 24+24+20+12</option>
-                        <option value="82">82HP — 24+24+20+14</option>
-                        <option value="84">84HP — 24+24+24+12</option>
-                        <option value="86">86HP — 24+24+24+14</option>
-                        <option value="88">88HP — 24+24+20+20</option>
-                        <option value="90">90HP — 24+24+22+20</option>
-                        <option value="92">92HP — 24+24+24+20</option>
-                        <option value="94">94HP — 24+24+24+22</option>
-                        <option value="96">96HP — 24+24+24+24</option>
-                    </optgroup>
-                    <optgroup label="חמש יחידות">
-                        <option value="98">98HP — 24+24+24+14+12</option>
-                        <option value="100">100HP — 24+24+24+14+14</option>
-                        <option value="102">102HP — 24+24+24+20+14</option>
-                        <option value="104">104HP — 24+24+24+20+12</option>
-                        <option value="106">106HP — 24+24+24+20+14</option>
-                        <option value="108">108HP — 24+24+24+24+12</option>
-                        <option value="110">110HP — 24+24+24+24+14</option>
-                        <option value="112">112HP — 24+24+24+24+20</option>
-                        <option value="114">114HP — 24+24+24+22+20</option>
-                        <option value="116">116HP — 24+24+24+24+20</option>
-                        <option value="118">118HP — 24+24+24+24+22</option>
-                        <option value="120">120HP — 24+24+24+24+24</option>
-                    </optgroup>
-                </select>
+                <select id="smmsuSystem" onchange="smmsuSystemChanged();calculate()"></select>
                 <div id="smmsuSystemBonus" style="font-size:12px;color:var(--text3);margin-top:4px;text-align:left;"></div>
             </div>
 
@@ -1147,17 +1077,34 @@
         <div class="conv-card">
             <div class="conv-card-title"><span>🎥</span> <span id="videosTitle">סרטוני הדרכה</span></div>
             <p id="videosSub" style="font-size:12px; color:var(--text3); margin-bottom:16px; line-height:1.6;">
-                בחר מותג לצפייה בפלייליסט סרטוני ההדרכה
+                בחר קישור לצפייה בפלייליסט סרטוני ההדרכה
             </p>
 
-            <div class="brand-grid" style="grid-template-columns: repeat(2, 1fr);">
-                <div class="brand-card" onclick="openVideoPlaylist('gree')">GREE</div>
-                <div class="brand-card" onclick="openVideoPlaylist('remote')" id="videoRemoteCard">שליטה מרחוק</div>
-                <div class="brand-card" onclick="openVideoPlaylist('toshiba')">TOSHIBA</div>
-                <div class="brand-card" onclick="openVideoPlaylist('prime')">PRIME</div>
+            <div id="videoLinksLoading" style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">⏳ טוען...</div>
+            <div id="videoLinksContainer" class="brand-grid" style="grid-template-columns: repeat(2, 1fr);"></div>
+
+            <div id="videoAddWrap" class="hidden" style="margin-top:16px;text-align:center;">
+                <button class="btn-login" style="width:auto;padding:8px 18px;display:inline-block;" onclick="addVideoLink()">➕ הוסף קישור</button>
             </div>
         </div>
     </div>
+</div>
+
+<!-- ==============================
+     ADMIN MODAL — add/edit video link
+================================= -->
+<div id="videoLinkModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface); max-width:420px; width:100%; border-radius:var(--radius,12px); padding:20px;">
+    <h3 style="margin-bottom:14px;font-size:15px;color:var(--text);" id="videoLinkModalTitle">הוספת קישור</h3>
+    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">שם (יוצג על הכרטיס)</label>
+    <input id="videoLinkModalLabel" type="text" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid var(--border);" placeholder="למשל: GREE">
+    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">קישור YouTube</label>
+    <input id="videoLinkModalUrl" type="text" style="width:100%;margin-bottom:14px;padding:8px;border-radius:8px;border:1px solid var(--border);" placeholder="https://youtube.com/playlist?list=...">
+    <div style="display:flex;gap:8px;">
+        <button class="btn-login" style="flex:1;" onclick="saveVideoLinkModal()">שמור</button>
+        <button class="btn-logout" style="flex:1;" onclick="closeVideoLinkModal()">ביטול</button>
+    </div>
+  </div>
 </div>
 
 <!-- ==============================
@@ -1188,6 +1135,22 @@
         <button class="btn-logout" style="width:auto;padding:10px 20px;display:inline-block;" onclick="importBackup()">⬆️ ייבוא ושחזור</button>
 
         <div id="backupLog" style="white-space:pre-wrap;font-family:monospace;font-size:12px;background:#111;color:#0f0;padding:12px;border-radius:8px;margin-top:16px;display:none;max-height:250px;overflow-y:auto;"></div>
+    </div>
+
+    <div class="conv-card">
+        <div class="conv-card-title"><span>🧮</span> <span>נתוני מחשבון תוספת הגז (מתקדם)</span></div>
+        <p style="font-size:12px; color:var(--text3); margin-bottom:16px; line-height:1.6;">
+            כל הטבלאות שמזינות את חישובי תוספת הגז (GREE / PRIME / TOSHIBA) ניתנות לעריכה כאן. השינויים נשמרים בענן ונכנסים לתוקף <strong>מיידית, בלי לפרסם מחדש את האתר</strong>.<br>
+            <strong>שים לב:</strong> זהו עורך למתקדמים בפורמט JSON. אם הפורמט לא תקין, המערכת תמנע שמירה ותציג שגיאה ברורה — כך שאי אפשר לשבור את המחשבון בטעות הקלדה.
+        </p>
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">בחר טבלה לעריכה</label>
+        <select id="gasTableSelect" onchange="loadGasTableIntoEditor()" style="width:100%;padding:8px;border-radius:8px;margin-bottom:10px;border:1px solid var(--border);"></select>
+        <textarea id="gasTableEditor" rows="12" style="width:100%;font-family:monospace;font-size:12px;padding:10px;border-radius:8px;border:1px solid var(--border);margin-bottom:10px;box-sizing:border-box;"></textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-login" style="width:auto;padding:8px 16px;display:inline-block;" onclick="saveGasTable()">💾 שמור לענן</button>
+            <button class="btn-logout" style="width:auto;padding:8px 16px;display:inline-block;" onclick="resetGasTableToDefault()">↺ הצג ברירת מחדל (מהקוד)</button>
+        </div>
+        <div id="gasTableStatus" style="margin-top:10px;font-size:12px;font-weight:700;"></div>
     </div>
 </div>
 
@@ -1285,6 +1248,8 @@ function showApp(role) {
     if (badge) badge.textContent = role === 'admin' ? '👨‍💼 מנהל' : '';
     const adminTabBtn = document.getElementById('adminTabBtn');
     if (adminTabBtn) adminTabBtn.classList.toggle('hidden', role !== 'admin');
+    renderSmmsuSystemSelect();
+    loadAllGasCalcOverrides();
 }
 
 function showLock() {
@@ -1554,6 +1519,8 @@ function videosLogout() {
 function showVideosPortal() {
     document.getElementById('videosLock').style.display = 'none';
     document.getElementById('videosPortal').classList.remove('hidden');
+    document.getElementById('videoAddWrap').classList.toggle('hidden', currentRole !== 'admin');
+    loadVideoLinks();
 }
 
 function checkVideosAuth() {
@@ -1781,17 +1748,20 @@ function logBackup(msg) {
     el.scrollTop = el.scrollHeight;
 }
 
+// רשימת כל האוספים שכבר עברו ל-Firestore ומנוהלים דרך הגיבוי/שחזור.
+// בכל פעם שעוד קטגוריה עוברת לענן (למשל מחשבון הגז בעתיד), פשוט מוסיפים את שם האוסף לרשימה כאן.
+const BACKUP_COLLECTIONS = ['techCategories', 'techItems', 'videoLinks', 'gasCalcConfig'];
+
 async function exportBackup() {
     if (currentRole !== 'admin') return;
     logBackup('אוסף נתונים מ-Firestore...');
     try {
-        const backup = { exportedAt: new Date().toISOString(), techCategories: [], techItems: [] };
-
-        const catSnap = await db.collection('techCategories').get();
-        catSnap.forEach(doc => backup.techCategories.push({ id: doc.id, ...doc.data() }));
-
-        const itemSnap = await db.collection('techItems').get();
-        itemSnap.forEach(doc => backup.techItems.push({ id: doc.id, ...doc.data() }));
+        const backup = { exportedAt: new Date().toISOString() };
+        for (const colName of BACKUP_COLLECTIONS) {
+            const snap = await db.collection(colName).get();
+            backup[colName] = [];
+            snap.forEach(doc => backup[colName].push({ id: doc.id, ...doc.data() }));
+        }
 
         const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -1803,7 +1773,8 @@ async function exportBackup() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        logBackup('✅ הגיבוי הורד: ' + backup.techCategories.length + ' קטגוריות, ' + backup.techItems.length + ' פריטים.');
+        const summary = BACKUP_COLLECTIONS.map(c => c + ': ' + backup[c].length).join(', ');
+        logBackup('✅ הגיבוי הורד (' + summary + ')');
     } catch (e) {
         logBackup('❌ שגיאה: ' + e.message);
     }
@@ -1814,44 +1785,42 @@ async function importBackup() {
     const fileInput = document.getElementById('backupFileInput');
     const file = fileInput.files[0];
     if (!file) { alert('בחר קודם קובץ גיבוי'); return; }
-    if (!confirm('פעולה זו תמחק את כל הנתונים הקיימים (פרמטרי טכנאים) ותחליף אותם בתוכן מהקובץ. האם להמשיך?')) return;
+    if (!confirm('פעולה זו תמחק את כל הנתונים הקיימים (בכל הקטגוריות שכבר בענן) ותחליף אותם בתוכן מהקובץ. האם להמשיך?')) return;
 
     try {
         const text = await file.text();
         const backup = JSON.parse(text);
-        if (!Array.isArray(backup.techCategories) || !Array.isArray(backup.techItems)) {
-            throw new Error('פורמט קובץ לא תקין — לא נמצאו techCategories/techItems');
-        }
-
-        logBackup('מוחק נתונים קיימים...');
-        const existingCats = await db.collection('techCategories').get();
-        const existingItems = await db.collection('techItems').get();
+        const colsInFile = BACKUP_COLLECTIONS.filter(c => Array.isArray(backup[c]));
+        if (!colsInFile.length) throw new Error('פורמט קובץ לא תקין — לא נמצא אף אוסף מוכר');
 
         let batch = db.batch();
         let opCount = 0;
         const flushIfNeeded = async () => { opCount++; if (opCount % 400 === 0) { await batch.commit(); batch = db.batch(); } };
 
-        for (const doc of existingCats.docs) { batch.delete(doc.ref); await flushIfNeeded(); }
-        for (const doc of existingItems.docs) { batch.delete(doc.ref); await flushIfNeeded(); }
+        logBackup('מוחק נתונים קיימים...');
+        for (const colName of colsInFile) {
+            const existing = await db.collection(colName).get();
+            for (const doc of existing.docs) { batch.delete(doc.ref); await flushIfNeeded(); }
+        }
         await batch.commit();
 
         logBackup('כותב נתונים מהגיבוי...');
         batch = db.batch();
         opCount = 0;
-        for (const cat of backup.techCategories) {
-            const { id, ...rest } = cat;
-            batch.set(db.collection('techCategories').doc(id), rest);
-            await flushIfNeeded();
-        }
-        for (const item of backup.techItems) {
-            const { id, ...rest } = item;
-            batch.set(db.collection('techItems').doc(id), rest);
-            await flushIfNeeded();
+        for (const colName of colsInFile) {
+            for (const item of backup[colName]) {
+                const { id, ...rest } = item;
+                batch.set(db.collection(colName).doc(id), rest);
+                await flushIfNeeded();
+            }
         }
         await batch.commit();
 
-        techCache = {}; // נקה מטמון כדי שהתצוגה תיטען מחדש
-        logBackup('✅ השחזור הושלם: ' + backup.techCategories.length + ' קטגוריות, ' + backup.techItems.length + ' פריטים.');
+        techCache = {};       // נקה מטמון טכנאים
+        videoLinksCache = []; // נקה מטמון סרטונים
+        if (colsInFile.includes('gasCalcConfig')) await loadAllGasCalcOverrides(); // רענון טבלאות מחשבון הגז
+        const summary = colsInFile.map(c => c + ': ' + backup[c].length).join(', ');
+        logBackup('✅ השחזור הושלם (' + summary + ')');
     } catch (e) {
         logBackup('❌ שגיאה: ' + e.message);
     }
@@ -1893,21 +1862,113 @@ function switchTab(id, btn) {
     btn.classList.add('active');
     if (id === 'tech') showTechPortal();
     if (id === 'videos') showVideosPortal();
+    if (id === 'admin') populateGasTableSelect();
 }
 
 // ===========================
-// VIDEO TUTORIALS
+// VIDEO TUTORIALS — Firestore-backed
 // ===========================
-const videoPlaylists = {
-    gree:    'https://youtube.com/playlist?list=PLGgbMH8Jkwx8&si=dT2czsFcQzvmH32S',
-    remote:  'https://youtube.com/playlist?list=PLGxAskMKig-4&si=iy0zMWy8l-EsE-_U',
-    toshiba: 'https://youtube.com/playlist?list=PLf0SoTR7GNgI&si=vbNXdg077jIKs018',
-    prime:   'https://youtube.com/playlist?list=PLcaQAGucEk50&si=jGMND-No53AigtQu'
-};
+let videoLinksCache = [];
 
-function openVideoPlaylist(brand) {
-    const url = videoPlaylists[brand];
-    if (url) window.open(url, '_blank', 'noopener');
+async function loadVideoLinks(forceRefresh) {
+    const loadingEl = document.getElementById('videoLinksLoading');
+    const container = document.getElementById('videoLinksContainer');
+    if (videoLinksCache.length && !forceRefresh) { renderVideoLinks(); return; }
+
+    loadingEl.style.display = 'block';
+    container.innerHTML = '';
+    try {
+        const snap = await db.collection('videoLinks').orderBy('order').get();
+        videoLinksCache = [];
+        snap.forEach(doc => videoLinksCache.push({ id: doc.id, ...doc.data() }));
+        renderVideoLinks();
+    } catch (e) {
+        container.innerHTML = '<div class="tech-note">⚠️ שגיאה בטעינה: ' + escapeHtml(e.message) + '</div>';
+    } finally {
+        loadingEl.style.display = 'none';
+    }
+}
+
+function renderVideoLinks() {
+    const container = document.getElementById('videoLinksContainer');
+    const isAdmin = currentRole === 'admin';
+    if (!videoLinksCache.length) {
+        container.innerHTML = '<div class="tech-note">אין עדיין קישורי סרטונים. ' + (isAdmin ? 'לחץ על "הוסף קישור" למטה.' : '') + '</div>';
+        return;
+    }
+    let html = '';
+    videoLinksCache.forEach(link => {
+        if (isAdmin) {
+            html += '<div class="brand-card" style="position:relative;padding-top:22px;">' +
+                    '<div onclick="window.open(\'' + encodeURI(link.url) + '\', \'_blank\', \'noopener\')">' + escapeHtml(link.label) + '</div>' +
+                    '<div style="position:absolute;top:4px;left:6px;display:flex;gap:4px;">' +
+                    '<button onclick="event.stopPropagation();editVideoLink(\'' + link.id + '\')" style="border:none;background:none;cursor:pointer;font-size:12px;" title="ערוך">✏️</button>' +
+                    '<button onclick="event.stopPropagation();deleteVideoLink(\'' + link.id + '\')" style="border:none;background:none;cursor:pointer;font-size:12px;" title="מחק">🗑</button>' +
+                    '</div></div>';
+        } else {
+            html += '<div class="brand-card" onclick="window.open(\'' + encodeURI(link.url) + '\', \'_blank\', \'noopener\')">' + escapeHtml(link.label) + '</div>';
+        }
+    });
+    container.innerHTML = html;
+}
+
+let videoLinkModalState = null; // { mode: 'add'|'edit', item }
+
+function addVideoLink() {
+    videoLinkModalState = { mode: 'add' };
+    document.getElementById('videoLinkModalTitle').textContent = 'הוספת קישור';
+    document.getElementById('videoLinkModalLabel').value = '';
+    document.getElementById('videoLinkModalUrl').value = '';
+    openVideoLinkModal();
+}
+
+function editVideoLink(id) {
+    const item = videoLinksCache.find(l => l.id === id);
+    if (!item) return;
+    videoLinkModalState = { mode: 'edit', item };
+    document.getElementById('videoLinkModalTitle').textContent = 'עריכת קישור';
+    document.getElementById('videoLinkModalLabel').value = item.label || '';
+    document.getElementById('videoLinkModalUrl').value = item.url || '';
+    openVideoLinkModal();
+}
+
+async function deleteVideoLink(id) {
+    if (!confirm('למחוק קישור זה?')) return;
+    try {
+        await db.collection('videoLinks').doc(id).delete();
+        await loadVideoLinks(true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+function openVideoLinkModal() {
+    const modal = document.getElementById('videoLinkModal');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+}
+
+function closeVideoLinkModal() {
+    const modal = document.getElementById('videoLinkModal');
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    videoLinkModalState = null;
+}
+
+async function saveVideoLinkModal() {
+    if (!videoLinkModalState) return;
+    const label = document.getElementById('videoLinkModalLabel').value.trim();
+    const url = document.getElementById('videoLinkModalUrl').value.trim();
+    if (!label || !url) { alert('יש למלא שם וקישור'); return; }
+
+    try {
+        if (videoLinkModalState.mode === 'add') {
+            const nextOrder = videoLinksCache.length ? Math.max(...videoLinksCache.map(l => l.order || 0)) + 1 : 1;
+            await db.collection('videoLinks').add({ label, url, order: nextOrder });
+        } else {
+            await db.collection('videoLinks').doc(videoLinkModalState.item.id).update({ label, url });
+        }
+        closeVideoLinkModal();
+        await loadVideoLinks(true);
+    } catch (e) { alert('שגיאה בשמירה: ' + e.message); }
 }
 
 // ===========================
@@ -2506,6 +2567,130 @@ let smmsuOutdoorCount = 0;
 
 // HP יחידות בודדות לשילוב ידני
 const SMMSU_SINGLE_HPS = [8,10,12,14,16,18,20,22,24];
+function renderSmmsuSystemSelect() {
+    const sel = document.getElementById('smmsuSystem');
+    if (!sel) return;
+    let html = '';
+    let openGroup = null;
+    SMMSU_COMBO_OPTIONS.forEach(opt => {
+        if (opt.group !== openGroup) {
+            if (openGroup !== null) html += '</optgroup>';
+            if (opt.group !== null) html += '<optgroup label="' + opt.group.replace(/"/g, '&quot;') + '">';
+            openGroup = opt.group;
+        }
+        html += '<option value="' + opt.value + '">' + opt.label + '</option>';
+    });
+    if (openGroup !== null) html += '</optgroup>';
+    sel.innerHTML = html;
+}
+
+const SMMSU_COMBO_OPTIONS = [{"value": "", "label": "— בחר עוצמת מערכת —", "group": null}, {"value": "manual", "label": "➕ שילוב ידני — הוסף מעבים בנפרד", "group": null}, {"value": "8", "label": "8HP — מעבה 8HP בודד", "group": "יחידה בודדת"}, {"value": "10", "label": "10HP — מעבה 10HP בודד", "group": "יחידה בודדת"}, {"value": "12", "label": "12HP — מעבה 12HP בודד", "group": "יחידה בודדת"}, {"value": "14", "label": "14HP — מעבה 14HP בודד", "group": "יחידה בודדת"}, {"value": "16", "label": "16HP — מעבה 16HP בודד", "group": "יחידה בודדת"}, {"value": "18", "label": "18HP — מעבה 18HP בודד", "group": "יחידה בודדת"}, {"value": "20", "label": "20HP — מעבה 20HP בודד", "group": "יחידה בודדת"}, {"value": "22", "label": "22HP — מעבה 22HP בודד", "group": "יחידה בודדת"}, {"value": "24", "label": "24HP — מעבה 24HP בודד", "group": "יחידה בודדת"}, {"value": "26", "label": "26HP — 14+12", "group": "שתי יחידות"}, {"value": "28", "label": "28HP — 14+14", "group": "שתי יחידות"}, {"value": "30", "label": "30HP — 18+12", "group": "שתי יחידות"}, {"value": "32", "label": "32HP — 20+12", "group": "שתי יחידות"}, {"value": "34", "label": "34HP — 20+14", "group": "שתי יחידות"}, {"value": "36", "label": "36HP — 24+12", "group": "שתי יחידות"}, {"value": "38", "label": "38HP — 24+14", "group": "שתי יחידות"}, {"value": "40", "label": "40HP — 20+20", "group": "שתי יחידות"}, {"value": "42", "label": "42HP — 24+18", "group": "שתי יחידות"}, {"value": "44", "label": "44HP — 24+20", "group": "שתי יחידות"}, {"value": "46", "label": "46HP — 24+22", "group": "שתי יחידות"}, {"value": "48", "label": "48HP — 24+24", "group": "שתי יחידות"}, {"value": "50", "label": "50HP — 24+14+12", "group": "שלוש יחידות"}, {"value": "52", "label": "52HP — 24+14+14", "group": "שלוש יחידות"}, {"value": "54", "label": "54HP — 20+20+14", "group": "שלוש יחידות"}, {"value": "56", "label": "56HP — 24+20+12", "group": "שלוש יחידות"}, {"value": "58", "label": "58HP — 24+20+14", "group": "שלוש יחידות"}, {"value": "60", "label": "60HP — 24+24+12", "group": "שלוש יחידות"}, {"value": "62", "label": "62HP — 24+24+14", "group": "שלוש יחידות"}, {"value": "64", "label": "64HP — 24+24+20", "group": "שלוש יחידות"}, {"value": "66", "label": "66HP — 24+22+20", "group": "שלוש יחידות"}, {"value": "68", "label": "68HP — 24+24+20", "group": "שלוש יחידות"}, {"value": "70", "label": "70HP — 24+24+22", "group": "שלוש יחידות"}, {"value": "72", "label": "72HP — 24+24+24", "group": "שלוש יחידות"}, {"value": "74", "label": "74HP — 24+24+14+12", "group": "ארבע יחידות"}, {"value": "76", "label": "76HP — 24+24+14+14", "group": "ארבע יחידות"}, {"value": "78", "label": "78HP — 24+24+20+14", "group": "ארבע יחידות"}, {"value": "80", "label": "80HP — 24+24+20+12", "group": "ארבע יחידות"}, {"value": "82", "label": "82HP — 24+24+20+14", "group": "ארבע יחידות"}, {"value": "84", "label": "84HP — 24+24+24+12", "group": "ארבע יחידות"}, {"value": "86", "label": "86HP — 24+24+24+14", "group": "ארבע יחידות"}, {"value": "88", "label": "88HP — 24+24+20+20", "group": "ארבע יחידות"}, {"value": "90", "label": "90HP — 24+24+22+20", "group": "ארבע יחידות"}, {"value": "92", "label": "92HP — 24+24+24+20", "group": "ארבע יחידות"}, {"value": "94", "label": "94HP — 24+24+24+22", "group": "ארבע יחידות"}, {"value": "96", "label": "96HP — 24+24+24+24", "group": "ארבע יחידות"}, {"value": "98", "label": "98HP — 24+24+24+14+12", "group": "חמש יחידות"}, {"value": "100", "label": "100HP — 24+24+24+14+14", "group": "חמש יחידות"}, {"value": "102", "label": "102HP — 24+24+24+20+14", "group": "חמש יחידות"}, {"value": "104", "label": "104HP — 24+24+24+20+12", "group": "חמש יחידות"}, {"value": "106", "label": "106HP — 24+24+24+20+14", "group": "חמש יחידות"}, {"value": "108", "label": "108HP — 24+24+24+24+12", "group": "חמש יחידות"}, {"value": "110", "label": "110HP — 24+24+24+24+14", "group": "חמש יחידות"}, {"value": "112", "label": "112HP — 24+24+24+24+20", "group": "חמש יחידות"}, {"value": "114", "label": "114HP — 24+24+24+22+20", "group": "חמש יחידות"}, {"value": "116", "label": "116HP — 24+24+24+24+20", "group": "חמש יחידות"}, {"value": "118", "label": "118HP — 24+24+24+24+22", "group": "חמש יחידות"}, {"value": "120", "label": "120HP — 24+24+24+24+24", "group": "חמש יחידות"}];
+
+// ===========================
+// GAS CALC CONFIG — cloud overrides (admin-editable)
+// ===========================
+// מיפוי שם הטבלה -> הפניה חיה (reference) לאובייקט/מערך בפועל + הסוג שלו.
+// שימוש ב-shorthand property names נותן לנו הפניה אמיתית (לא עותק),
+// כך שמוטציה בתוך GAS_CALC_REFS.<name> משנה בפועל את המשתנה המקורי.
+const GAS_CALC_REFS = {
+    pipeFactors, greeFullData, TOSHIBA_TABLE2, TOSHIBA_CAP_CODES,
+    TOSHIBA_MODEL_FIXED, TOSHIBA_MODEL_BONUS, SMMSU_SYSTEM_BONUS,
+    SMMSU_STANDARD, SMMSU_CAP_HP, SMMSU_HE, SMMSU_DX, SMMSU_HOT_WATER,
+    SMMSU_DIVERSITY, SMMSU_SINGLE_HPS, SMMSU_COMBO_OPTIONS
+};
+const GAS_CALC_TABLES = {
+    pipeFactors: 'object', greeFullData: 'object', TOSHIBA_TABLE2: 'object',
+    TOSHIBA_CAP_CODES: 'array', TOSHIBA_MODEL_FIXED: 'object', TOSHIBA_MODEL_BONUS: 'object',
+    SMMSU_SYSTEM_BONUS: 'object', SMMSU_STANDARD: 'object', SMMSU_CAP_HP: 'object',
+    SMMSU_HE: 'object', SMMSU_DX: 'object', SMMSU_HOT_WATER: 'object',
+    SMMSU_DIVERSITY: 'array', SMMSU_SINGLE_HPS: 'array', SMMSU_COMBO_OPTIONS: 'array'
+};
+// עותק קפוא של הערכים המקוריים מהקוד — לשימוש בכפתור "חזור לברירת מחדל"
+const GAS_CALC_DEFAULTS = {};
+Object.keys(GAS_CALC_REFS).forEach(name => {
+    GAS_CALC_DEFAULTS[name] = JSON.parse(JSON.stringify(GAS_CALC_REFS[name]));
+});
+
+function recomputeDerivedGasTables() {
+    TOSHIBA_UNIT_TYPES.length = 0; TOSHIBA_UNIT_TYPES.push(...Object.keys(TOSHIBA_TABLE2));
+    SMMSU_STANDARD_CODES.length = 0; SMMSU_STANDARD_CODES.push(...Object.keys(SMMSU_STANDARD).sort());
+    SMMSU_HE_CODES.length = 0; SMMSU_HE_CODES.push(...Object.keys(SMMSU_HE).sort());
+    SMMSU_DX_HPS.length = 0; SMMSU_DX_HPS.push(...Object.keys(SMMSU_DX).map(Number).sort((a,b)=>a-b));
+    SMMSU_HW_CODES.length = 0; SMMSU_HW_CODES.push(...Object.keys(SMMSU_HOT_WATER));
+}
+
+function applyGasTableData(name, data) {
+    const ref = GAS_CALC_REFS[name];
+    const type = GAS_CALC_TABLES[name];
+    if (type === 'array') { ref.length = 0; ref.push(...data); }
+    else { Object.keys(ref).forEach(k => delete ref[k]); Object.assign(ref, data); }
+    recomputeDerivedGasTables();
+    if (name === 'SMMSU_COMBO_OPTIONS') renderSmmsuSystemSelect();
+}
+
+async function loadAllGasCalcOverrides() {
+    try {
+        const snap = await db.collection('gasCalcConfig').get();
+        snap.forEach(doc => {
+            const name = doc.id;
+            const payload = doc.data();
+            if (GAS_CALC_REFS[name] && payload && payload.data !== undefined) {
+                applyGasTableData(name, payload.data);
+            }
+        });
+    } catch (e) {
+        console.warn('לא ניתן לטעון דריסות מחשבון הגז מהענן:', e.message);
+    }
+}
+
+function populateGasTableSelect() {
+    const sel = document.getElementById('gasTableSelect');
+    if (!sel) return;
+    sel.innerHTML = Object.keys(GAS_CALC_REFS).map(name => '<option value="' + name + '">' + name + '</option>').join('');
+    loadGasTableIntoEditor();
+}
+
+function loadGasTableIntoEditor() {
+    const name = document.getElementById('gasTableSelect').value;
+    document.getElementById('gasTableEditor').value = JSON.stringify(GAS_CALC_REFS[name], null, 2);
+    document.getElementById('gasTableStatus').textContent = '';
+}
+
+function resetGasTableToDefault() {
+    const name = document.getElementById('gasTableSelect').value;
+    if (!confirm('להציג בעורך את ברירת המחדל המקורית (מהקוד) של "' + name + '"? זה לא ישמור אוטומטית — עדיין צריך ללחוץ "שמור לענן" לאחר מכן.')) return;
+    document.getElementById('gasTableEditor').value = JSON.stringify(GAS_CALC_DEFAULTS[name], null, 2);
+}
+
+async function saveGasTable() {
+    const name = document.getElementById('gasTableSelect').value;
+    const statusEl = document.getElementById('gasTableStatus');
+    let parsed;
+    try {
+        parsed = JSON.parse(document.getElementById('gasTableEditor').value);
+    } catch (e) {
+        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = '❌ JSON לא תקין: ' + e.message;
+        return;
+    }
+    const expectedType = GAS_CALC_TABLES[name];
+    if (expectedType === 'array' && !Array.isArray(parsed)) {
+        statusEl.style.color = 'var(--red)'; statusEl.textContent = '❌ טבלה זו חייבת להיות מערך (array).'; return;
+    }
+    if (expectedType === 'object' && (Array.isArray(parsed) || typeof parsed !== 'object' || parsed === null)) {
+        statusEl.style.color = 'var(--red)'; statusEl.textContent = '❌ טבלה זו חייבת להיות אובייקט.'; return;
+    }
+    try {
+        await db.collection('gasCalcConfig').doc(name).set({ data: parsed, updatedAt: new Date().toISOString() });
+        applyGasTableData(name, parsed);
+        statusEl.style.color = '#1a7f37';
+        statusEl.textContent = '✅ נשמר בענן והחישוב עודכן מיידית.';
+    } catch (e) {
+        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = '❌ שגיאה בשמירה: ' + e.message;
+    }
+}
+
 
 function addSMMSUOutdoor() {
     smmsuOutdoorCount++;
