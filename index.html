@@ -785,6 +785,7 @@
     <button class="tab-btn" onclick="switchTab('conv', this)" data-i18n-tab="conv">🔄 המרות</button>
     <button class="tab-btn" onclick="switchTab('tech', this)" data-i18n-tab="tech">🔧 טכנאים</button>
     <button class="tab-btn" onclick="switchTab('videos', this)" data-i18n-tab="videos">🎥 סרטוני הדרכה</button>
+    <button class="tab-btn hidden" id="adminTabBtn" onclick="switchTab('admin', this)" data-i18n-tab="admin">⚙️ ניהול</button>
     <button class="tab-btn" onclick="switchTab('about', this)" data-i18n-tab="about">ℹ️ אודות</button>
 </div>
 
@@ -1160,6 +1161,37 @@
 </div>
 
 <!-- ==============================
+     PAGE: ADMIN — Backup & Restore
+================================= -->
+<div class="page" id="page-admin">
+    <div class="conv-card">
+        <div class="conv-card-title"><span>💾</span> <span>גיבוי ושחזור נתונים</span></div>
+        <p style="font-size:12px; color:var(--text3); margin-bottom:16px; line-height:1.6;">
+            ייצוא ושחזור של הנתונים שכבר מנוהלים בענן (כרגע: פרמטרי הטכנאים). ככל שעוד קטגוריות יעברו ל-Firestore, הן יתווספו אוטומטית לגיבוי.
+        </p>
+
+        <button class="btn-login" style="width:auto;padding:10px 20px;display:inline-block;" onclick="exportBackup()">⬇️ ייצוא גיבוי (JSON)</button>
+
+        <div style="height:22px;border-top:1px solid var(--border);margin-top:20px;"></div>
+
+        <div style="background:rgba(220,53,69,0.1);border:1.5px solid rgba(220,53,69,0.35);border-radius:var(--radius-sm);padding:10px 12px;margin:16px 0;display:flex;gap:8px;align-items:flex-start;">
+            <span style="font-size:15px;flex-shrink:0;">⚠️</span>
+            <p style="font-size:12px;color:var(--text2);line-height:1.6;margin:0;">
+                <strong style="color:var(--text);">שים לב</strong><br>
+                ייבוא גיבוי <strong>ימחק את כל הנתונים הקיימים</strong> ויחליף אותם בתוכן מהקובץ. פעולה בלתי הפיכה.
+            </p>
+        </div>
+
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">בחר קובץ גיבוי (JSON)</label>
+        <input type="file" id="backupFileInput" accept="application/json" style="margin-bottom:12px;width:100%;">
+        <br>
+        <button class="btn-logout" style="width:auto;padding:10px 20px;display:inline-block;" onclick="importBackup()">⬆️ ייבוא ושחזור</button>
+
+        <div id="backupLog" style="white-space:pre-wrap;font-family:monospace;font-size:12px;background:#111;color:#0f0;padding:12px;border-radius:8px;margin-top:16px;display:none;max-height:250px;overflow-y:auto;"></div>
+    </div>
+</div>
+
+<!-- ==============================
      PAGE 4: ABOUT
 ================================= -->
 <div class="page" id="page-about">
@@ -1251,6 +1283,8 @@ function showApp(role) {
     document.getElementById('appRoot').style.display = 'block';
     const badge = document.getElementById('roleBadge');
     if (badge) badge.textContent = role === 'admin' ? '👨‍💼 מנהל' : '';
+    const adminTabBtn = document.getElementById('adminTabBtn');
+    if (adminTabBtn) adminTabBtn.classList.toggle('hidden', role !== 'admin');
 }
 
 function showLock() {
@@ -1277,7 +1311,7 @@ auth.onAuthStateChanged(function(user) {
 // ===========================
 const TRANSLATIONS = {
     he: {
-        tab_gas: '⚙️ תוספת גז', tab_conv: '🔄 המרות', tab_tech: '🔧 טכנאים', tab_videos: '🎥 סרטוני הדרכה', tab_about: 'ℹ️ אודות',
+        tab_gas: '⚙️ תוספת גז', tab_conv: '🔄 המרות', tab_tech: '🔧 טכנאים', tab_videos: '🎥 סרטוני הדרכה', tab_admin: '⚙️ ניהול', tab_about: 'ℹ️ אודות',
         warning_title: 'הערות שימוש',
         warning_text: 'נתוני תוספת הגז מבוססים על מפרטי היצרן. יש לאמת תמיד מול הוראות ההתקנה הרשמיות. החברה לא אחראית לטעויות שימוש.',
         choose_brand: 'בחר מותג', sys_type: 'סוג מערכת', choose_model: 'בחר דגם',
@@ -1305,7 +1339,7 @@ const TRANSLATIONS = {
         dir: 'rtl'
     },
     en: {
-        tab_gas: '⚙️ Gas Charge', tab_conv: '🔄 Conversions', tab_tech: '🔧 Technicians', tab_videos: '🎥 Video Tutorials', tab_about: 'ℹ️ About',
+        tab_gas: '⚙️ Gas Charge', tab_conv: '🔄 Conversions', tab_tech: '🔧 Technicians', tab_videos: '🎥 Video Tutorials', tab_admin: '⚙️ Admin', tab_about: 'ℹ️ About',
         warning_title: 'Usage Notes',
         warning_text: 'Gas charge data is based on manufacturer specifications. Always verify against official installation instructions. The company is not responsible for usage errors.',
         choose_brand: 'Select Brand', sys_type: 'System Type', choose_model: 'Select Model',
@@ -1333,7 +1367,7 @@ const TRANSLATIONS = {
         dir: 'ltr'
     },
     ar: {
-        tab_gas: '⚙️ شحن الغاز', tab_conv: '🔄 تحويلات', tab_tech: '🔧 الفنيون', tab_videos: '🎥 فيديوهات تعليمية', tab_about: 'ℹ️ حول',
+        tab_gas: '⚙️ شحن الغاز', tab_conv: '🔄 تحويلات', tab_tech: '🔧 الفنيون', tab_videos: '🎥 فيديوهات تعليمية', tab_admin: '⚙️ الإدارة', tab_about: 'ℹ️ حول',
         warning_title: 'ملاحظات الاستخدام',
         warning_text: 'بيانات شحن الغاز مستندة إلى مواصفات الشركة المصنعة. يجب دائمًا التحقق من تعليمات التركيب الرسمية. الشركة غير مسؤولة عن أخطاء الاستخدام.',
         choose_brand: 'اختر العلامة التجارية', sys_type: 'نوع النظام', choose_model: 'اختر الطراز',
@@ -1376,7 +1410,7 @@ function setLang(lang) {
     document.querySelectorAll('.lang-btn')[map[lang]]?.classList.add('active');
 
     // tabs
-    const tabKeys = ['gas','conv','tech','videos','about'];
+    const tabKeys = ['gas','conv','tech','videos','admin','about'];
     document.querySelectorAll('[data-i18n-tab]').forEach(btn => {
         const key = btn.getAttribute('data-i18n-tab');
         btn.textContent = t['tab_' + key] || btn.textContent;
@@ -1735,6 +1769,92 @@ async function saveParamModal() {
         closeParamModal();
         await loadTechBrand(currentTechBrand, true);
     } catch (e) { alert('שגיאה בשמירה: ' + e.message); }
+}
+
+// ===========================
+// ADMIN — BACKUP & RESTORE
+// ===========================
+function logBackup(msg) {
+    const el = document.getElementById('backupLog');
+    el.style.display = 'block';
+    el.textContent += msg + '\n';
+    el.scrollTop = el.scrollHeight;
+}
+
+async function exportBackup() {
+    if (currentRole !== 'admin') return;
+    logBackup('אוסף נתונים מ-Firestore...');
+    try {
+        const backup = { exportedAt: new Date().toISOString(), techCategories: [], techItems: [] };
+
+        const catSnap = await db.collection('techCategories').get();
+        catSnap.forEach(doc => backup.techCategories.push({ id: doc.id, ...doc.data() }));
+
+        const itemSnap = await db.collection('techItems').get();
+        itemSnap.forEach(doc => backup.techItems.push({ id: doc.id, ...doc.data() }));
+
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'tadiran-vrf-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        logBackup('✅ הגיבוי הורד: ' + backup.techCategories.length + ' קטגוריות, ' + backup.techItems.length + ' פריטים.');
+    } catch (e) {
+        logBackup('❌ שגיאה: ' + e.message);
+    }
+}
+
+async function importBackup() {
+    if (currentRole !== 'admin') return;
+    const fileInput = document.getElementById('backupFileInput');
+    const file = fileInput.files[0];
+    if (!file) { alert('בחר קודם קובץ גיבוי'); return; }
+    if (!confirm('פעולה זו תמחק את כל הנתונים הקיימים (פרמטרי טכנאים) ותחליף אותם בתוכן מהקובץ. האם להמשיך?')) return;
+
+    try {
+        const text = await file.text();
+        const backup = JSON.parse(text);
+        if (!Array.isArray(backup.techCategories) || !Array.isArray(backup.techItems)) {
+            throw new Error('פורמט קובץ לא תקין — לא נמצאו techCategories/techItems');
+        }
+
+        logBackup('מוחק נתונים קיימים...');
+        const existingCats = await db.collection('techCategories').get();
+        const existingItems = await db.collection('techItems').get();
+
+        let batch = db.batch();
+        let opCount = 0;
+        const flushIfNeeded = async () => { opCount++; if (opCount % 400 === 0) { await batch.commit(); batch = db.batch(); } };
+
+        for (const doc of existingCats.docs) { batch.delete(doc.ref); await flushIfNeeded(); }
+        for (const doc of existingItems.docs) { batch.delete(doc.ref); await flushIfNeeded(); }
+        await batch.commit();
+
+        logBackup('כותב נתונים מהגיבוי...');
+        batch = db.batch();
+        opCount = 0;
+        for (const cat of backup.techCategories) {
+            const { id, ...rest } = cat;
+            batch.set(db.collection('techCategories').doc(id), rest);
+            await flushIfNeeded();
+        }
+        for (const item of backup.techItems) {
+            const { id, ...rest } = item;
+            batch.set(db.collection('techItems').doc(id), rest);
+            await flushIfNeeded();
+        }
+        await batch.commit();
+
+        techCache = {}; // נקה מטמון כדי שהתצוגה תיטען מחדש
+        logBackup('✅ השחזור הושלם: ' + backup.techCategories.length + ' קטגוריות, ' + backup.techItems.length + ' פריטים.');
+    } catch (e) {
+        logBackup('❌ שגיאה: ' + e.message);
+    }
 }
 
 function toggleTechSection(header) {
