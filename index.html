@@ -1067,6 +1067,7 @@
 
             <div id="videoLinksLoading" style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">⏳ טוען...</div>
             <div id="videoLinksContainer" class="brand-grid" style="grid-template-columns: repeat(2, 1fr);"></div>
+            <div id="videoArchiveWrap" class="hidden"></div>
 
             <div id="videoAddWrap" class="hidden" style="margin-top:16px;text-align:center;">
                 <button class="btn-login" style="width:auto;padding:8px 18px;display:inline-block;" onclick="addVideoLink()">➕ הוסף קישור</button>
@@ -1551,39 +1552,82 @@ function renderTechBrand(brand) {
     const data = techCache[brand];
     const container = document.getElementById('tech-' + brand.toLowerCase());
     const isAdmin = currentRole === 'admin';
-    if (!data.categories.length) {
+    const activeCats = data.categories.filter(c => !c.archived);
+    const archivedCats = data.categories.filter(c => c.archived === true);
+
+    if (!activeCats.length && !(isAdmin && archivedCats.length)) {
         container.innerHTML = '<div class="tech-note">אין עדיין תוכן למותג זה.</div>';
         return;
     }
     let html = '';
-    data.categories.forEach(cat => {
+    activeCats.forEach((cat, idx) => {
+        const items = (data.itemsByCat[cat.id] || []);
+        const activeItems = items.filter(i => !i.archived);
+        const archivedItems = items.filter(i => i.archived === true);
+
         html += '<div class="tech-section">';
         html += '<div class="tech-section-header" onclick="toggleTechSection(this)"><span>' + escapeHtml(cat.title) + '</span><span>▾</span></div>';
         html += '<div class="tech-section-body">';
-        (data.itemsByCat[cat.id] || []).forEach(item => { html += renderTechItem(item, isAdmin); });
+        activeItems.forEach((item, itemIdx) => { html += renderTechItem(item, isAdmin, itemIdx === 0, itemIdx === activeItems.length - 1); });
+
         if (isAdmin) {
-            html += '<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">';
+            html += '<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">';
             html += '<button class="btn-login" style="width:auto;padding:6px 14px;font-size:12px;" onclick="addTechItem(\'' + cat.id + '\')">➕ הוסף שורה</button>';
             html += '<button class="btn-logout" style="padding:6px 14px;font-size:12px;" onclick="editCategoryTitle(\'' + cat.id + '\')">✏️ שם קטגוריה</button>';
-            html += '<button class="btn-logout" style="padding:6px 14px;font-size:12px;" onclick="deleteTechCategory(\'' + cat.id + '\')">🗑 מחק קטגוריה</button>';
+            html += '<button onclick="moveCategory(\'' + cat.id + '\',-1)" ' + (idx === 0 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למעלה" style="border:none;background:none;cursor:pointer;font-size:14px;">⬆️</button>';
+            html += '<button onclick="moveCategory(\'' + cat.id + '\',1)" ' + (idx === activeCats.length - 1 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למטה" style="border:none;background:none;cursor:pointer;font-size:14px;">⬇️</button>';
+            html += '<button class="btn-logout" style="padding:6px 14px;font-size:12px;" onclick="archiveTechCategory(\'' + cat.id + '\')">🗄 ארכיון</button>';
             html += '</div>';
+
+            if (archivedItems.length) {
+                html += '<div style="margin-top:12px;border-top:1px dashed var(--border);padding-top:10px;">';
+                html += '<div style="font-size:12px;color:var(--text3);margin-bottom:6px;">🗄 בארכיון (' + archivedItems.length + ')</div>';
+                archivedItems.forEach(item => { html += renderArchivedTechItem(item); });
+                html += '</div>';
+            }
         }
         html += '</div></div>';
     });
+
+    if (isAdmin && archivedCats.length) {
+        html += '<div class="tech-section">';
+        html += '<div class="tech-section-header" onclick="toggleTechSection(this)"><span>🗄 קטגוריות בארכיון (' + archivedCats.length + ')</span><span>▾</span></div>';
+        html += '<div class="tech-section-body">';
+        archivedCats.forEach(cat => {
+            html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;">';
+            html += '<span style="flex:1;color:var(--text3);">' + escapeHtml(cat.title) + '</span>';
+            html += '<button class="btn-login" style="width:auto;padding:4px 10px;font-size:12px;" onclick="restoreTechCategory(\'' + cat.id + '\')">↩️ שחזר</button>';
+            html += '<button class="btn-logout" style="padding:4px 10px;font-size:12px;" onclick="permanentlyDeleteTechCategory(\'' + cat.id + '\')">🗑 מחק לצמיתות</button>';
+            html += '</div>';
+        });
+        html += '</div></div>';
+    }
+
     container.innerHTML = html;
 }
 
-function renderTechItem(item, isAdmin) {
+function renderTechItem(item, isAdmin, isFirst, isLast) {
     let inner = '';
     if (item.type === 'subtitle') inner = '<div class="tech-sub-title">' + item.text + '</div>';
     else if (item.type === 'note') inner = '<div class="tech-note">' + item.text + '</div>';
     else inner = '<div class="tech-param"><span class="tech-param-code">' + escapeHtml(item.code) + '</span><span class="tech-param-text">' + item.text + '</span></div>';
 
     if (!isAdmin) return inner;
-    return '<div style="display:flex;align-items:center;gap:6px;">' +
+    return '<div style="display:flex;align-items:center;gap:4px;">' +
            '<div style="flex:1;min-width:0;">' + inner + '</div>' +
+           '<button onclick="moveTechItem(\'' + item.id + '\',-1)" ' + (isFirst ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למעלה" style="border:none;background:none;cursor:pointer;font-size:13px;flex-shrink:0;">⬆️</button>' +
+           '<button onclick="moveTechItem(\'' + item.id + '\',1)" ' + (isLast ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למטה" style="border:none;background:none;cursor:pointer;font-size:13px;flex-shrink:0;">⬇️</button>' +
            '<button onclick="editTechItem(\'' + item.id + '\')" title="ערוך" style="border:none;background:none;cursor:pointer;font-size:14px;flex-shrink:0;">✏️</button>' +
-           '<button onclick="deleteTechItem(\'' + item.id + '\')" title="מחק" style="border:none;background:none;cursor:pointer;font-size:14px;flex-shrink:0;">🗑</button>' +
+           '<button onclick="archiveTechItem(\'' + item.id + '\')" title="העבר לארכיון" style="border:none;background:none;cursor:pointer;font-size:14px;flex-shrink:0;">🗄</button>' +
+           '</div>';
+}
+
+function renderArchivedTechItem(item) {
+    const label = item.type === 'param' ? (item.code + ' — ' + item.text.replace(/<[^>]+>/g, '')) : item.text.replace(/<[^>]+>/g, '');
+    return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;">' +
+           '<span style="flex:1;min-width:0;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(label) + '</span>' +
+           '<button class="btn-login" style="width:auto;padding:3px 8px;font-size:11px;" onclick="restoreTechItem(\'' + item.id + '\')">↩️ שחזר</button>' +
+           '<button class="btn-logout" style="padding:3px 8px;font-size:11px;" onclick="permanentlyDeleteTechItem(\'' + item.id + '\')">🗑 לצמיתות</button>' +
            '</div>';
 }
 
@@ -1595,7 +1639,7 @@ async function addTechCategory() {
     const data = techCache[currentTechBrand] || { categories: [] };
     const nextOrder = data.categories.length ? Math.max(...data.categories.map(c => c.order || 0)) + 1 : 1;
     try {
-        await db.collection('techCategories').add({ brand: currentTechBrand, title, order: nextOrder });
+        await db.collection('techCategories').add({ brand: currentTechBrand, title, order: nextOrder, archived: false });
         await loadTechBrand(currentTechBrand, true);
     } catch (e) { alert('שגיאה: ' + e.message); }
 }
@@ -1611,14 +1655,51 @@ async function editCategoryTitle(catId) {
     } catch (e) { alert('שגיאה: ' + e.message); }
 }
 
-async function deleteTechCategory(catId) {
-    if (!confirm('למחוק את הקטגוריה וכל הפריטים שבתוכה? פעולה זו בלתי הפיכה.')) return;
+async function archiveTechCategory(catId) {
+    if (!confirm('להעביר את הקטגוריה (וכל הפריטים שבתוכה) לארכיון? אפשר לשחזר בכל עת.')) return;
+    try {
+        const data = techCache[currentTechBrand];
+        const items = data.itemsByCat[catId] || [];
+        const batch = db.batch();
+        items.forEach(it => batch.update(db.collection('techItems').doc(it.id), { archived: true }));
+        batch.update(db.collection('techCategories').doc(catId), { archived: true });
+        await batch.commit();
+        await loadTechBrand(currentTechBrand, true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+async function restoreTechCategory(catId) {
+    try {
+        await db.collection('techCategories').doc(catId).update({ archived: false });
+        await loadTechBrand(currentTechBrand, true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+async function permanentlyDeleteTechCategory(catId) {
+    if (!confirm('למחוק את הקטגוריה וכל הפריטים שבתוכה לצמיתות? פעולה זו בלתי הפיכה ולא ניתנת לשחזור.')) return;
     try {
         const data = techCache[currentTechBrand];
         const items = data.itemsByCat[catId] || [];
         const batch = db.batch();
         items.forEach(it => batch.delete(db.collection('techItems').doc(it.id)));
         batch.delete(db.collection('techCategories').doc(catId));
+        await batch.commit();
+        await loadTechBrand(currentTechBrand, true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+async function moveCategory(catId, direction) {
+    const data = techCache[currentTechBrand];
+    const activeCats = data.categories.filter(c => !c.archived).sort((a, b) => (a.order || 0) - (b.order || 0));
+    const idx = activeCats.findIndex(c => c.id === catId);
+    const swapIdx = idx + direction;
+    if (idx === -1 || swapIdx < 0 || swapIdx >= activeCats.length) return;
+    const a = activeCats[idx], b = activeCats[swapIdx];
+    const aOrder = a.order, bOrder = b.order;
+    try {
+        const batch = db.batch();
+        batch.update(db.collection('techCategories').doc(a.id), { order: bOrder });
+        batch.update(db.collection('techCategories').doc(b.id), { order: aOrder });
         await batch.commit();
         await loadTechBrand(currentTechBrand, true);
     } catch (e) { alert('שגיאה: ' + e.message); }
@@ -1643,12 +1724,7 @@ function addTechItem(catId) {
 }
 
 function editTechItem(itemId) {
-    const data = techCache[currentTechBrand];
-    let found = null;
-    Object.keys(data.itemsByCat).forEach(cid => {
-        const hit = data.itemsByCat[cid].find(i => i.id === itemId);
-        if (hit) found = hit;
-    });
+    const found = findTechItem(itemId);
     if (!found) return;
     paramModalState = { mode: 'edit', item: found };
     document.getElementById('paramModalTitle').textContent = 'עריכת פריט';
@@ -1659,10 +1735,52 @@ function editTechItem(itemId) {
     openParamModal();
 }
 
-async function deleteTechItem(itemId) {
-    if (!confirm('למחוק פריט זה?')) return;
+function findTechItem(itemId) {
+    const data = techCache[currentTechBrand];
+    let found = null;
+    Object.keys(data.itemsByCat).forEach(cid => {
+        const hit = data.itemsByCat[cid].find(i => i.id === itemId);
+        if (hit) found = hit;
+    });
+    return found;
+}
+
+async function archiveTechItem(itemId) {
+    try {
+        await db.collection('techItems').doc(itemId).update({ archived: true });
+        await loadTechBrand(currentTechBrand, true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+async function restoreTechItem(itemId) {
+    try {
+        await db.collection('techItems').doc(itemId).update({ archived: false });
+        await loadTechBrand(currentTechBrand, true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+async function permanentlyDeleteTechItem(itemId) {
+    if (!confirm('למחוק פריט זה לצמיתות? לא ניתן לשחזר.')) return;
     try {
         await db.collection('techItems').doc(itemId).delete();
+        await loadTechBrand(currentTechBrand, true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+async function moveTechItem(itemId, direction) {
+    const item = findTechItem(itemId);
+    if (!item) return;
+    const data = techCache[currentTechBrand];
+    const siblings = (data.itemsByCat[item.catId] || []).filter(i => !i.archived).sort((a, b) => (a.order || 0) - (b.order || 0));
+    const idx = siblings.findIndex(i => i.id === itemId);
+    const swapIdx = idx + direction;
+    if (idx === -1 || swapIdx < 0 || swapIdx >= siblings.length) return;
+    const a = siblings[idx], b = siblings[swapIdx];
+    try {
+        const batch = db.batch();
+        batch.update(db.collection('techItems').doc(a.id), { order: b.order });
+        batch.update(db.collection('techItems').doc(b.id), { order: a.order });
+        await batch.commit();
         await loadTechBrand(currentTechBrand, true);
     } catch (e) { alert('שגיאה: ' + e.message); }
 }
@@ -1695,7 +1813,7 @@ async function saveParamModal() {
             const nextOrder = existing.length ? Math.max(...existing.map(i => i.order || 0)) + 1 : 1;
             await db.collection('techItems').add({
                 brand: currentTechBrand, catId: paramModalState.catId,
-                type, code: type === 'param' ? code : '', text, order: nextOrder
+                type, code: type === 'param' ? code : '', text, order: nextOrder, archived: false
             });
         } else {
             await db.collection('techItems').doc(paramModalState.item.id).update({
@@ -1861,24 +1979,48 @@ async function loadVideoLinks(forceRefresh) {
 function renderVideoLinks() {
     const container = document.getElementById('videoLinksContainer');
     const isAdmin = currentRole === 'admin';
-    if (!videoLinksCache.length) {
+    const active = videoLinksCache.filter(l => !l.archived).sort((a, b) => (a.order || 0) - (b.order || 0));
+    const archived = videoLinksCache.filter(l => l.archived === true);
+
+    if (!active.length && !(isAdmin && archived.length)) {
         container.innerHTML = '<div class="tech-note">אין עדיין קישורי סרטונים. ' + (isAdmin ? 'לחץ על "הוסף קישור" למטה.' : '') + '</div>';
         return;
     }
     let html = '';
-    videoLinksCache.forEach(link => {
+    active.forEach((link, idx) => {
         if (isAdmin) {
             html += '<div class="brand-card" style="position:relative;padding-top:22px;">' +
                     '<div onclick="window.open(\'' + encodeURI(link.url) + '\', \'_blank\', \'noopener\')">' + escapeHtml(link.label) + '</div>' +
-                    '<div style="position:absolute;top:4px;left:6px;display:flex;gap:4px;">' +
+                    '<div style="position:absolute;top:4px;left:6px;display:flex;gap:3px;">' +
+                    '<button onclick="event.stopPropagation();moveVideoLink(\'' + link.id + '\',-1)" ' + (idx === 0 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למעלה" style="border:none;background:none;cursor:pointer;font-size:11px;">⬆️</button>' +
+                    '<button onclick="event.stopPropagation();moveVideoLink(\'' + link.id + '\',1)" ' + (idx === active.length - 1 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למטה" style="border:none;background:none;cursor:pointer;font-size:11px;">⬇️</button>' +
                     '<button onclick="event.stopPropagation();editVideoLink(\'' + link.id + '\')" style="border:none;background:none;cursor:pointer;font-size:12px;" title="ערוך">✏️</button>' +
-                    '<button onclick="event.stopPropagation();deleteVideoLink(\'' + link.id + '\')" style="border:none;background:none;cursor:pointer;font-size:12px;" title="מחק">🗑</button>' +
+                    '<button onclick="event.stopPropagation();archiveVideoLink(\'' + link.id + '\')" style="border:none;background:none;cursor:pointer;font-size:12px;" title="העבר לארכיון">🗄</button>' +
                     '</div></div>';
         } else {
             html += '<div class="brand-card" onclick="window.open(\'' + encodeURI(link.url) + '\', \'_blank\', \'noopener\')">' + escapeHtml(link.label) + '</div>';
         }
     });
     container.innerHTML = html;
+
+    const archWrap = document.getElementById('videoArchiveWrap');
+    if (archWrap) {
+        if (isAdmin && archived.length) {
+            archWrap.classList.remove('hidden');
+            let ahtml = '<div style="font-size:12px;color:var(--text3);margin:12px 0 6px;">🗄 בארכיון (' + archived.length + ')</div>';
+            archived.forEach(link => {
+                ahtml += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;">' +
+                         '<span style="flex:1;color:var(--text3);">' + escapeHtml(link.label) + '</span>' +
+                         '<button class="btn-login" style="width:auto;padding:3px 8px;font-size:11px;" onclick="restoreVideoLink(\'' + link.id + '\')">↩️ שחזר</button>' +
+                         '<button class="btn-logout" style="padding:3px 8px;font-size:11px;" onclick="permanentlyDeleteVideoLink(\'' + link.id + '\')">🗑 לצמיתות</button>' +
+                         '</div>';
+            });
+            archWrap.innerHTML = ahtml;
+        } else {
+            archWrap.classList.add('hidden');
+            archWrap.innerHTML = '';
+        }
+    }
 }
 
 let videoLinkModalState = null; // { mode: 'add'|'edit', item }
@@ -1901,10 +2043,39 @@ function editVideoLink(id) {
     openVideoLinkModal();
 }
 
-async function deleteVideoLink(id) {
-    if (!confirm('למחוק קישור זה?')) return;
+async function archiveVideoLink(id) {
+    try {
+        await db.collection('videoLinks').doc(id).update({ archived: true });
+        await loadVideoLinks(true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+async function restoreVideoLink(id) {
+    try {
+        await db.collection('videoLinks').doc(id).update({ archived: false });
+        await loadVideoLinks(true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+async function permanentlyDeleteVideoLink(id) {
+    if (!confirm('למחוק קישור זה לצמיתות? לא ניתן לשחזר.')) return;
     try {
         await db.collection('videoLinks').doc(id).delete();
+        await loadVideoLinks(true);
+    } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+async function moveVideoLink(id, direction) {
+    const active = videoLinksCache.filter(l => !l.archived).sort((a, b) => (a.order || 0) - (b.order || 0));
+    const idx = active.findIndex(l => l.id === id);
+    const swapIdx = idx + direction;
+    if (idx === -1 || swapIdx < 0 || swapIdx >= active.length) return;
+    const a = active[idx], b = active[swapIdx];
+    try {
+        const batch = db.batch();
+        batch.update(db.collection('videoLinks').doc(a.id), { order: b.order });
+        batch.update(db.collection('videoLinks').doc(b.id), { order: a.order });
+        await batch.commit();
         await loadVideoLinks(true);
     } catch (e) { alert('שגיאה: ' + e.message); }
 }
@@ -1931,7 +2102,7 @@ async function saveVideoLinkModal() {
     try {
         if (videoLinkModalState.mode === 'add') {
             const nextOrder = videoLinksCache.length ? Math.max(...videoLinksCache.map(l => l.order || 0)) + 1 : 1;
-            await db.collection('videoLinks').add({ label, url, order: nextOrder });
+            await db.collection('videoLinks').add({ label, url, order: nextOrder, archived: false });
         } else {
             await db.collection('videoLinks').doc(videoLinkModalState.item.id).update({ label, url });
         }
@@ -2018,18 +2189,11 @@ function initModels() {
 
         let models = [];
         if (currentBrand === 'TOSHIBA') {
-            models = type === 'MINI' ? [
-                'MCY-MHP0404','MCY-MHP0504','MCY-MHP0604',
-                'MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'
-            ] : ['SMMSU'];
+            models = type === 'MINI' ? MINI_MODELS.TOSHIBA : TOSHIBA_MODULAR_MODELS;
         } else if (currentBrand === 'PRIME') {
-            models = type === 'MINI'
-                ? ['PRIME 032','PRIME 04','PRIME 05','PRIME 06','PRIME 07','PRIME 08','PRIME 10','PRIME 12']
-                : ['MODULAR 08','MODULAR 10','MODULAR 12','MODULAR 14','MODULAR 16','MODULAR 18','MODULAR 20','MODULAR 22','MODULAR 24','MODULAR 26'];
+            models = type === 'MINI' ? MINI_MODELS.PRIME : PRIME_MODULAR_MODELS;
         } else {
-            models = type === 'MINI'
-                ? ['80','100','120','140','160','224','280','335']
-                : Object.keys(greeFullData);
+            models = type === 'MINI' ? MINI_MODELS.GREE : Object.keys(greeFullData);
         }
 
         models.forEach(m => {
@@ -2052,19 +2216,17 @@ function toggleUI() {
     document.querySelectorAll('.pipe-item').forEach(el => el.classList.add('hidden'));
 
     if (currentBrand === 'TOSHIBA' && type === 'MINI') {
-        // דגמים עם 1/2 נוספת
-        const with12 = ['MCY-1204','MCY-1206'];
         document.getElementById('row14').classList.remove('hidden');
         document.getElementById('row38').classList.remove('hidden');
-        if (with12.includes(model)) document.getElementById('row12').classList.remove('hidden');
+        if (TOSHIBA_MINI_ROW12_MODELS.includes(model)) document.getElementById('row12').classList.remove('hidden');
     } else if (currentBrand === 'GREE' && type === 'MINI') {
         document.getElementById('row14').classList.remove('hidden');
         document.getElementById('row38').classList.remove('hidden');
-        if (model === '335') document.getElementById('row12').classList.remove('hidden');
+        if (GREE_MINI_ROW12_MODELS.includes(model)) document.getElementById('row12').classList.remove('hidden');
     } else if (currentBrand === 'PRIME' && type === 'MINI') {
         document.getElementById('row14').classList.remove('hidden');
         document.getElementById('row38').classList.remove('hidden');
-        if (model === 'PRIME 12') document.getElementById('row12').classList.remove('hidden');
+        if (PRIME_MINI_ROW12_MODELS.includes(model)) document.getElementById('row12').classList.remove('hidden');
     } else {
         ['row14','row38','row12','row58','row34','row78'].forEach(id => document.getElementById(id).classList.remove('hidden'));
         if (currentBrand !== 'PRIME') document.getElementById('row10').classList.remove('hidden');
@@ -2077,8 +2239,7 @@ function toggleUI() {
     document.getElementById('extraFields').classList.toggle('hidden', isPrimeModular || isToshiba || isPrimeMini);
 
     // Toshiba: הצג מאיידים רק לדגמים החדשים
-    const toshibaNewModels = ['MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'];
-    const showToshibaUnits = isToshiba && toshibaNewModels.includes(model);
+    const showToshibaUnits = isToshiba && TOSHIBA_MINI_NEW_MODELS.includes(model);
     document.getElementById('toshibaFields').classList.toggle('hidden', !showToshibaUnits);
     if (showToshibaUnits && document.getElementById('toshibaUnitsList').children.length === 0) addToshibaUnit();
     if (!showToshibaUnits && isToshiba) {
@@ -2093,7 +2254,7 @@ function toggleUI() {
         document.getElementById('smmsuDiversityBox').style.display = 'none';
     }
 
-    const isGreeMiniLarge = (currentBrand === 'GREE' && type === 'MINI' && ['224','280','335'].includes(model));
+    const isGreeMiniLarge = (currentBrand === 'GREE' && type === 'MINI' && GREE_MINI_LARGE_MODELS.includes(model));
     document.getElementById('unitCountWrapper').classList.toggle('hidden', isGreeMiniLarge || isPrimeModular);
     document.getElementById('ratioWrapper').classList.toggle('hidden', currentBrand !== 'GREE' || type === 'MINI');
 }
@@ -2124,14 +2285,12 @@ function calculate() {
 
         if (currentBrand === 'GREE') {
             if (type === 'MINI') {
-                const small = ['80','100','120','140','160'];
-                if (small.includes(model) && units > 2) totalG += (units - 2) * 300;
+                if (GREE_MINI_UNIT_BONUS_MODELS.includes(model) && units > 2) totalG += (units - 2) * 300;
             } else if (ratio && greeFullData[model]) {
                 totalG += greeFullData[model][ratio][units >= 4 ? 1 : 0] * 1000;
             }
         } else if (currentBrand === 'PRIME' && type === 'MODULAR') {
-            const primeMap = {"MODULAR 18":0.5,"MODULAR 20":4,"MODULAR 22":4.5,"MODULAR 24":4.5,"MODULAR 26":5};
-            totalG += (primeMap[model] || 0) * 1000;
+            totalG += (PRIME_MODULAR_BONUS[model] || 0) * 1000;
         }
     }
 
@@ -2556,6 +2715,41 @@ function renderSmmsuSystemSelect() {
 const SMMSU_COMBO_OPTIONS = [{"value": "", "label": "— בחר עוצמת מערכת —", "group": null}, {"value": "manual", "label": "➕ שילוב ידני — הוסף מעבים בנפרד", "group": null}, {"value": "8", "label": "8HP — מעבה 8HP בודד", "group": "יחידה בודדת"}, {"value": "10", "label": "10HP — מעבה 10HP בודד", "group": "יחידה בודדת"}, {"value": "12", "label": "12HP — מעבה 12HP בודד", "group": "יחידה בודדת"}, {"value": "14", "label": "14HP — מעבה 14HP בודד", "group": "יחידה בודדת"}, {"value": "16", "label": "16HP — מעבה 16HP בודד", "group": "יחידה בודדת"}, {"value": "18", "label": "18HP — מעבה 18HP בודד", "group": "יחידה בודדת"}, {"value": "20", "label": "20HP — מעבה 20HP בודד", "group": "יחידה בודדת"}, {"value": "22", "label": "22HP — מעבה 22HP בודד", "group": "יחידה בודדת"}, {"value": "24", "label": "24HP — מעבה 24HP בודד", "group": "יחידה בודדת"}, {"value": "26", "label": "26HP — 14+12", "group": "שתי יחידות"}, {"value": "28", "label": "28HP — 14+14", "group": "שתי יחידות"}, {"value": "30", "label": "30HP — 18+12", "group": "שתי יחידות"}, {"value": "32", "label": "32HP — 20+12", "group": "שתי יחידות"}, {"value": "34", "label": "34HP — 20+14", "group": "שתי יחידות"}, {"value": "36", "label": "36HP — 24+12", "group": "שתי יחידות"}, {"value": "38", "label": "38HP — 24+14", "group": "שתי יחידות"}, {"value": "40", "label": "40HP — 20+20", "group": "שתי יחידות"}, {"value": "42", "label": "42HP — 24+18", "group": "שתי יחידות"}, {"value": "44", "label": "44HP — 24+20", "group": "שתי יחידות"}, {"value": "46", "label": "46HP — 24+22", "group": "שתי יחידות"}, {"value": "48", "label": "48HP — 24+24", "group": "שתי יחידות"}, {"value": "50", "label": "50HP — 24+14+12", "group": "שלוש יחידות"}, {"value": "52", "label": "52HP — 24+14+14", "group": "שלוש יחידות"}, {"value": "54", "label": "54HP — 20+20+14", "group": "שלוש יחידות"}, {"value": "56", "label": "56HP — 24+20+12", "group": "שלוש יחידות"}, {"value": "58", "label": "58HP — 24+20+14", "group": "שלוש יחידות"}, {"value": "60", "label": "60HP — 24+24+12", "group": "שלוש יחידות"}, {"value": "62", "label": "62HP — 24+24+14", "group": "שלוש יחידות"}, {"value": "64", "label": "64HP — 24+24+20", "group": "שלוש יחידות"}, {"value": "66", "label": "66HP — 24+22+20", "group": "שלוש יחידות"}, {"value": "68", "label": "68HP — 24+24+20", "group": "שלוש יחידות"}, {"value": "70", "label": "70HP — 24+24+22", "group": "שלוש יחידות"}, {"value": "72", "label": "72HP — 24+24+24", "group": "שלוש יחידות"}, {"value": "74", "label": "74HP — 24+24+14+12", "group": "ארבע יחידות"}, {"value": "76", "label": "76HP — 24+24+14+14", "group": "ארבע יחידות"}, {"value": "78", "label": "78HP — 24+24+20+14", "group": "ארבע יחידות"}, {"value": "80", "label": "80HP — 24+24+20+12", "group": "ארבע יחידות"}, {"value": "82", "label": "82HP — 24+24+20+14", "group": "ארבע יחידות"}, {"value": "84", "label": "84HP — 24+24+24+12", "group": "ארבע יחידות"}, {"value": "86", "label": "86HP — 24+24+24+14", "group": "ארבע יחידות"}, {"value": "88", "label": "88HP — 24+24+20+20", "group": "ארבע יחידות"}, {"value": "90", "label": "90HP — 24+24+22+20", "group": "ארבע יחידות"}, {"value": "92", "label": "92HP — 24+24+24+20", "group": "ארבע יחידות"}, {"value": "94", "label": "94HP — 24+24+24+22", "group": "ארבע יחידות"}, {"value": "96", "label": "96HP — 24+24+24+24", "group": "ארבע יחידות"}, {"value": "98", "label": "98HP — 24+24+24+14+12", "group": "חמש יחידות"}, {"value": "100", "label": "100HP — 24+24+24+14+14", "group": "חמש יחידות"}, {"value": "102", "label": "102HP — 24+24+24+20+14", "group": "חמש יחידות"}, {"value": "104", "label": "104HP — 24+24+24+20+12", "group": "חמש יחידות"}, {"value": "106", "label": "106HP — 24+24+24+20+14", "group": "חמש יחידות"}, {"value": "108", "label": "108HP — 24+24+24+24+12", "group": "חמש יחידות"}, {"value": "110", "label": "110HP — 24+24+24+24+14", "group": "חמש יחידות"}, {"value": "112", "label": "112HP — 24+24+24+24+20", "group": "חמש יחידות"}, {"value": "114", "label": "114HP — 24+24+24+22+20", "group": "חמש יחידות"}, {"value": "116", "label": "116HP — 24+24+24+24+20", "group": "חמש יחידות"}, {"value": "118", "label": "118HP — 24+24+24+24+22", "group": "חמש יחידות"}, {"value": "120", "label": "120HP — 24+24+24+24+24", "group": "חמש יחידות"}];
 
 // ===========================
+// MODEL LISTS & MODEL-SPECIFIC BEHAVIOR — admin-editable
+// (הועברו לכאן מתוך initModels/toggleUI/calculate כדי שיהיו ניתנים לעריכה,
+//  בלי לגעת בלוגיקה עצמה — רק בנתונים שהלוגיקה קוראת מהם)
+// ===========================
+
+// רשימת הדגמים שמופיעה בתפריט "בחר דגם" עבור מערכת MINI, לכל מותג.
+// הוספת שם לרשימה = הוא יופיע בתפריט ויחושב לפי צנרת בלבד (ברירת מחדל בטוחה),
+// אלא אם גם מוסיפים אותו לאחת הטבלאות המיוחדות שמתחת (בונוס/שורת 1/2 נוספת וכו').
+const MINI_MODELS = {
+    GREE: ['80','100','120','140','160','224','280','335'],
+    TOSHIBA: ['MCY-MHP0404','MCY-MHP0504','MCY-MHP0604','MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'],
+    PRIME: ['PRIME 032','PRIME 04','PRIME 05','PRIME 06','PRIME 07','PRIME 08','PRIME 10','PRIME 12']
+};
+
+// רשימת הדגמים בתפריט "בחר דגם" עבור מערכת MODULAR, למותגי PRIME ו-TOSHIBA
+// (ל-GREE MODULAR הרשימה נגזרת אוטומטית מטבלת greeFullData, אין צורך ברשימה נפרדת)
+const PRIME_MODULAR_MODELS = ['MODULAR 08','MODULAR 10','MODULAR 12','MODULAR 14','MODULAR 16','MODULAR 18','MODULAR 20','MODULAR 22','MODULAR 24','MODULAR 26'];
+const TOSHIBA_MODULAR_MODELS = ['SMMSU'];
+
+// אילו דגמי TOSHIBA MINI מציגים שורת צנרת 1/2" נוספת
+const TOSHIBA_MINI_ROW12_MODELS = ['MCY-1204','MCY-1206'];
+// אילו דגמי GREE MINI מציגים שורת צנרת 1/2" נוספת
+const GREE_MINI_ROW12_MODELS = ['335'];
+// אילו דגמי PRIME MINI מציגים שורת צנרת 1/2" נוספת
+const PRIME_MINI_ROW12_MODELS = ['PRIME 12'];
+// אילו דגמי TOSHIBA MINI הם "חדשים" (מחושבים לפי טבלת מאיידים TOSHIBA_TABLE2) ולכן מציגים את שדות הוספת המאיידים
+const TOSHIBA_MINI_NEW_MODELS = ['MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'];
+// אילו דגמי GREE MINI הם "גדולים" (יחידה שלמה, בלי שדה "מספר יחידות" נפרד)
+const GREE_MINI_LARGE_MODELS = ['224','280','335'];
+// אילו דגמי GREE MINI מקבלים בונוס של 300 גרם על כל יחידה מעל 2 יחידות
+const GREE_MINI_UNIT_BONUS_MODELS = ['80','100','120','140','160'];
+// בונוס קבוע בק"ג לכל דגם PRIME MODULAR (מעבר לחישוב הצנרת)
+const PRIME_MODULAR_BONUS = {"MODULAR 18": 0.5, "MODULAR 20": 4, "MODULAR 22": 4.5, "MODULAR 24": 4.5, "MODULAR 26": 5};
+
+// ===========================
 // GAS CALC CONFIG — cloud overrides (admin-editable)
 // ===========================
 // מיפוי שם הטבלה -> הפניה חיה (reference) לאובייקט/מערך בפועל + הסוג שלו.
@@ -2565,14 +2759,22 @@ const GAS_CALC_REFS = {
     pipeFactors, greeFullData, TOSHIBA_TABLE2, TOSHIBA_CAP_CODES,
     TOSHIBA_MODEL_FIXED, TOSHIBA_MODEL_BONUS, SMMSU_SYSTEM_BONUS,
     SMMSU_STANDARD, SMMSU_CAP_HP, SMMSU_HE, SMMSU_DX, SMMSU_HOT_WATER,
-    SMMSU_DIVERSITY, SMMSU_SINGLE_HPS, SMMSU_COMBO_OPTIONS
+    SMMSU_DIVERSITY, SMMSU_SINGLE_HPS, SMMSU_COMBO_OPTIONS,
+    MINI_MODELS, PRIME_MODULAR_MODELS, TOSHIBA_MODULAR_MODELS,
+    TOSHIBA_MINI_ROW12_MODELS, GREE_MINI_ROW12_MODELS, PRIME_MINI_ROW12_MODELS,
+    TOSHIBA_MINI_NEW_MODELS, GREE_MINI_LARGE_MODELS, GREE_MINI_UNIT_BONUS_MODELS,
+    PRIME_MODULAR_BONUS
 };
 const GAS_CALC_TABLES = {
     pipeFactors: 'object', greeFullData: 'object', TOSHIBA_TABLE2: 'object',
     TOSHIBA_CAP_CODES: 'array', TOSHIBA_MODEL_FIXED: 'object', TOSHIBA_MODEL_BONUS: 'object',
     SMMSU_SYSTEM_BONUS: 'object', SMMSU_STANDARD: 'object', SMMSU_CAP_HP: 'object',
     SMMSU_HE: 'object', SMMSU_DX: 'object', SMMSU_HOT_WATER: 'object',
-    SMMSU_DIVERSITY: 'array', SMMSU_SINGLE_HPS: 'array', SMMSU_COMBO_OPTIONS: 'array'
+    SMMSU_DIVERSITY: 'array', SMMSU_SINGLE_HPS: 'array', SMMSU_COMBO_OPTIONS: 'array',
+    MINI_MODELS: 'object', PRIME_MODULAR_MODELS: 'array', TOSHIBA_MODULAR_MODELS: 'array',
+    TOSHIBA_MINI_ROW12_MODELS: 'array', GREE_MINI_ROW12_MODELS: 'array', PRIME_MINI_ROW12_MODELS: 'array',
+    TOSHIBA_MINI_NEW_MODELS: 'array', GREE_MINI_LARGE_MODELS: 'array', GREE_MINI_UNIT_BONUS_MODELS: 'array',
+    PRIME_MODULAR_BONUS: 'object'
 };
 // עותק קפוא של הערכים המקוריים מהקוד — לשימוש בכפתור "חזור לברירת מחדל"
 const GAS_CALC_DEFAULTS = {};
