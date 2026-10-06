@@ -801,8 +801,8 @@
         <div class="input-wrap">
             <div class="section-label" id="sectionSysType">סוג מערכת</div>
             <select id="sysType" onchange="initModels()">
-                <option value="MINI">MINI — מיני VRF</option>
-                <option value="MODULAR">MODULAR — מודולרי</option>
+                <option value="MINI" id="sysTypeOptMini">MINI — מיני VRF</option>
+                <option value="MODULAR" id="sysTypeOptModular">MODULAR — מודולרי</option>
             </select>
         </div>
 
@@ -1121,6 +1121,62 @@
         <button class="btn-logout" style="width:auto;padding:10px 20px;display:inline-block;" onclick="importBackup()">⬆️ ייבוא ושחזור</button>
 
         <div id="backupLog" style="white-space:pre-wrap;font-family:monospace;font-size:12px;background:#111;color:#0f0;padding:12px;border-radius:8px;margin-top:16px;display:none;max-height:250px;overflow-y:auto;"></div>
+    </div>
+
+    <div class="conv-card">
+        <div class="conv-card-title"><span>🔧</span> <span>עריכת דגמים ומותגים</span></div>
+        <p style="font-size:12px; color:var(--text3); margin-bottom:14px; line-height:1.6;">
+            הוספה, שינוי, מחיקה וסידור מחדש של דגמים — בלי JSON. <strong>שינוי שם מותג/סוג מערכת הוא קוסמטי בלבד</strong> (לא משפיע על החישוב); הוספת מותג חדש לגמרי או סוג מערכת חדש דורשת פיתוח נפרד, כי הקוד מאחורי כל אחד שונה מהותית.
+        </p>
+
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">שם מוצג למותג</label>
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+            <input id="brandLabelGREE" type="text" style="flex:1;min-width:100px;padding:8px;border-radius:8px;border:1px solid var(--border);" placeholder="GREE">
+            <input id="brandLabelPRIME" type="text" style="flex:1;min-width:100px;padding:8px;border-radius:8px;border:1px solid var(--border);" placeholder="PRIME">
+            <input id="brandLabelTOSHIBA" type="text" style="flex:1;min-width:100px;padding:8px;border-radius:8px;border:1px solid var(--border);" placeholder="TOSHIBA">
+            <button class="btn-login" style="width:auto;padding:8px 14px;display:inline-block;" onclick="saveBrandLabels()">💾 שמור שמות</button>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">בחר מותג וסוג מערכת לעריכת הדגמים</label>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <select id="modelEditorBrand" onchange="renderModelEditor()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);">
+                <option value="GREE">GREE</option>
+                <option value="PRIME">PRIME</option>
+                <option value="TOSHIBA">TOSHIBA</option>
+            </select>
+            <select id="modelEditorType" onchange="renderModelEditor()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);">
+                <option value="MINI">MINI</option>
+                <option value="MODULAR">MODULAR</option>
+            </select>
+        </div>
+
+        <div id="modelEditorTable"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-login" style="width:auto;padding:8px 16px;display:inline-block;" onclick="addModelRow()">➕ הוסף דגם</button>
+            <button class="btn-login" style="width:auto;padding:8px 16px;display:inline-block;background:#1a7f37;" onclick="saveModelEditor()">💾 שמור שינויים</button>
+        </div>
+        <div id="modelEditorStatus" style="margin-top:10px;font-size:12px;font-weight:700;"></div>
+    </div>
+
+    <div class="conv-card">
+        <div class="conv-card-title"><span>📏</span> <span>אורכי צנרת (גרם למטר) לפי מותג</span></div>
+        <p style="font-size:12px; color:var(--text3); margin-bottom:14px; line-height:1.6;">
+            הטבלה הזו משותפת לכל הדגמים באותו מותג. ערכים ריקים = קוטר שלא קיים אצל המותג הזה.
+        </p>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <select id="pipeFactorBrand" onchange="renderPipeFactorEditor()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);">
+                <option value="GREE">GREE</option>
+                <option value="PRIME">PRIME</option>
+                <option value="TOSHIBA">TOSHIBA</option>
+            </select>
+        </div>
+        <div id="pipeFactorTable"></div>
+        <div style="margin-top:12px;">
+            <button class="btn-login" style="width:auto;padding:8px 16px;display:inline-block;background:#1a7f37;" onclick="savePipeFactors()">💾 שמור</button>
+        </div>
+        <div id="pipeFactorStatus" style="margin-top:10px;font-size:12px;font-weight:700;"></div>
     </div>
 
     <div class="conv-card">
@@ -1949,7 +2005,7 @@ function switchTab(id, btn) {
     btn.classList.add('active');
     if (id === 'tech') checkTechAuth();
     if (id === 'videos') checkVideosAuth();
-    if (id === 'admin') populateGasTableSelect();
+    if (id === 'admin') { populateGasTableSelect(); populateModelEditorInputs(); }
 }
 
 // ===========================
@@ -2285,7 +2341,8 @@ function calculate() {
 
         if (currentBrand === 'GREE') {
             if (type === 'MINI') {
-                if (GREE_MINI_UNIT_BONUS_MODELS.includes(model) && units > 2) totalG += (units - 2) * 300;
+                const unitBonus = GREE_MINI_UNIT_BONUS[model];
+                if (unitBonus && units > unitBonus.threshold) totalG += (units - unitBonus.threshold) * unitBonus.grams;
             } else if (ratio && greeFullData[model]) {
                 totalG += greeFullData[model][ratio][units >= 4 ? 1 : 0] * 1000;
             }
@@ -2744,8 +2801,18 @@ const PRIME_MINI_ROW12_MODELS = ['PRIME 12'];
 const TOSHIBA_MINI_NEW_MODELS = ['MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'];
 // אילו דגמי GREE MINI הם "גדולים" (יחידה שלמה, בלי שדה "מספר יחידות" נפרד)
 const GREE_MINI_LARGE_MODELS = ['224','280','335'];
-// אילו דגמי GREE MINI מקבלים בונוס של 300 גרם על כל יחידה מעל 2 יחידות
-const GREE_MINI_UNIT_BONUS_MODELS = ['80','100','120','140','160'];
+// בונוס לדגמי GREE MINI על כל יחידה מעבר לסף: { "שם דגם": { threshold: מספר יחידות בסיס, grams: תוספת גרם ליחידה נוספת } }
+const GREE_MINI_UNIT_BONUS = {
+    '80':  { threshold: 2, grams: 300 },
+    '100': { threshold: 2, grams: 300 },
+    '120': { threshold: 2, grams: 300 },
+    '140': { threshold: 2, grams: 300 },
+    '160': { threshold: 2, grams: 300 }
+};
+
+// תוויות תצוגה (שם מוצג) למותגים ולסוגי מערכת — קוסמטי בלבד, לא משפיע על החישוב עצמו
+const BRAND_LABELS = { GREE: 'GREE', PRIME: 'PRIME', TOSHIBA: 'TOSHIBA' };
+const SYSTYPE_LABELS = { MINI: 'MINI — מיני VRF', MODULAR: 'MODULAR — מודולרי' };
 // בונוס קבוע בק"ג לכל דגם PRIME MODULAR (מעבר לחישוב הצנרת)
 const PRIME_MODULAR_BONUS = {"MODULAR 18": 0.5, "MODULAR 20": 4, "MODULAR 22": 4.5, "MODULAR 24": 4.5, "MODULAR 26": 5};
 
@@ -2762,8 +2829,8 @@ const GAS_CALC_REFS = {
     SMMSU_DIVERSITY, SMMSU_SINGLE_HPS, SMMSU_COMBO_OPTIONS,
     MINI_MODELS, PRIME_MODULAR_MODELS, TOSHIBA_MODULAR_MODELS,
     TOSHIBA_MINI_ROW12_MODELS, GREE_MINI_ROW12_MODELS, PRIME_MINI_ROW12_MODELS,
-    TOSHIBA_MINI_NEW_MODELS, GREE_MINI_LARGE_MODELS, GREE_MINI_UNIT_BONUS_MODELS,
-    PRIME_MODULAR_BONUS
+    TOSHIBA_MINI_NEW_MODELS, GREE_MINI_LARGE_MODELS, GREE_MINI_UNIT_BONUS,
+    PRIME_MODULAR_BONUS, BRAND_LABELS, SYSTYPE_LABELS
 };
 const GAS_CALC_TABLES = {
     pipeFactors: 'object', greeFullData: 'object', TOSHIBA_TABLE2: 'object',
@@ -2773,8 +2840,8 @@ const GAS_CALC_TABLES = {
     SMMSU_DIVERSITY: 'array', SMMSU_SINGLE_HPS: 'array', SMMSU_COMBO_OPTIONS: 'array',
     MINI_MODELS: 'object', PRIME_MODULAR_MODELS: 'array', TOSHIBA_MODULAR_MODELS: 'array',
     TOSHIBA_MINI_ROW12_MODELS: 'array', GREE_MINI_ROW12_MODELS: 'array', PRIME_MINI_ROW12_MODELS: 'array',
-    TOSHIBA_MINI_NEW_MODELS: 'array', GREE_MINI_LARGE_MODELS: 'array', GREE_MINI_UNIT_BONUS_MODELS: 'array',
-    PRIME_MODULAR_BONUS: 'object'
+    TOSHIBA_MINI_NEW_MODELS: 'array', GREE_MINI_LARGE_MODELS: 'array', GREE_MINI_UNIT_BONUS: 'object',
+    PRIME_MODULAR_BONUS: 'object', BRAND_LABELS: 'object', SYSTYPE_LABELS: 'object'
 };
 // עותק קפוא של הערכים המקוריים מהקוד — לשימוש בכפתור "חזור לברירת מחדל"
 const GAS_CALC_DEFAULTS = {};
@@ -2797,6 +2864,20 @@ function applyGasTableData(name, data) {
     else { Object.keys(ref).forEach(k => delete ref[k]); Object.assign(ref, data); }
     recomputeDerivedGasTables();
     if (name === 'SMMSU_COMBO_OPTIONS') renderSmmsuSystemSelect();
+    if (name === 'BRAND_LABELS' || name === 'SYSTYPE_LABELS') applyBrandAndSystypeLabels();
+}
+
+function applyBrandAndSystypeLabels() {
+    const cardGree = document.getElementById('cardGree');
+    const cardPrime = document.getElementById('cardPrime');
+    const cardToshiba = document.getElementById('cardToshiba');
+    if (cardGree) cardGree.textContent = BRAND_LABELS.GREE;
+    if (cardPrime) cardPrime.textContent = BRAND_LABELS.PRIME;
+    if (cardToshiba) cardToshiba.textContent = BRAND_LABELS.TOSHIBA;
+    const optMini = document.getElementById('sysTypeOptMini');
+    const optModular = document.getElementById('sysTypeOptModular');
+    if (optMini) optMini.textContent = SYSTYPE_LABELS.MINI;
+    if (optModular) optModular.textContent = SYSTYPE_LABELS.MODULAR;
 }
 
 async function loadAllGasCalcOverrides() {
@@ -2859,6 +2940,264 @@ async function saveGasTable() {
     } catch (e) {
         statusEl.style.color = 'var(--red)';
         statusEl.textContent = '❌ שגיאה בשמירה: ' + e.message;
+    }
+}
+
+// ===========================
+// FRIENDLY MODEL EDITOR — ניהול דגמים בלי JSON
+// ===========================
+let modelEditorDraft = [];
+
+function populateModelEditorInputs() {
+    document.getElementById('brandLabelGREE').value = BRAND_LABELS.GREE;
+    document.getElementById('brandLabelPRIME').value = BRAND_LABELS.PRIME;
+    document.getElementById('brandLabelTOSHIBA').value = BRAND_LABELS.TOSHIBA;
+    renderModelEditor();
+    renderPipeFactorEditor();
+}
+
+function buildModelDraft(brand, type) {
+    if (type === 'MINI') {
+        const names = MINI_MODELS[brand] || [];
+        return names.map(name => {
+            const row = { name };
+            if (brand === 'GREE') {
+                row.row12 = GREE_MINI_ROW12_MODELS.includes(name);
+                row.large = GREE_MINI_LARGE_MODELS.includes(name);
+                const b = GREE_MINI_UNIT_BONUS[name];
+                row.bonusThreshold = b ? b.threshold : '';
+                row.bonusGrams = b ? b.grams : '';
+            } else if (brand === 'TOSHIBA') {
+                row.row12 = TOSHIBA_MINI_ROW12_MODELS.includes(name);
+                row.newModel = TOSHIBA_MINI_NEW_MODELS.includes(name);
+            } else if (brand === 'PRIME') {
+                row.row12 = PRIME_MINI_ROW12_MODELS.includes(name);
+            }
+            return row;
+        });
+    } else {
+        if (brand === 'PRIME') {
+            return PRIME_MODULAR_MODELS.map(name => ({ name, bonusKg: PRIME_MODULAR_BONUS[name] !== undefined ? PRIME_MODULAR_BONUS[name] : '' }));
+        } else if (brand === 'TOSHIBA') {
+            return TOSHIBA_MODULAR_MODELS.map(name => ({ name }));
+        }
+        return null;
+    }
+}
+
+function renderModelEditor() {
+    const brand = document.getElementById('modelEditorBrand').value;
+    const type = document.getElementById('modelEditorType').value;
+    document.getElementById('modelEditorStatus').textContent = '';
+    const container = document.getElementById('modelEditorTable');
+    const addBtn = document.querySelector('button[onclick="addModelRow()"]');
+
+    if (brand === 'GREE' && type === 'MODULAR') {
+        container.innerHTML = '<div class="tech-note">דגמי GREE MODULAR מנוהלים דרך טבלת greeFullData (מבנה עם יחסים/ratios מורכב יותר) — ערוך אותם בכרטיס "נתונים (מתקדם)" למטה, בחר greeFullData.</div>';
+        if (addBtn) addBtn.style.display = 'none';
+        return;
+    }
+    if (brand === 'TOSHIBA' && type === 'MODULAR') {
+        container.innerHTML = '<div class="tech-note">מערכת ה-MODULAR של TOSHIBA (SMMSU) מנוהלת דרך טבלאות ה-SMMSU הייעודיות בכרטיס "נתונים (מתקדם)" למטה, לא כרשימת דגמים רגילה.</div>';
+        if (addBtn) addBtn.style.display = 'none';
+        return;
+    }
+    if (addBtn) addBtn.style.display = '';
+
+    modelEditorDraft = buildModelDraft(brand, type);
+    renderModelEditorRows();
+}
+
+function renderModelEditorRows() {
+    const brand = document.getElementById('modelEditorBrand').value;
+    const type = document.getElementById('modelEditorType').value;
+    const container = document.getElementById('modelEditorTable');
+
+    if (!modelEditorDraft.length) {
+        container.innerHTML = '<div class="tech-note">אין דגמים עדיין. לחץ "➕ הוסף דגם".</div>';
+        return;
+    }
+
+    let html = '<div style="display:flex;flex-direction:column;gap:6px;">';
+    modelEditorDraft.forEach((row, idx) => {
+        html += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px;background:var(--surface2);border-radius:8px;">';
+        html += '<input type="text" value="' + escapeHtml(row.name) + '" oninput="modelEditorDraft[' + idx + '].name=this.value" style="flex:1;min-width:90px;padding:6px;border-radius:6px;border:1px solid var(--border);">';
+
+        if (type === 'MINI' && brand === 'GREE') {
+            html += '<label style="font-size:11px;display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ' + (row.row12 ? 'checked' : '') + ' onchange="modelEditorDraft[' + idx + '].row12=this.checked"> שורת 1/2"</label>';
+            html += '<label style="font-size:11px;display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ' + (row.large ? 'checked' : '') + ' onchange="modelEditorDraft[' + idx + '].large=this.checked"> יחידה גדולה</label>';
+            html += '<input type="number" placeholder="סף יח׳" value="' + row.bonusThreshold + '" oninput="modelEditorDraft[' + idx + '].bonusThreshold=this.value" style="width:70px;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:11px;" title="סף יחידות לבונוס">';
+            html += '<input type="number" placeholder="גרם/יח׳" value="' + row.bonusGrams + '" oninput="modelEditorDraft[' + idx + '].bonusGrams=this.value" style="width:80px;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:11px;" title="תוספת גרם ליחידה מעל הסף">';
+        } else if (type === 'MINI' && brand === 'TOSHIBA') {
+            html += '<label style="font-size:11px;display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ' + (row.row12 ? 'checked' : '') + ' onchange="modelEditorDraft[' + idx + '].row12=this.checked"> שורת 1/2"</label>';
+            html += '<label style="font-size:11px;display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ' + (row.newModel ? 'checked' : '') + ' onchange="modelEditorDraft[' + idx + '].newModel=this.checked"> דגם חדש (מאיידים)</label>';
+        } else if (type === 'MINI' && brand === 'PRIME') {
+            html += '<label style="font-size:11px;display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ' + (row.row12 ? 'checked' : '') + ' onchange="modelEditorDraft[' + idx + '].row12=this.checked"> שורת 1/2"</label>';
+        } else if (type === 'MODULAR' && brand === 'PRIME') {
+            html += '<input type="number" placeholder="בונוס (ק״ג)" step="0.1" value="' + row.bonusKg + '" oninput="modelEditorDraft[' + idx + '].bonusKg=this.value" style="width:100px;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:11px;">';
+        }
+
+        html += '<button onclick="moveModelRow(' + idx + ',-1)" ' + (idx === 0 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למעלה" style="border:none;background:none;cursor:pointer;font-size:14px;">⬆️</button>';
+        html += '<button onclick="moveModelRow(' + idx + ',1)" ' + (idx === modelEditorDraft.length - 1 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למטה" style="border:none;background:none;cursor:pointer;font-size:14px;">⬇️</button>';
+        html += '<button onclick="removeModelRow(' + idx + ')" title="הסר" style="border:none;background:none;cursor:pointer;font-size:14px;">🗑</button>';
+        html += '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function addModelRow() {
+    const brand = document.getElementById('modelEditorBrand').value;
+    const type = document.getElementById('modelEditorType').value;
+    if (brand === 'GREE' && type === 'MODULAR') return;
+    if (brand === 'TOSHIBA' && type === 'MODULAR') return;
+    const row = { name: '' };
+    if (type === 'MINI' && brand === 'GREE') { row.row12 = false; row.large = false; row.bonusThreshold = ''; row.bonusGrams = ''; }
+    if (type === 'MINI' && brand === 'TOSHIBA') { row.row12 = false; row.newModel = false; }
+    if (type === 'MINI' && brand === 'PRIME') { row.row12 = false; }
+    if (type === 'MODULAR' && brand === 'PRIME') { row.bonusKg = ''; }
+    modelEditorDraft.push(row);
+    renderModelEditorRows();
+}
+
+function removeModelRow(idx) {
+    modelEditorDraft.splice(idx, 1);
+    renderModelEditorRows();
+}
+
+function moveModelRow(idx, dir) {
+    const swap = idx + dir;
+    if (swap < 0 || swap >= modelEditorDraft.length) return;
+    const tmp = modelEditorDraft[idx];
+    modelEditorDraft[idx] = modelEditorDraft[swap];
+    modelEditorDraft[swap] = tmp;
+    renderModelEditorRows();
+}
+
+async function saveModelEditor() {
+    const brand = document.getElementById('modelEditorBrand').value;
+    const type = document.getElementById('modelEditorType').value;
+    const statusEl = document.getElementById('modelEditorStatus');
+
+    const names = modelEditorDraft.map(r => r.name.trim());
+    if (names.some(n => !n)) { statusEl.style.color = 'var(--red)'; statusEl.textContent = '❌ יש דגם עם שם ריק.'; return; }
+    if (new Set(names).size !== names.length) { statusEl.style.color = 'var(--red)'; statusEl.textContent = '❌ יש שמות דגמים כפולים.'; return; }
+
+    try {
+        const batch = db.batch();
+        const toApply = [];
+        const now = new Date().toISOString();
+
+        if (type === 'MINI') {
+            const newMiniModels = Object.assign({}, MINI_MODELS, { [brand]: names });
+            batch.set(db.collection('gasCalcConfig').doc('MINI_MODELS'), { data: newMiniModels, updatedAt: now });
+            toApply.push(['MINI_MODELS', newMiniModels]);
+
+            if (brand === 'GREE') {
+                const row12 = modelEditorDraft.filter(r => r.row12).map(r => r.name.trim());
+                const large = modelEditorDraft.filter(r => r.large).map(r => r.name.trim());
+                const bonus = {};
+                modelEditorDraft.forEach(r => {
+                    if (r.bonusThreshold !== '' && r.bonusGrams !== '' && r.bonusThreshold != null && r.bonusGrams != null) {
+                        bonus[r.name.trim()] = { threshold: Number(r.bonusThreshold), grams: Number(r.bonusGrams) };
+                    }
+                });
+                batch.set(db.collection('gasCalcConfig').doc('GREE_MINI_ROW12_MODELS'), { data: row12, updatedAt: now });
+                batch.set(db.collection('gasCalcConfig').doc('GREE_MINI_LARGE_MODELS'), { data: large, updatedAt: now });
+                batch.set(db.collection('gasCalcConfig').doc('GREE_MINI_UNIT_BONUS'), { data: bonus, updatedAt: now });
+                toApply.push(['GREE_MINI_ROW12_MODELS', row12], ['GREE_MINI_LARGE_MODELS', large], ['GREE_MINI_UNIT_BONUS', bonus]);
+            } else if (brand === 'TOSHIBA') {
+                const row12 = modelEditorDraft.filter(r => r.row12).map(r => r.name.trim());
+                const newModels = modelEditorDraft.filter(r => r.newModel).map(r => r.name.trim());
+                batch.set(db.collection('gasCalcConfig').doc('TOSHIBA_MINI_ROW12_MODELS'), { data: row12, updatedAt: now });
+                batch.set(db.collection('gasCalcConfig').doc('TOSHIBA_MINI_NEW_MODELS'), { data: newModels, updatedAt: now });
+                toApply.push(['TOSHIBA_MINI_ROW12_MODELS', row12], ['TOSHIBA_MINI_NEW_MODELS', newModels]);
+            } else if (brand === 'PRIME') {
+                const row12 = modelEditorDraft.filter(r => r.row12).map(r => r.name.trim());
+                batch.set(db.collection('gasCalcConfig').doc('PRIME_MINI_ROW12_MODELS'), { data: row12, updatedAt: now });
+                toApply.push(['PRIME_MINI_ROW12_MODELS', row12]);
+            }
+        } else {
+            if (brand === 'PRIME') {
+                batch.set(db.collection('gasCalcConfig').doc('PRIME_MODULAR_MODELS'), { data: names, updatedAt: now });
+                const bonus = {};
+                modelEditorDraft.forEach(r => { if (r.bonusKg !== '' && r.bonusKg != null) bonus[r.name.trim()] = Number(r.bonusKg); });
+                batch.set(db.collection('gasCalcConfig').doc('PRIME_MODULAR_BONUS'), { data: bonus, updatedAt: now });
+                toApply.push(['PRIME_MODULAR_MODELS', names], ['PRIME_MODULAR_BONUS', bonus]);
+            } else if (brand === 'TOSHIBA') {
+                batch.set(db.collection('gasCalcConfig').doc('TOSHIBA_MODULAR_MODELS'), { data: names, updatedAt: now });
+                toApply.push(['TOSHIBA_MODULAR_MODELS', names]);
+            }
+        }
+
+        await batch.commit();
+        toApply.forEach(([name, data]) => applyGasTableData(name, data));
+        statusEl.style.color = '#1a7f37';
+        statusEl.textContent = '✅ נשמר בהצלחה. השינוי כבר בתוקף במחשבון.';
+    } catch (e) {
+        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = '❌ שגיאה בשמירה: ' + e.message;
+    }
+}
+
+async function saveBrandLabels() {
+    const statusEl = document.getElementById('modelEditorStatus');
+    const newLabels = {
+        GREE: document.getElementById('brandLabelGREE').value.trim() || 'GREE',
+        PRIME: document.getElementById('brandLabelPRIME').value.trim() || 'PRIME',
+        TOSHIBA: document.getElementById('brandLabelTOSHIBA').value.trim() || 'TOSHIBA'
+    };
+    try {
+        await db.collection('gasCalcConfig').doc('BRAND_LABELS').set({ data: newLabels, updatedAt: new Date().toISOString() });
+        applyGasTableData('BRAND_LABELS', newLabels);
+        statusEl.style.color = '#1a7f37';
+        statusEl.textContent = '✅ שמות המותגים נשמרו.';
+    } catch (e) {
+        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = '❌ שגיאה: ' + e.message;
+    }
+}
+
+// ===========================
+// FRIENDLY PIPE FACTOR EDITOR — גרם/מטר לפי מותג
+// ===========================
+const PIPE_DIAMETERS = ["1/4", "3/8", "1/2", "5/8", "3/4", "7/8", "1", "1 1/8"];
+
+function pipeDiamInputId(d) { return 'pf-' + d.replace(/[\/ ]/g, '_'); }
+
+function renderPipeFactorEditor() {
+    const brand = document.getElementById('pipeFactorBrand').value;
+    const factors = pipeFactors[brand] || {};
+    let html = '<div style="display:flex;flex-direction:column;gap:6px;">';
+    PIPE_DIAMETERS.forEach(d => {
+        const val = factors[d] !== undefined ? factors[d] : '';
+        html += '<div style="display:flex;align-items:center;gap:10px;">';
+        html += '<span style="width:60px;font-size:13px;color:var(--text);">' + d + '"</span>';
+        html += '<input type="number" id="' + pipeDiamInputId(d) + '" value="' + val + '" placeholder="לא קיים" style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--border);">';
+        html += '<span style="font-size:11px;color:var(--text3);white-space:nowrap;">גרם/מטר</span>';
+        html += '</div>';
+    });
+    html += '</div>';
+    document.getElementById('pipeFactorTable').innerHTML = html;
+}
+
+async function savePipeFactors() {
+    const brand = document.getElementById('pipeFactorBrand').value;
+    const statusEl = document.getElementById('pipeFactorStatus');
+    const newBrandFactors = {};
+    PIPE_DIAMETERS.forEach(d => {
+        const val = document.getElementById(pipeDiamInputId(d)).value.trim();
+        if (val !== '') newBrandFactors[d] = Number(val);
+    });
+    try {
+        const newPipeFactors = Object.assign({}, pipeFactors, { [brand]: newBrandFactors });
+        await db.collection('gasCalcConfig').doc('pipeFactors').set({ data: newPipeFactors, updatedAt: new Date().toISOString() });
+        applyGasTableData('pipeFactors', newPipeFactors);
+        statusEl.style.color = '#1a7f37';
+        statusEl.textContent = '✅ נשמר. השינוי כבר בתוקף במחשבון.';
+    } catch (e) {
+        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = '❌ שגיאה: ' + e.message;
     }
 }
 
@@ -3090,6 +3429,7 @@ function removeSMMSUUnit(idx) {
 // INIT — האתר פתוח לכולם; טוענים נתוני מחשבון גז מהענן מיד (ללא תלות בהתחברות)
 // ===========================
 renderSmmsuSystemSelect();
+applyBrandAndSystypeLabels();
 loadAllGasCalcOverrides();
 
 </script>
