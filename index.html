@@ -712,7 +712,11 @@
             color: var(--text3);
             margin: 14px 0 8px;
         }
-    </style>
+    
+/* ADMIN EDITOR */
+#adminEditBtn{display:none;position:fixed;left:14px;bottom:16px;z-index:800;border:0;border-radius:24px;padding:12px 16px;background:#6d28d9;color:white;font:800 14px Assistant;box-shadow:0 8px 24px #0005;cursor:pointer}#adminEditBtn.show{display:block}
+#adminEditor{display:none;position:fixed;inset:0;z-index:999;background:#0009;padding:12px;overflow:auto}#adminEditor.open{display:block}.ae-panel{max-width:680px;margin:12px auto;background:var(--surface);color:var(--text);border-radius:16px;overflow:hidden}.ae-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}.ae-body{padding:16px}.ae-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ae-field{margin-bottom:10px}.ae-field label{display:block;font-size:12px;font-weight:800;color:var(--text2);margin-bottom:4px}.ae-field input,.ae-field select,.ae-field textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-family:Assistant}.ae-field textarea{min-height:180px;direction:ltr;text-align:left}.ae-tabs{display:flex;gap:5px;overflow:auto;padding:8px;background:var(--surface2)}.ae-tab,.ae-btn{border:1px solid var(--border);border-radius:8px;padding:9px 12px;background:var(--surface);color:var(--text);font:700 13px Assistant;cursor:pointer}.ae-tab.active,.ae-btn.primary{background:#6d28d9;color:#fff;border-color:#6d28d9}.ae-pane{display:none}.ae-pane.active{display:block}.ae-note{font-size:12px;line-height:1.5;padding:9px;border-radius:8px;background:#ffc10722;border:1px solid #ffc10766;margin-bottom:10px}.ae-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tech-editing .tech-section{outline:2px dashed #8b5cf6}.tech-editing .tech-section-body{display:block}.tech-editing [contenteditable=true]{cursor:text}.tech-tools{display:none;gap:8px;margin-bottom:10px}.tech-editing .tech-tools{display:flex}@media(max-width:520px){.ae-grid{grid-template-columns:1fr}#adminEditor{padding:0}.ae-panel{margin:0}}
+</style>
 </head>
 <body>
 
@@ -1601,12 +1605,19 @@ window.addEventListener('DOMContentLoaded', () => setLang(currentLang));
 // TECHNICIAN PORTAL
 // ===========================
 const TECH_PASSWORD = 'Tadiran2026';
+const ADMIN_PASSWORD = 'Maor2026';
 
 function techLogin() {
     const pw = document.getElementById('techPassword').value;
-    if (pw === TECH_PASSWORD) {
+    if (pw === TECH_PASSWORD || pw === ADMIN_PASSWORD) {
         localStorage.setItem('vrf-tech-auth', '1');
+        if (pw === ADMIN_PASSWORD) {
+            localStorage.setItem('vrf-admin-auth', '1');
+        } else {
+            localStorage.removeItem('vrf-admin-auth');
+        }
         showTechPortal();
+        if (typeof aeAuth === 'function') aeAuth();
     } else {
         document.getElementById('techError').style.display = 'block';
         document.getElementById('techPassword').value = '';
@@ -1615,6 +1626,7 @@ function techLogin() {
 
 function techLogout() {
     localStorage.removeItem('vrf-tech-auth');
+    localStorage.removeItem('vrf-admin-auth');
     document.getElementById('techPortal').classList.add('hidden');
     document.getElementById('techLock').style.display = 'block';
     document.getElementById('techPassword').value = '';
@@ -2561,6 +2573,30 @@ function removeSMMSUUnit(idx) {
 }
 
 
+</script>
+
+<button id="adminEditBtn" type="button" onclick="aeOpen()">✏️ עריכת האתר</button><div id="adminEditor"><div class="ae-panel"><div class="ae-head"><b>✏️ עורך האתר</b><button class="ae-btn" onclick="aeClose()">✕</button></div><div class="ae-tabs"><button class="ae-tab active" onclick="aeTab('general',this)">כללי</button><button class="ae-tab" onclick="aeTab('gas',this)">תוספות גז</button><button class="ae-tab" onclick="aeTab('tech',this)">טכנאים</button><button class="ae-tab" onclick="aeTab('backup',this)">גיבוי</button></div><div class="ae-body"><div id="ae-general" class="ae-pane active"><div class="ae-note">העריכה נפתחת רק לאחר כניסה לאזור הטכנאים עם הסיסמה.</div><div class="ae-grid"><div class="ae-field"><label>GREE</label><input id="aeNameGREE"></div><div class="ae-field"><label>PRIME</label><input id="aeNamePRIME"></div><div class="ae-field"><label>TOSHIBA</label><input id="aeNameTOSHIBA"></div></div><button class="ae-btn primary" onclick="aeSaveNames()">שמור שמות</button></div><div id="ae-gas" class="ae-pane"><div class="ae-grid"><div class="ae-field"><label>מותג</label><select id="aeBrand" onchange="aeLoadGas()"><option>GREE</option><option>PRIME</option><option>TOSHIBA</option></select></div><div class="ae-field"><label>סוג מערכת</label><select id="aeType" onchange="aeLoadGas()"><option>MINI</option><option>MODULAR</option></select></div></div><div class="ae-field"><label>דגמים, כל דגם בשורה</label><textarea id="aeModelList"></textarea></div><div class="ae-field"><label>אורכי צנרת ומקדמים בגרם למטר</label><textarea id="aeFactorList"></textarea></div><div class="ae-field"><label>מאיידים, מעבים ותוספות גז מתקדמות</label><textarea id="aeAdvanced"></textarea></div><button class="ae-btn primary" onclick="aeSaveGas()">שמור תוספות גז</button></div><div id="ae-tech" class="ae-pane"><div class="ae-note">לאחר הפעלת העריכה, בחר מותג באזור הטכנאים ולחץ ישירות על כותרת או טקסט כדי לשנות אותו. אפשר גם להוסיף מקטע חדש.</div><button class="ae-btn primary" onclick="aeStartTech()">הפעל עריכה באזור הטכנאים</button></div><div id="ae-backup" class="ae-pane"><div class="ae-note">השינויים נשמרים בדפדפן. כדאי להוריד גיבוי אחרי כל שינוי משמעותי.</div><div class="ae-actions"><button class="ae-btn primary" onclick="aeBackup()">⬇ הורד גיבוי</button><label class="ae-btn">⬆ טען גיבוי<input type="file" accept="application/json" hidden onchange="aeImport(this)"></label></div></div></div></div></div>
+
+<script>
+const AE_KEY='vrf-editor-v2';
+const AE_DEFAULT_MODELS={GREE:{MINI:['80','100','120','140','160','224','280','335'],MODULAR:Object.keys(greeFullData)},PRIME:{MINI:['PRIME 032','PRIME 04','PRIME 05','PRIME 06','PRIME 07','PRIME 08','PRIME 10','PRIME 12'],MODULAR:['MODULAR 08','MODULAR 10','MODULAR 12','MODULAR 14','MODULAR 16','MODULAR 18','MODULAR 20','MODULAR 22','MODULAR 24','MODULAR 26']},TOSHIBA:{MINI:['MCY-MHP0404','MCY-MHP0504','MCY-MHP0604','MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'],MODULAR:['SMMSU']}};
+function aeGet(){try{return JSON.parse(localStorage.getItem(AE_KEY)||'{}')}catch(e){return{}}}function aeSet(d){localStorage.setItem(AE_KEY,JSON.stringify(d));aeApply();alert('השינויים נשמרו')}
+function aeAuth(){document.getElementById('adminEditBtn')?.classList.toggle('show',localStorage.getItem('vrf-admin-auth')==='1')}
+const aeOldShow=showTechPortal;showTechPortal=function(){aeOldShow();aeAuth()};const aeOldLogout=techLogout;techLogout=function(){aeStopTech(false);aeOldLogout();aeAuth()};
+function aeModels(b,t){return aeGet().models?.[b+'_'+t]||AE_DEFAULT_MODELS[b][t]||[]}
+const aeOldInit=initModels;initModels=function(){if(!currentBrand)return;const type=document.getElementById('sysType').value,list=document.getElementById('modelList'),label=document.getElementById('modelLabel'),count=currentBrand==='GREE'&&type==='MODULAR'?4:1;list.innerHTML='';label.textContent=count>1?'בחר עד 4 מעבים:':'בחר דגם:';for(let i=1;i<=count;i++){const x=document.createElement('select');x.id='modelSelect'+i;x.style.marginBottom='8px';x.onchange=()=>{toggleUI();calculate()};x.innerHTML='<option value="">'+(count>1?'— מעבה '+i+' —':'— בחר דגם —')+'</option>';aeModels(currentBrand,type).forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=currentBrand==='GREE'?'GMV-'+m:m;x.appendChild(o)});list.appendChild(x)}toggleUI();calculate()};
+function aeApply(){const d=aeGet(),n=d.names||{};[['cardGree','GREE'],['cardPrime','PRIME'],['cardToshiba','TOSHIBA']].forEach(([id,k])=>{const e=document.getElementById(id);if(e)e.textContent=n[k]||k});document.querySelectorAll('.tech-brand-btn').forEach((e,i)=>e.textContent=n[['GREE','PRIME','TOSHIBA'][i]]||['GREE','PRIME','TOSHIBA'][i]);if(d.factors)Object.keys(d.factors).forEach(b=>Object.assign(pipeFactors[b],d.factors[b]));if(d.advanced){if(d.advanced.greeFullData){Object.keys(greeFullData).forEach(k=>delete greeFullData[k]);Object.assign(greeFullData,d.advanced.greeFullData)}[['TOSHIBA_TABLE2',TOSHIBA_TABLE2],['TOSHIBA_MODEL_FIXED',TOSHIBA_MODEL_FIXED],['TOSHIBA_MODEL_BONUS',TOSHIBA_MODEL_BONUS],['SMMSU_SYSTEM_BONUS',SMMSU_SYSTEM_BONUS],['SMMSU_STANDARD',SMMSU_STANDARD],['SMMSU_HE',SMMSU_HE],['SMMSU_DX',SMMSU_DX],['SMMSU_HOT_WATER',SMMSU_HOT_WATER]].forEach(([k,o])=>{if(d.advanced[k]){Object.keys(o).forEach(x=>delete o[x]);Object.assign(o,d.advanced[k])}})}if(d.tech)Object.keys(d.tech).forEach(b=>{const e=document.getElementById('tech-'+b.toLowerCase());if(e)e.innerHTML=d.tech[b]});aeAddTechTools()}
+function aeOpen(){document.getElementById('adminEditor').classList.add('open');aeFill()}function aeClose(){document.getElementById('adminEditor').classList.remove('open')}function aeTab(id,b){document.querySelectorAll('.ae-pane').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.ae-tab').forEach(x=>x.classList.remove('active'));document.getElementById('ae-'+id).classList.add('active');b.classList.add('active');if(id==='gas')aeLoadGas()}
+function aeFill(){const d=aeGet(),n=d.names||{};['GREE','PRIME','TOSHIBA'].forEach(k=>document.getElementById('aeName'+k).value=n[k]||k);aeLoadGas()}
+function aeSaveNames(){const d=aeGet();d.names={GREE:aeNameGREE.value.trim()||'GREE',PRIME:aeNamePRIME.value.trim()||'PRIME',TOSHIBA:aeNameTOSHIBA.value.trim()||'TOSHIBA'};aeSet(d)}
+function aeLoadGas(){const b=aeBrand.value,t=aeType.value,d=aeGet();aeModelList.value=aeModels(b,t).join('\n');aeFactorList.value=JSON.stringify(d.factors?.[b]||pipeFactors[b],null,2);let adv={};if(b==='GREE')adv={greeFullData};else if(b==='TOSHIBA')adv={TOSHIBA_TABLE2,TOSHIBA_MODEL_FIXED,TOSHIBA_MODEL_BONUS,SMMSU_SYSTEM_BONUS,SMMSU_STANDARD,SMMSU_HE,SMMSU_DX,SMMSU_HOT_WATER};aeAdvanced.value=JSON.stringify(d.advanced?Object.fromEntries(Object.entries(d.advanced).filter(([k])=>Object.keys(adv).includes(k))):adv,null,2)}
+function aeSaveGas(){try{const d=aeGet(),b=aeBrand.value,t=aeType.value;d.models=d.models||{};d.models[b+'_'+t]=aeModelList.value.split(/\n/).map(x=>x.trim()).filter(Boolean);d.factors=d.factors||{};d.factors[b]=JSON.parse(aeFactorList.value);const a=JSON.parse(aeAdvanced.value||'{}');d.advanced=Object.assign(d.advanced||{},a);aeSet(d);initModels()}catch(e){alert('יש שגיאה בנתוני JSON. לא נשמר דבר.')}}
+function aeAddTechTools(){['GREE','PRIME','TOSHIBA'].forEach(b=>{const r=document.getElementById('tech-'+b.toLowerCase());if(!r||r.querySelector('.tech-tools'))return;const t=document.createElement('div');t.className='tech-tools';t.innerHTML='<button class="ae-btn primary" onclick="aeAddSection(\''+b+'\')">+ הוסף מקטע</button><button class="ae-btn" onclick="aeStopTech(true)">שמור וסיים</button>';r.prepend(t)})}
+function aeStartTech(){aeAddTechTools();document.getElementById('techPortal').classList.add('tech-editing');document.querySelectorAll('#techPortal .tech-section-header span:first-child,#techPortal .tech-section-body').forEach(e=>e.contentEditable='true');aeClose();switchTab('tech',document.querySelector('[data-i18n-tab=tech]'))}
+function aeAddSection(b){const r=document.getElementById('tech-'+b.toLowerCase()),s=document.createElement('div');s.className='tech-section';s.innerHTML='<div class="tech-section-header"><span contenteditable="true">כותרת חדשה</span><span>▴</span></div><div class="tech-section-body open" contenteditable="true"><div class="tech-param"><span class="tech-param-code">קוד</span><span class="tech-param-text">תיאור חדש</span></div></div>';r.appendChild(s);s.scrollIntoView({behavior:'smooth'})}
+function aeStopTech(save){if(save){const d=aeGet();d.tech={};['GREE','PRIME','TOSHIBA'].forEach(b=>{const r=document.getElementById('tech-'+b.toLowerCase()).cloneNode(true);r.querySelectorAll('.tech-tools').forEach(x=>x.remove());r.querySelectorAll('[contenteditable]').forEach(x=>x.removeAttribute('contenteditable'));d.tech[b]=r.innerHTML});localStorage.setItem(AE_KEY,JSON.stringify(d));alert('תוכן הטכנאים נשמר')}document.getElementById('techPortal')?.classList.remove('tech-editing');document.querySelectorAll('#techPortal [contenteditable]').forEach(x=>x.removeAttribute('contenteditable'))}
+function aeBackup(){const a=document.createElement('a'),blob=new Blob([JSON.stringify(aeGet(),null,2)],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download='vrf-editor-backup.json';a.click();URL.revokeObjectURL(a.href)}function aeImport(i){const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{JSON.parse(r.result);localStorage.setItem(AE_KEY,r.result);aeApply();aeFill();alert('הגיבוי שוחזר')}catch(e){alert('קובץ לא תקין')}};r.readAsText(f)}
+window.addEventListener('DOMContentLoaded',()=>{aeApply();aeAuth();aeAddTechTools()});
 </script>
 </body>
 </html>
