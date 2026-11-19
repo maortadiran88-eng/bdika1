@@ -716,36 +716,6 @@
 </head>
 <body>
 
-<!-- ==============================
-     ADMIN MODAL — add/edit tech item
-================================= -->
-<div id="paramModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:var(--surface); max-width:420px; width:100%; border-radius:var(--radius,12px); padding:20px;">
-    <h3 style="margin-bottom:14px;font-size:15px;color:var(--text);" id="paramModalTitle">הוספת פריט</h3>
-    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">סוג</label>
-    <select id="paramModalType" onchange="paramModalTypeChanged()" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;">
-        <option value="param">פרמטר (קוד + טקסט)</option>
-        <option value="note">הערה</option>
-        <option value="subtitle">כותרת משנה</option>
-    </select>
-    <div id="paramModalCodeWrap">
-        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">קוד</label>
-        <input id="paramModalCode" type="text" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid var(--border);">
-    </div>
-    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">טקסט (ניתן להשתמש ב-&lt;strong&gt; להדגשה)</label>
-    <textarea id="paramModalText" rows="3" style="width:100%;margin-bottom:14px;padding:8px;border-radius:8px;border:1px solid var(--border);"></textarea>
-    <div style="display:flex;gap:8px;">
-        <button class="btn-login" style="flex:1;" onclick="saveParamModal()">שמור</button>
-        <button class="btn-logout" style="flex:1;" onclick="closeParamModal()">ביטול</button>
-    </div>
-  </div>
-</div>
-
-<!-- ==============================
-     MAIN APP — open to everyone; tech & videos have their own locks
-================================= -->
-<div id="appRoot">
-
 <!-- TOP NAV -->
 <nav class="top-nav">
     <div class="nav-logo">
@@ -753,8 +723,6 @@
         <span class="logo-text">Tadiran Tools</span>
     </div>
     <div class="nav-actions">
-        <span id="roleBadge" style="font-size:11px; padding:5px 10px; border-radius:8px; background:var(--surface2); color:var(--text2); font-weight:700;"></span>
-        <button class="btn-logout hidden" id="logoutBtn" onclick="doLogout()">יציאה</button>
         <div class="lang-selector">
             <button class="lang-btn active" onclick="setLang('he')">עב</button>
             <button class="lang-btn" onclick="setLang('en')">EN</button>
@@ -770,7 +738,6 @@
     <button class="tab-btn" onclick="switchTab('conv', this)" data-i18n-tab="conv">🔄 המרות</button>
     <button class="tab-btn" onclick="switchTab('tech', this)" data-i18n-tab="tech">🔧 טכנאים</button>
     <button class="tab-btn" onclick="switchTab('videos', this)" data-i18n-tab="videos">🎥 סרטוני הדרכה</button>
-    <button class="tab-btn hidden" id="adminTabBtn" onclick="switchTab('admin', this)" data-i18n-tab="admin">⚙️ ניהול</button>
     <button class="tab-btn" onclick="switchTab('about', this)" data-i18n-tab="about">ℹ️ אודות</button>
 </div>
 
@@ -801,8 +768,8 @@
         <div class="input-wrap">
             <div class="section-label" id="sectionSysType">סוג מערכת</div>
             <select id="sysType" onchange="initModels()">
-                <option value="MINI" id="sysTypeOptMini">MINI — מיני VRF</option>
-                <option value="MODULAR" id="sysTypeOptModular">MODULAR — מודולרי</option>
+                <option value="MINI">MINI — מיני VRF</option>
+                <option value="MODULAR">MODULAR — מודולרי</option>
             </select>
         </div>
 
@@ -860,7 +827,77 @@
             <!-- System HP -->
             <div class="input-wrap">
                 <div class="pipe-section-label">בחר קומבינציית מעבים</div>
-                <select id="smmsuSystem" onchange="smmsuSystemChanged();calculate()"></select>
+                <select id="smmsuSystem" onchange="smmsuSystemChanged();calculate()">
+                    <option value="">— בחר עוצמת מערכת —</option>
+                    <option value="manual">➕ שילוב ידני — הוסף מעבים בנפרד</option>
+                    <optgroup label="יחידה בודדת">
+                        <option value="8">8HP — מעבה 8HP בודד</option>
+                        <option value="10">10HP — מעבה 10HP בודד</option>
+                        <option value="12">12HP — מעבה 12HP בודד</option>
+                        <option value="14">14HP — מעבה 14HP בודד</option>
+                        <option value="16">16HP — מעבה 16HP בודד</option>
+                        <option value="18">18HP — מעבה 18HP בודד</option>
+                        <option value="20">20HP — מעבה 20HP בודד</option>
+                        <option value="22">22HP — מעבה 22HP בודד</option>
+                        <option value="24">24HP — מעבה 24HP בודד</option>
+                    </optgroup>
+                    <optgroup label="שתי יחידות">
+                        <option value="26">26HP — 14+12</option>
+                        <option value="28">28HP — 14+14</option>
+                        <option value="30">30HP — 18+12</option>
+                        <option value="32">32HP — 20+12</option>
+                        <option value="34">34HP — 20+14</option>
+                        <option value="36">36HP — 24+12</option>
+                        <option value="38">38HP — 24+14</option>
+                        <option value="40">40HP — 20+20</option>
+                        <option value="42">42HP — 24+18</option>
+                        <option value="44">44HP — 24+20</option>
+                        <option value="46">46HP — 24+22</option>
+                        <option value="48">48HP — 24+24</option>
+                    </optgroup>
+                    <optgroup label="שלוש יחידות">
+                        <option value="50">50HP — 24+14+12</option>
+                        <option value="52">52HP — 24+14+14</option>
+                        <option value="54">54HP — 20+20+14</option>
+                        <option value="56">56HP — 24+20+12</option>
+                        <option value="58">58HP — 24+20+14</option>
+                        <option value="60">60HP — 24+24+12</option>
+                        <option value="62">62HP — 24+24+14</option>
+                        <option value="64">64HP — 24+24+20</option>
+                        <option value="66">66HP — 24+22+20</option>
+                        <option value="68">68HP — 24+24+20</option>
+                        <option value="70">70HP — 24+24+22</option>
+                        <option value="72">72HP — 24+24+24</option>
+                    </optgroup>
+                    <optgroup label="ארבע יחידות">
+                        <option value="74">74HP — 24+24+14+12</option>
+                        <option value="76">76HP — 24+24+14+14</option>
+                        <option value="78">78HP — 24+24+20+14</option>
+                        <option value="80">80HP — 24+24+20+12</option>
+                        <option value="82">82HP — 24+24+20+14</option>
+                        <option value="84">84HP — 24+24+24+12</option>
+                        <option value="86">86HP — 24+24+24+14</option>
+                        <option value="88">88HP — 24+24+20+20</option>
+                        <option value="90">90HP — 24+24+22+20</option>
+                        <option value="92">92HP — 24+24+24+20</option>
+                        <option value="94">94HP — 24+24+24+22</option>
+                        <option value="96">96HP — 24+24+24+24</option>
+                    </optgroup>
+                    <optgroup label="חמש יחידות">
+                        <option value="98">98HP — 24+24+24+14+12</option>
+                        <option value="100">100HP — 24+24+24+14+14</option>
+                        <option value="102">102HP — 24+24+24+20+14</option>
+                        <option value="104">104HP — 24+24+24+20+12</option>
+                        <option value="106">106HP — 24+24+24+20+14</option>
+                        <option value="108">108HP — 24+24+24+24+12</option>
+                        <option value="110">110HP — 24+24+24+24+14</option>
+                        <option value="112">112HP — 24+24+24+24+20</option>
+                        <option value="114">114HP — 24+24+24+22+20</option>
+                        <option value="116">116HP — 24+24+24+24+20</option>
+                        <option value="118">118HP — 24+24+24+24+22</option>
+                        <option value="120">120HP — 24+24+24+24+24</option>
+                    </optgroup>
+                </select>
                 <div id="smmsuSystemBonus" style="font-size:12px;color:var(--text3);margin-top:4px;text-align:left;"></div>
             </div>
 
@@ -1015,16 +1052,301 @@
             <div class="tech-brand-btn" onclick="selectTechBrand('TOSHIBA',this)">TOSHIBA</div>
         </div>
 
-        <!-- Dynamic tech content, rendered from Firestore -->
-        <div id="techLoadingMsg" style="text-align:center;padding:30px;color:var(--text3);font-size:13px;">⏳ טוען נתונים...</div>
-        <div id="tech-gree" class="hidden"></div>
-        <div id="tech-prime" class="hidden"></div>
-        <div id="tech-toshiba" class="hidden"></div>
+        <!-- GREE CONTENT -->
+        <div id="tech-gree" class="hidden">
 
-        <div id="techAddCategoryWrap" class="hidden" style="margin-top:20px;text-align:center;">
-            <button class="btn-login" style="width:auto;padding:10px 24px;display:inline-block;" onclick="addTechCategory()">➕ הוסף קטגוריה</button>
+            <!-- עדכון פרמטרים -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>⚙️ עדכון פרמטרים — טרמוסטט</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-note">כניסה לעדכון פרמטרים: לחיצה ארוכה על <strong>FUNCTION</strong> ← לחיצה <strong>3 פעמים</strong> על MODE ← שוב לחיצה ארוכה על <strong>FUNCTION</strong></div>
+                    <div style="height:10px;"></div>
+                    <div class="tech-param"><span class="tech-param-code">P10</span><span class="tech-param-text">קביעת יחידת מאסטר — להעביר ל-<strong>01</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">P11</span><span class="tech-param-text">ביטול שידור העינית בטרמוסטט</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P13</span><span class="tech-param-text">2 טרמוסטטים לאותו מאייד — 01 = Master, 02 = Slave</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P14</span><span class="tech-param-text">מספר מאיידים המחוברים לטרמוסטט אחד (00–16)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P15</span><span class="tech-param-text">הגדרת זיכרון חזרת חשמל (Auto Restart)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P16</span><span class="tech-param-text">מעבר בין יחידות מידה — צלזיוס / פרנהייט</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P20</span><span class="tech-param-text">מיקום רגש אוויר חוזר (ערכים 01–04)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P21</span><span class="tech-param-text">כיול רגש אוויר חוזר — <strong>קירור</strong> (טווח: −15 עד +15)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P22</span><span class="tech-param-text">כיול רגש אוויר חוזר — <strong>חימום</strong> (טווח: −15 עד +15)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P30</span><span class="tech-param-text">שינוי לחץ סטטי למאייד (01–09 בהתאם לדגם)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P31</span><span class="tech-param-text">גובה תקרה — 00 = רגיל, 01 = תקרה גבוהה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P33</span><span class="tech-param-text">הגדרת טיימרים בטרמוסטט</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P42</span><span class="tech-param-text">שינוי כתובת מאייד — לחץ MODE, השתמש בחיצים לבחירת כתובת</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P48</span><span class="tech-param-text">פתיחת שסתום בחימום במאייד שאינו פעיל</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P50</span><span class="tech-param-text">טמפרטורת יציאת אוויר צח — <strong>קירור</strong> (16–30°C)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">P51</span><span class="tech-param-text">טמפרטורת יציאת אוויר צח — <strong>חימום</strong> (16–30°C)</span></div>
+                </div>
+            </div>
+
+            <!-- בדיקת פרמטרים -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🔍 בדיקת פרמטרים — טרמוסטט</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-note">כניסה למצב צפייה: לחיצה ארוכה על <strong>FUNCTION</strong> (יופיע C00) ← לחיצה <strong>3 פעמים</strong> על MODE</div>
+                    <div style="height:10px;"></div>
+                    <div class="tech-param"><span class="tech-param-code">C00</span><span class="tech-param-text">כתובת המאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C02</span><span class="tech-param-text">גודל (הספק) המאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C03</span><span class="tech-param-text">כמות מאיידים מחוברים במערכת</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C07</span><span class="tech-param-text">טמפרטורת אוויר חוזר (מהמאייד או מהטרמוסטט)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C12</span><span class="tech-param-text">טמפרטורת סביבה של המעבה (יחידת החוץ)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C14</span><span class="tech-param-text">טמפרטורת כניסה לסוללת מאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C15</span><span class="tech-param-text">טמפרטורת סוף סוללת מאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C16</span><span class="tech-param-text">מצב פתיחת שסתום התפשטות PMV (0–20)</span></div>
+                </div>
+            </div>
+
+            <!-- הגדרות מעבה -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🏭 הגדרות מעבה</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-param"><span class="tech-param-code">A6</span><span class="tech-param-text">ביטול מצב קירור / חימום</span></div>
+                    <div class="tech-param"><span class="tech-param-code">A7</span><span class="tech-param-text">הגדרת מצב שקט של המעבה (00–12)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">A8</span><span class="tech-param-text">פתיחת שסתומים</span></div>
+                    <div class="tech-param"><span class="tech-param-code">N5</span><span class="tech-param-text">סידור כתובות דרך מעגל גז 1 — לשימוש כאשר יש כמה מעגלים מחוברים לבקר מרכזי</span></div>
+                    <div class="tech-param"><span class="tech-param-code">C8</span><span class="tech-param-text">ביטול מדחס — 00 = לא מבוטל. <strong>ניתן לבטל רק כאשר יש מודול בודד</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">C9</span><span class="tech-param-text">ביטול מנוע מעבה — 00 = לא מבוטל. <strong>ניתן לבטל רק כאשר יש מודול בודד</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">CA</span><span class="tech-param-text">ביטול מעבה — 00 = לא מבוטל</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1G</span><span class="tech-param-text">הגדלת לחץ סטטי במעבה (01–04)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">NL</span><span class="tech-param-text">הגדרת יעד טמפרטורה בלחץ הנמוך</span></div>
+                    <div class="tech-param"><span class="tech-param-code">NH</span><span class="tech-param-text">הגדרת יעד טמפרטורה בלחץ הגבוה</span></div>
+                </div>
+            </div>
         </div>
 
+        <!-- PRIME CONTENT -->
+        <div id="tech-prime" class="hidden">
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🔍 בדיקת פרמטרים — טרמוסטט</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-note">כניסה: לחיצה על <strong>MENU</strong> למשך <strong>5 שניות</strong></div>
+                    <div style="height:10px;"></div>
+                    <div class="tech-param"><span class="tech-param-code">A</span><span class="tech-param-text">חיישן טמפרטורת פנים — <strong>Tai</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">B</span><span class="tech-param-text">חיישן טמפרטורת פנים — <strong>Tc1</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">C</span><span class="tech-param-text">חיישן טמפרטורת פנים — <strong>Tc2</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">D</span><span class="tech-param-text">מצב פתיחת שסתום PMV של יחידת פנים</span></div>
+                    <div class="tech-param"><span class="tech-param-code">E</span><span class="tech-param-text">כתובת (ADDRESS) של יחידת הפנים</span></div>
+                    <div class="tech-param"><span class="tech-param-code">F</span><span class="tech-param-text">כתובת ראשית (CENTRAL ADDRESS) של יחידת הפנים</span></div>
+                </div>
+            </div>
+
+            <!-- הגדרות דרך שלט -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🎮 הגדרות דרך שלט</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+
+                    <!-- סגירת שסתום -->
+                    <div class="tech-sub-title">1. סגירת שסתום במאייד עילי</div>
+                    <div class="tech-note" style="background:rgba(255,193,7,0.18);border-color:rgba(255,193,7,0.6);font-size:13px;">
+                        ⚠️ במידה ורוצים לסגור שסתום במאייד במצב חימום
+                    </div>
+                    <div style="height:8px;"></div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+                            <span style="font-size:14px;color:var(--text);">הדלק את המאייד במצב <strong>חימום</strong> על <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">16 מעלות</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+                            <span style="font-size:14px;color:var(--text);">לחץ על כפתור <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">SLEEP</strong> — <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">3 פעמים</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+                            <span style="font-size:14px;color:var(--text);">המזגן <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">יצפצף</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
+                            <span style="font-size:14px;color:var(--text);">עלה ל-<strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">17 מעלות</strong> ואז <strong>כבה</strong> את המזגן</span>
+                        </div>
+                    </div>
+
+                    <div style="height:16px;"></div>
+
+                    <!-- חזרה מהפסקת חשמל -->
+                    <div class="tech-sub-title">2. חזרה מהפסקת חשמל (Auto Restart)</div>
+                    <div class="tech-note">בטרמוסטט — לחץ על <strong>MENU</strong> | בשלט — לחץ על <strong>SLEEP</strong><br>יש ללחוץ <strong>10 פעמים</strong> בהפרש של <strong>5 שניות</strong> בין כל לחיצה</div>
+                    <div style="height:8px;"></div>
+                    <div class="tech-param">
+                        <span class="tech-param-code">🔔🔔</span>
+                        <span class="tech-param-text"><strong>2 צפצופים</strong> — Auto Restart <strong>מבוטל</strong></span>
+                    </div>
+                    <div class="tech-param">
+                        <span class="tech-param-code">🔔🔔🔔🔔</span>
+                        <span class="tech-param-text"><strong>4 צפצופים</strong> — Auto Restart <strong>פעיל</strong> (ידלק בחזרת חשמל)</span>
+                    </div>
+
+                    <div style="height:16px;"></div>
+
+                    <!-- צפייה באוויר חוזר -->
+                    <div class="tech-sub-title">3. צפייה באוויר חוזר במאייד עילי</div>
+                    <div class="tech-note">על מנת לראות את האוויר חוזר במאייד עילי יש ללחוץ <strong>10 פעמים</strong> על כפתור <strong>LIGHT</strong></div>
+
+                    <div style="height:16px;"></div>
+
+                    <!-- זיוף רגש אוויר חוזר בחימום -->
+                    <div class="tech-sub-title">4. זיוף רגש אוויר חוזר בחימום — מאייד עילי</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+                            <span style="font-size:14px;color:var(--text);">הדלק במצב <strong>חימום</strong> על <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">30 מעלות</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+                            <span style="font-size:14px;color:var(--text);">לחץ על כפתור <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">SLEEP</strong> — <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">7 פעמים</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+                            <span style="font-size:14px;color:var(--text);">המזגן <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">יצפצף</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
+                            <span style="font-size:14px;color:var(--text);">הורד טמפרטורה ואשר <strong>בכיבוי</strong> המזגן</span>
+                        </div>
+                    </div>
+                    <div class="tech-note" style="margin-top:8px;">💡 כל <strong>מעלה</strong> שמורידים = <strong>מעלה</strong> זיוף. לדוגמה: הורדה של 2 מעלות = זיוף של 2 מעלות</div>
+
+                    <div style="height:16px;"></div>
+
+                    <!-- זיוף רגש אוויר חוזר בקירור -->
+                    <div class="tech-sub-title">5. זיוף רגש אוויר חוזר בקירור — מאייד עילי</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+                            <span style="font-size:14px;color:var(--text);">הדלק במצב <strong>קירור</strong> על <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">23 מעלות</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+                            <span style="font-size:14px;color:var(--text);">לחץ על כפתור <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">SLEEP</strong> — <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">7 פעמים</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+                            <span style="font-size:14px;color:var(--text);">המזגן <strong style="background:rgba(255,193,7,0.3);padding:1px 4px;border-radius:3px;">יצפצף</strong></span>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+                            <span style="background:var(--blue);color:#fff;font-weight:800;font-size:12px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
+                            <span style="font-size:14px;color:var(--text);">הורד או העלה טמפרטורה ואשר <strong>בכיבוי</strong> המזגן</span>
+                        </div>
+                    </div>
+
+                    <div style="height:16px;"></div>
+
+                    <!-- משאבת מים מדגם 7G -->
+                    <div class="tech-sub-title">6. משאבת מים מובנית — מאייד עילי מדגם 7G</div>
+                    <div class="tech-note">מאייד עילי מדגם <strong>7G</strong> מגיע עם משאבת מים מובנית. להפעלה יש ללחוץ <strong>6 פעמים</strong> על כפתור <strong>HEALTH</strong></div>
+                    <div style="height:8px;"></div>
+                    <div class="tech-param">
+                        <span class="tech-param-code">🔔🔔🔔🔔</span>
+                        <span class="tech-param-text"><strong>4 צפצופים</strong> — המשאבה <strong>עובדת</strong></span>
+                    </div>
+                    <div class="tech-param">
+                        <span class="tech-param-code">🔔🔔</span>
+                        <span class="tech-param-text"><strong>2 צפצופים</strong> — המשאבה <strong>כבויה</strong></span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- TOSHIBA CONTENT -->
+        <div id="tech-toshiba" class="hidden">
+
+            <!-- בדיקת פרמטרים מאייד -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🔍 בדיקת פרמטרים — מאייד (טרמוסטט)</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-param"><span class="tech-param-code">00</span><span class="tech-param-text">בדיקת טמפרטורה אחרי תיקון</span></div>
+                    <div class="tech-param"><span class="tech-param-code">01</span><span class="tech-param-text">טמפרטורת טרמוסטט</span></div>
+                    <div class="tech-param"><span class="tech-param-code">02</span><span class="tech-param-text">טמפרטורת אוויר חוזר</span></div>
+                    <div class="tech-param"><span class="tech-param-code">03</span><span class="tech-param-text">טמפרטורת אמצע סוללה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">04</span><span class="tech-param-text">טמפרטורת כניסה לסוללה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">05</span><span class="tech-param-text">טמפרטורת סוף סוללה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">08</span><span class="tech-param-text">מצב פתיחת שסתום (טווח: 3–150)</span></div>
+                </div>
+            </div>
+
+            <!-- בדיקת פרמטרים מעבה -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🌡️ בדיקת פרמטרים — מעבה</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-sub-title">לחץ וטמפרטורה</div>
+                    <div class="tech-param"><span class="tech-param-code">1/1/2</span><span class="tech-param-text">לחץ גבוה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/2/2</span><span class="tech-param-text">לחץ נמוך</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/4/2</span><span class="tech-param-text">רגש דחיסה 1</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/5/2</span><span class="tech-param-text">רגש דחיסה 2</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/7/2</span><span class="tech-param-text">רגש יניקה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/9/2</span><span class="tech-param-text">רגש יניקה 3</span></div>
+                    <div class="tech-sub-title">עבודת מדחס</div>
+                    <div class="tech-param"><span class="tech-param-code">1/5/1</span><span class="tech-param-text">תדר עבודה נוכחי של המדחס</span></div>
+                    <div class="tech-sub-title">נתוני חוץ ושמן</div>
+                    <div class="tech-param"><span class="tech-param-code">1/16/2</span><span class="tech-param-text">רגש אוויר חוזר מעבה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/1-5/5</span><span class="tech-param-text">רגשי שמן TK1–TK5</span></div>
+                    <div class="tech-param"><span class="tech-param-code">1/16/1</span><span class="tech-param-text">בדיקת רמת שמן — 0=תקין, 1/2=רמה נמוכה</span></div>
+                    <div class="tech-sub-title">נתוני מערכת</div>
+                    <div class="tech-param"><span class="tech-param-code">1/4/3</span><span class="tech-param-text">כמות מאיידים במערכת (ניתן לבדוק גם ב-4/1/1)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">6/*/*</span><span class="tech-param-text">כוח סוס של המאיידים</span></div>
+                    <div class="tech-sub-title">בדיקות עבודה (Test Mode)</div>
+                    <div class="tech-param"><span class="tech-param-code">2/1/4</span><span class="tech-param-text">טסט מאווררי מעבה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">2/5/1</span><span class="tech-param-text">טסט קירור</span></div>
+                    <div class="tech-param"><span class="tech-param-code">2/6/1</span><span class="tech-param-text">טסט חימום</span></div>
+                    <div class="tech-sub-title">שסתומים</div>
+                    <div class="tech-param"><span class="tech-param-code">2/1/3</span><span class="tech-param-text">פתיחת שסתומי מעבה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">2/3/1</span><span class="tech-param-text">פתיחת שסתומי מאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">8/*/*</span><span class="tech-param-text">פתיחת שסתום במאיידים</span></div>
+                    <div class="tech-sub-title">חיישני מאיידים (מהמעבה)</div>
+                    <div class="tech-param"><span class="tech-param-code">9/*/*</span><span class="tech-param-text">אוויר חוזר מאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">10/*/*</span><span class="tech-param-text">רגש יציאת אוויר</span></div>
+                    <div class="tech-param"><span class="tech-param-code">11/*/*</span><span class="tech-param-text">אמצע סוללה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">12/*/*</span><span class="tech-param-text">סוף סוללה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">13/*/*</span><span class="tech-param-text">כניסה לסוללה</span></div>
+                    <div class="tech-note">⚠️ חלק מהנתונים לא תקפים למעבה דגם U</div>
+                    <div class="tech-note">💡 <strong>*</strong> = מעבר בין המאיידים באמצעות המפסקים הצהובים</div>
+                    <div class="tech-sub-title">דיאגנוסטיקה</div>
+                    <div class="tech-param"><span class="tech-param-code">1/1/16</span><span class="tech-param-text">בדיקת תקלה אחרונה — דורש לחיצה על SW04 למשך 5 שניות</span></div>
+                </div>
+            </div>
+
+            <!-- DN Code -->
+            <div class="tech-section">
+                <div class="tech-section-header" onclick="toggleTechSection(this)">
+                    <span>🛠️ שינוי DN CODE — הגדרות שירות</span><span>▾</span>
+                </div>
+                <div class="tech-section-body">
+                    <div class="tech-param"><span class="tech-param-code">01</span><span class="tech-param-text">זמן הגדרת ניקוי פילטר</span></div>
+                    <div class="tech-param"><span class="tech-param-code">03</span><span class="tech-param-text">כתובת בקר מרכזי</span></div>
+                    <div class="tech-param"><span class="tech-param-code">04</span><span class="tech-param-text">הגדרת מאייד כ-Master — <strong>רק לאחר שמגדירים במעבה</strong></span></div>
+                    <div class="tech-param"><span class="tech-param-code">06</span><span class="tech-param-text">שינוי רגש בחימום</span></div>
+                    <div class="tech-param"><span class="tech-param-code">10</span><span class="tech-param-text">הגדרת דגם המאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">11</span><span class="tech-param-text">הגדרת גודל (הספק) המאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">12</span><span class="tech-param-text">הגדרת קו גז מעבה</span></div>
+                    <div class="tech-param"><span class="tech-param-code">13</span><span class="tech-param-text">הגדרת כתובת מאייד</span></div>
+                    <div class="tech-param"><span class="tech-param-code">14</span><span class="tech-param-text">שליטת קבוצה — Group Control</span></div>
+                    <div class="tech-param"><span class="tech-param-code">17</span><span class="tech-param-text">שינוי רגש בקירור</span></div>
+                    <div class="tech-param"><span class="tech-param-code">28</span><span class="tech-param-text">חזרה מהפסקת חשמל — Auto Restart</span></div>
+                    <div class="tech-param"><span class="tech-param-code">32</span><span class="tech-param-text">מדידת טמפרטורה מהטרמוסטט — Remote Sensor</span></div>
+                    <div class="tech-param"><span class="tech-param-code">33</span><span class="tech-param-text">יחידות מידה — פרנהייט / צלזיוס</span></div>
+                    <div class="tech-param"><span class="tech-param-code">36</span><span class="tech-param-text">תצוגת הטמפרטורה שהמזגן מרגיש בפועל</span></div>
+                    <div class="tech-param"><span class="tech-param-code">5D</span><span class="tech-param-text">שינוי לחץ סטטי — External Static Pressure (לפי טבלה)</span></div>
+                    <div class="tech-param"><span class="tech-param-code">103</span><span class="tech-param-text">הגדרה לדגמי U ללא טרמוסטט מחובר</span></div>
+                    <div class="tech-param"><span class="tech-param-code">A0</span><span class="tech-param-text">עבודת פן ומשאבת ניקוז בזמן החזרת שמן</span></div>
+                </div>
+            </div>
+
+        </div><!-- end tech-toshiba -->
     </div><!-- end techPortal -->
 </div><!-- end page-tech -->
 
@@ -1062,137 +1384,16 @@
         <div class="conv-card">
             <div class="conv-card-title"><span>🎥</span> <span id="videosTitle">סרטוני הדרכה</span></div>
             <p id="videosSub" style="font-size:12px; color:var(--text3); margin-bottom:16px; line-height:1.6;">
-                בחר קישור לצפייה בפלייליסט סרטוני ההדרכה
+                בחר מותג לצפייה בפלייליסט סרטוני ההדרכה
             </p>
 
-            <div id="videoLinksLoading" style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">⏳ טוען...</div>
-            <div id="videoLinksContainer" class="brand-grid" style="grid-template-columns: repeat(2, 1fr);"></div>
-            <div id="videoArchiveWrap" class="hidden"></div>
-
-            <div id="videoAddWrap" class="hidden" style="margin-top:16px;text-align:center;">
-                <button class="btn-login" style="width:auto;padding:8px 18px;display:inline-block;" onclick="addVideoLink()">➕ הוסף קישור</button>
+            <div class="brand-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="brand-card" onclick="openVideoPlaylist('gree')">GREE</div>
+                <div class="brand-card" onclick="openVideoPlaylist('remote')" id="videoRemoteCard">שליטה מרחוק</div>
+                <div class="brand-card" onclick="openVideoPlaylist('toshiba')">TOSHIBA</div>
+                <div class="brand-card" onclick="openVideoPlaylist('prime')">PRIME</div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- ==============================
-     ADMIN MODAL — add/edit video link
-================================= -->
-<div id="videoLinkModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:var(--surface); max-width:420px; width:100%; border-radius:var(--radius,12px); padding:20px;">
-    <h3 style="margin-bottom:14px;font-size:15px;color:var(--text);" id="videoLinkModalTitle">הוספת קישור</h3>
-    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">שם (יוצג על הכרטיס)</label>
-    <input id="videoLinkModalLabel" type="text" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid var(--border);" placeholder="למשל: GREE">
-    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">קישור YouTube</label>
-    <input id="videoLinkModalUrl" type="text" style="width:100%;margin-bottom:14px;padding:8px;border-radius:8px;border:1px solid var(--border);" placeholder="https://youtube.com/playlist?list=...">
-    <div style="display:flex;gap:8px;">
-        <button class="btn-login" style="flex:1;" onclick="saveVideoLinkModal()">שמור</button>
-        <button class="btn-logout" style="flex:1;" onclick="closeVideoLinkModal()">ביטול</button>
-    </div>
-  </div>
-</div>
-
-<!-- ==============================
-     PAGE: ADMIN — Backup & Restore
-================================= -->
-<div class="page" id="page-admin">
-    <div class="conv-card">
-        <div class="conv-card-title"><span>💾</span> <span>גיבוי ושחזור נתונים</span></div>
-        <p style="font-size:12px; color:var(--text3); margin-bottom:16px; line-height:1.6;">
-            ייצוא ושחזור של הנתונים שכבר מנוהלים בענן (כרגע: פרמטרי הטכנאים). ככל שעוד קטגוריות יעברו ל-Firestore, הן יתווספו אוטומטית לגיבוי.
-        </p>
-
-        <button class="btn-login" style="width:auto;padding:10px 20px;display:inline-block;" onclick="exportBackup()">⬇️ ייצוא גיבוי (JSON)</button>
-
-        <div style="height:22px;border-top:1px solid var(--border);margin-top:20px;"></div>
-
-        <div style="background:rgba(220,53,69,0.1);border:1.5px solid rgba(220,53,69,0.35);border-radius:var(--radius-sm);padding:10px 12px;margin:16px 0;display:flex;gap:8px;align-items:flex-start;">
-            <span style="font-size:15px;flex-shrink:0;">⚠️</span>
-            <p style="font-size:12px;color:var(--text2);line-height:1.6;margin:0;">
-                <strong style="color:var(--text);">שים לב</strong><br>
-                ייבוא גיבוי <strong>ימחק את כל הנתונים הקיימים</strong> ויחליף אותם בתוכן מהקובץ. פעולה בלתי הפיכה.
-            </p>
-        </div>
-
-        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">בחר קובץ גיבוי (JSON)</label>
-        <input type="file" id="backupFileInput" accept="application/json" style="margin-bottom:12px;width:100%;">
-        <br>
-        <button class="btn-logout" style="width:auto;padding:10px 20px;display:inline-block;" onclick="importBackup()">⬆️ ייבוא ושחזור</button>
-
-        <div id="backupLog" style="white-space:pre-wrap;font-family:monospace;font-size:12px;background:#111;color:#0f0;padding:12px;border-radius:8px;margin-top:16px;display:none;max-height:250px;overflow-y:auto;"></div>
-    </div>
-
-    <div class="conv-card">
-        <div class="conv-card-title"><span>🔧</span> <span>עריכת דגמים ומותגים</span></div>
-        <p style="font-size:12px; color:var(--text3); margin-bottom:14px; line-height:1.6;">
-            הוספה, שינוי, מחיקה וסידור מחדש של דגמים — בלי JSON. <strong>שינוי שם מותג/סוג מערכת הוא קוסמטי בלבד</strong> (לא משפיע על החישוב); הוספת מותג חדש לגמרי או סוג מערכת חדש דורשת פיתוח נפרד, כי הקוד מאחורי כל אחד שונה מהותית.
-        </p>
-
-        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">שם מוצג למותג</label>
-        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-            <input id="brandLabelGREE" type="text" style="flex:1;min-width:100px;padding:8px;border-radius:8px;border:1px solid var(--border);" placeholder="GREE">
-            <input id="brandLabelPRIME" type="text" style="flex:1;min-width:100px;padding:8px;border-radius:8px;border:1px solid var(--border);" placeholder="PRIME">
-            <input id="brandLabelTOSHIBA" type="text" style="flex:1;min-width:100px;padding:8px;border-radius:8px;border:1px solid var(--border);" placeholder="TOSHIBA">
-            <button class="btn-login" style="width:auto;padding:8px 14px;display:inline-block;" onclick="saveBrandLabels()">💾 שמור שמות</button>
-        </div>
-
-        <div style="height:1px;background:var(--border);margin:16px 0;"></div>
-
-        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">בחר מותג וסוג מערכת לעריכת הדגמים</label>
-        <div style="display:flex;gap:8px;margin-bottom:14px;">
-            <select id="modelEditorBrand" onchange="renderModelEditor()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);">
-                <option value="GREE">GREE</option>
-                <option value="PRIME">PRIME</option>
-                <option value="TOSHIBA">TOSHIBA</option>
-            </select>
-            <select id="modelEditorType" onchange="renderModelEditor()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);">
-                <option value="MINI">MINI</option>
-                <option value="MODULAR">MODULAR</option>
-            </select>
-        </div>
-
-        <div id="modelEditorTable"></div>
-        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn-login" style="width:auto;padding:8px 16px;display:inline-block;" onclick="addModelRow()">➕ הוסף דגם</button>
-            <button class="btn-login" style="width:auto;padding:8px 16px;display:inline-block;background:#1a7f37;" onclick="saveModelEditor()">💾 שמור שינויים</button>
-        </div>
-        <div id="modelEditorStatus" style="margin-top:10px;font-size:12px;font-weight:700;"></div>
-    </div>
-
-    <div class="conv-card">
-        <div class="conv-card-title"><span>📏</span> <span>אורכי צנרת (גרם למטר) לפי מותג</span></div>
-        <p style="font-size:12px; color:var(--text3); margin-bottom:14px; line-height:1.6;">
-            הטבלה הזו משותפת לכל הדגמים באותו מותג. ערכים ריקים = קוטר שלא קיים אצל המותג הזה.
-        </p>
-        <div style="display:flex;gap:8px;margin-bottom:14px;">
-            <select id="pipeFactorBrand" onchange="renderPipeFactorEditor()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);">
-                <option value="GREE">GREE</option>
-                <option value="PRIME">PRIME</option>
-                <option value="TOSHIBA">TOSHIBA</option>
-            </select>
-        </div>
-        <div id="pipeFactorTable"></div>
-        <div style="margin-top:12px;">
-            <button class="btn-login" style="width:auto;padding:8px 16px;display:inline-block;background:#1a7f37;" onclick="savePipeFactors()">💾 שמור</button>
-        </div>
-        <div id="pipeFactorStatus" style="margin-top:10px;font-size:12px;font-weight:700;"></div>
-    </div>
-
-    <div class="conv-card">
-        <div class="conv-card-title"><span>🧮</span> <span>נתוני מחשבון תוספת הגז (מתקדם)</span></div>
-        <p style="font-size:12px; color:var(--text3); margin-bottom:16px; line-height:1.6;">
-            כל הטבלאות שמזינות את חישובי תוספת הגז (GREE / PRIME / TOSHIBA) ניתנות לעריכה כאן. השינויים נשמרים בענן ונכנסים לתוקף <strong>מיידית, בלי לפרסם מחדש את האתר</strong>.<br>
-            <strong>שים לב:</strong> זהו עורך למתקדמים בפורמט JSON. אם הפורמט לא תקין, המערכת תמנע שמירה ותציג שגיאה ברורה — כך שאי אפשר לשבור את המחשבון בטעות הקלדה.
-        </p>
-        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">בחר טבלה לעריכה</label>
-        <select id="gasTableSelect" onchange="loadGasTableIntoEditor()" style="width:100%;padding:8px;border-radius:8px;margin-bottom:10px;border:1px solid var(--border);"></select>
-        <textarea id="gasTableEditor" rows="12" style="width:100%;font-family:monospace;font-size:12px;padding:10px;border-radius:8px;border:1px solid var(--border);margin-bottom:10px;box-sizing:border-box;"></textarea>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn-login" style="width:auto;padding:8px 16px;display:inline-block;" onclick="saveGasTable()">💾 שמור לענן</button>
-            <button class="btn-logout" style="width:auto;padding:8px 16px;display:inline-block;" onclick="resetGasTableToDefault()">↺ הצג ברירת מחדל (מהקוד)</button>
-        </div>
-        <div id="gasTableStatus" style="margin-top:10px;font-size:12px;font-weight:700;"></div>
     </div>
 </div>
 
@@ -1218,81 +1419,13 @@
     </div>
 </div>
 
-</div><!-- end appRoot -->
-
-<!-- Firebase SDK (compat build — no bundler needed) -->
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
-
-<script>
-// ===========================
-// FIREBASE INIT — טדיראן VRF
-// ===========================
-// !! הדבק כאן את הערכים המדויקים מהקונסולה שלך (Project settings > Your apps) !!
-const firebaseConfig = {
-    apiKey: "AIzaSyBw4W9wbhjsxNeqB7rdoE_fR6LXJXGOHXE",
-    authDomain: "tadiranvrftool.firebaseapp.com",
-    projectId: "tadiranvrftool",
-    storageBucket: "tadiranvrftool.firebasestorage.app",
-    messagingSenderId: "339784286637",
-    appId: "1:339784286637:web:be8f4e506c04e2e323a124"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// שני המשתמשים הקבועים ב-Firebase Authentication
-const GLOBAL_ACCOUNTS = {
-    'Tadiran2026': { email: 'viewer@tadiran-vrf.app', role: 'viewer' },
-    'Maor2026':    { email: 'admin@tadiran-vrf.app',  role: 'admin'  }
-};
-
-let currentRole = null;   // 'viewer' | 'admin' | null
-let techUnlocked = false; // האם הוזנה סיסמה תקינה באזור הטכנאים בסשן הנוכחי
-
-function updateRoleUI() {
-    const badge = document.getElementById('roleBadge');
-    if (badge) badge.textContent = currentRole === 'admin' ? '👨‍💼 מנהל' : '';
-    const adminTabBtn = document.getElementById('adminTabBtn');
-    if (adminTabBtn) adminTabBtn.classList.toggle('hidden', currentRole !== 'admin');
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) logoutBtn.classList.toggle('hidden', !currentRole);
-}
-
-function doLogout() {
-    auth.signOut();
-    // נעילה חוזרת של אזור הטכנאים
-    const techPortal = document.getElementById('techPortal');
-    const techLock = document.getElementById('techLock');
-    if (techPortal && techLock) {
-        techPortal.classList.add('hidden');
-        techLock.style.display = 'block';
-    }
-}
-
-// שומר את ההתחברות אוטומטית בין רענוני דף (Firebase דואג לזה לבד) —
-// כך שאם כבר הוזנה סיסמה פעם אחת, לא צריך להזין שוב בכל כניסה לאזור הטכנאים.
-auth.onAuthStateChanged(function(user) {
-    if (user) {
-        currentRole = (user.email === 'admin@tadiran-vrf.app') ? 'admin' : 'viewer';
-        techUnlocked = true;
-    } else {
-        currentRole = null;
-        techUnlocked = false;
-    }
-    updateRoleUI();
-});
-</script>
-
 <script>
 // ===========================
 // TRANSLATIONS
 // ===========================
 const TRANSLATIONS = {
     he: {
-        tab_gas: '⚙️ תוספת גז', tab_conv: '🔄 המרות', tab_tech: '🔧 טכנאים', tab_videos: '🎥 סרטוני הדרכה', tab_admin: '⚙️ ניהול', tab_about: 'ℹ️ אודות',
+        tab_gas: '⚙️ תוספת גז', tab_conv: '🔄 המרות', tab_tech: '🔧 טכנאים', tab_videos: '🎥 סרטוני הדרכה', tab_about: 'ℹ️ אודות',
         warning_title: 'הערות שימוש',
         warning_text: 'נתוני תוספת הגז מבוססים על מפרטי היצרן. יש לאמת תמיד מול הוראות ההתקנה הרשמיות. החברה לא אחראית לטעויות שימוש.',
         choose_brand: 'בחר מותג', sys_type: 'סוג מערכת', choose_model: 'בחר דגם',
@@ -1320,7 +1453,7 @@ const TRANSLATIONS = {
         dir: 'rtl'
     },
     en: {
-        tab_gas: '⚙️ Gas Charge', tab_conv: '🔄 Conversions', tab_tech: '🔧 Technicians', tab_videos: '🎥 Video Tutorials', tab_admin: '⚙️ Admin', tab_about: 'ℹ️ About',
+        tab_gas: '⚙️ Gas Charge', tab_conv: '🔄 Conversions', tab_tech: '🔧 Technicians', tab_videos: '🎥 Video Tutorials', tab_about: 'ℹ️ About',
         warning_title: 'Usage Notes',
         warning_text: 'Gas charge data is based on manufacturer specifications. Always verify against official installation instructions. The company is not responsible for usage errors.',
         choose_brand: 'Select Brand', sys_type: 'System Type', choose_model: 'Select Model',
@@ -1348,7 +1481,7 @@ const TRANSLATIONS = {
         dir: 'ltr'
     },
     ar: {
-        tab_gas: '⚙️ شحن الغاز', tab_conv: '🔄 تحويلات', tab_tech: '🔧 الفنيون', tab_videos: '🎥 فيديوهات تعليمية', tab_admin: '⚙️ الإدارة', tab_about: 'ℹ️ حول',
+        tab_gas: '⚙️ شحن الغاز', tab_conv: '🔄 تحويلات', tab_tech: '🔧 الفنيون', tab_videos: '🎥 فيديوهات تعليمية', tab_about: 'ℹ️ حول',
         warning_title: 'ملاحظات الاستخدام',
         warning_text: 'بيانات شحن الغاز مستندة إلى مواصفات الشركة المصنعة. يجب دائمًا التحقق من تعليمات التركيب الرسمية. الشركة غير مسؤولة عن أخطاء الاستخدام.',
         choose_brand: 'اختر العلامة التجارية', sys_type: 'نوع النظام', choose_model: 'اختر الطراز',
@@ -1391,7 +1524,7 @@ function setLang(lang) {
     document.querySelectorAll('.lang-btn')[map[lang]]?.classList.add('active');
 
     // tabs
-    const tabKeys = ['gas','conv','tech','videos','admin','about'];
+    const tabKeys = ['gas','conv','tech','videos','about'];
     document.querySelectorAll('[data-i18n-tab]').forEach(btn => {
         const key = btn.getAttribute('data-i18n-tab');
         btn.textContent = t['tab_' + key] || btn.textContent;
@@ -1465,47 +1598,37 @@ function updateLabel(id, text) {
 window.addEventListener('DOMContentLoaded', () => setLang(currentLang));
 
 // ===========================
-// TECHNICIAN PORTAL — סיסמת צופה (Tadiran2026) או מנהל (Maor2026), דרך Firebase
+// TECHNICIAN PORTAL
 // ===========================
+const TECH_PASSWORD = 'Tadiran2026';
+
 function techLogin() {
     const pw = document.getElementById('techPassword').value;
-    const account = GLOBAL_ACCOUNTS[pw];
-    const errEl = document.getElementById('techError');
-    errEl.style.display = 'none';
-
-    if (!account) {
-        errEl.style.display = 'block';
+    if (pw === TECH_PASSWORD) {
+        localStorage.setItem('vrf-tech-auth', '1');
+        showTechPortal();
+    } else {
+        document.getElementById('techError').style.display = 'block';
         document.getElementById('techPassword').value = '';
-        return;
     }
-
-    auth.signInWithEmailAndPassword(account.email, pw)
-        .then(() => {
-            currentRole = account.role;
-            techUnlocked = true;
-            updateRoleUI();
-            showTechPortal();
-        })
-        .catch(() => {
-            errEl.style.display = 'block';
-            document.getElementById('techPassword').value = '';
-        });
 }
 
 function techLogout() {
-    doLogout();
+    localStorage.removeItem('vrf-tech-auth');
+    document.getElementById('techPortal').classList.add('hidden');
+    document.getElementById('techLock').style.display = 'block';
+    document.getElementById('techPassword').value = '';
+    document.getElementById('techError').style.display = 'none';
 }
 
 function showTechPortal() {
     document.getElementById('techLock').style.display = 'none';
     document.getElementById('techPortal').classList.remove('hidden');
-    const addCatWrap = document.getElementById('techAddCategoryWrap');
-    if (addCatWrap) addCatWrap.classList.toggle('hidden', currentRole !== 'admin');
 }
 
-// בדיקה במעבר ללשונית — אם כבר מחובר מסשן קודם (Firebase שומר את זה לבד), לא צריך סיסמה שוב
+// Check on tab switch
 function checkTechAuth() {
-    if (techUnlocked) showTechPortal();
+    if (localStorage.getItem('vrf-tech-auth') === '1') showTechPortal();
     else {
         document.getElementById('techLock').style.display = 'block';
         document.getElementById('techPortal').classList.add('hidden');
@@ -1545,8 +1668,6 @@ function videosLogout() {
 function showVideosPortal() {
     document.getElementById('videosLock').style.display = 'none';
     document.getElementById('videosPortal').classList.remove('hidden');
-    document.getElementById('videoAddWrap').classList.toggle('hidden', currentRole !== 'admin');
-    loadVideoLinks();
 }
 
 function checkVideosAuth() {
@@ -1558,415 +1679,12 @@ function checkVideosAuth() {
 }
 
 let currentTechBrand = '';
-let techCache = {}; // brand -> { categories: [...], itemsByCat: { catId: [...] } }
-
 function selectTechBrand(brand, el) {
     currentTechBrand = brand;
     document.querySelectorAll('.tech-brand-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
     ['tech-gree','tech-prime','tech-toshiba'].forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById('tech-' + brand.toLowerCase()).classList.remove('hidden');
-    document.getElementById('techAddCategoryWrap').classList.toggle('hidden', currentRole !== 'admin');
-    loadTechBrand(brand);
-}
-
-function escapeHtml(str) {
-    const d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-}
-
-async function loadTechBrand(brand, forceRefresh) {
-    const container = document.getElementById('tech-' + brand.toLowerCase());
-    if (techCache[brand] && !forceRefresh) { renderTechBrand(brand); return; }
-
-    document.getElementById('techLoadingMsg').style.display = 'block';
-    container.innerHTML = '';
-    try {
-        const catSnap = await db.collection('techCategories').where('brand', '==', brand).orderBy('order').get();
-        const categories = [];
-        catSnap.forEach(doc => categories.push({ id: doc.id, ...doc.data() }));
-
-        const itemSnap = await db.collection('techItems').where('brand', '==', brand).orderBy('order').get();
-        const itemsByCat = {};
-        itemSnap.forEach(doc => {
-            const data = { id: doc.id, ...doc.data() };
-            if (!itemsByCat[data.catId]) itemsByCat[data.catId] = [];
-            itemsByCat[data.catId].push(data);
-        });
-
-        techCache[brand] = { categories, itemsByCat };
-        renderTechBrand(brand);
-    } catch (e) {
-        container.innerHTML = '<div class="tech-note">⚠️ שגיאה בטעינת הנתונים: ' + escapeHtml(e.message) + '</div>';
-    } finally {
-        document.getElementById('techLoadingMsg').style.display = 'none';
-    }
-}
-
-function renderTechBrand(brand) {
-    const data = techCache[brand];
-    const container = document.getElementById('tech-' + brand.toLowerCase());
-    const isAdmin = currentRole === 'admin';
-    const activeCats = data.categories.filter(c => !c.archived);
-    const archivedCats = data.categories.filter(c => c.archived === true);
-
-    if (!activeCats.length && !(isAdmin && archivedCats.length)) {
-        container.innerHTML = '<div class="tech-note">אין עדיין תוכן למותג זה.</div>';
-        return;
-    }
-    let html = '';
-    activeCats.forEach((cat, idx) => {
-        const items = (data.itemsByCat[cat.id] || []);
-        const activeItems = items.filter(i => !i.archived);
-        const archivedItems = items.filter(i => i.archived === true);
-
-        html += '<div class="tech-section">';
-        html += '<div class="tech-section-header" onclick="toggleTechSection(this)"><span>' + escapeHtml(cat.title) + '</span><span>▾</span></div>';
-        html += '<div class="tech-section-body">';
-        activeItems.forEach((item, itemIdx) => { html += renderTechItem(item, isAdmin, itemIdx === 0, itemIdx === activeItems.length - 1); });
-
-        if (isAdmin) {
-            html += '<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">';
-            html += '<button class="btn-login" style="width:auto;padding:6px 14px;font-size:12px;" onclick="addTechItem(\'' + cat.id + '\')">➕ הוסף שורה</button>';
-            html += '<button class="btn-logout" style="padding:6px 14px;font-size:12px;" onclick="editCategoryTitle(\'' + cat.id + '\')">✏️ שם קטגוריה</button>';
-            html += '<button onclick="moveCategory(\'' + cat.id + '\',-1)" ' + (idx === 0 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למעלה" style="border:none;background:none;cursor:pointer;font-size:14px;">⬆️</button>';
-            html += '<button onclick="moveCategory(\'' + cat.id + '\',1)" ' + (idx === activeCats.length - 1 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למטה" style="border:none;background:none;cursor:pointer;font-size:14px;">⬇️</button>';
-            html += '<button class="btn-logout" style="padding:6px 14px;font-size:12px;" onclick="archiveTechCategory(\'' + cat.id + '\')">🗄 ארכיון</button>';
-            html += '</div>';
-
-            if (archivedItems.length) {
-                html += '<div style="margin-top:12px;border-top:1px dashed var(--border);padding-top:10px;">';
-                html += '<div style="font-size:12px;color:var(--text3);margin-bottom:6px;">🗄 בארכיון (' + archivedItems.length + ')</div>';
-                archivedItems.forEach(item => { html += renderArchivedTechItem(item); });
-                html += '</div>';
-            }
-        }
-        html += '</div></div>';
-    });
-
-    if (isAdmin && archivedCats.length) {
-        html += '<div class="tech-section">';
-        html += '<div class="tech-section-header" onclick="toggleTechSection(this)"><span>🗄 קטגוריות בארכיון (' + archivedCats.length + ')</span><span>▾</span></div>';
-        html += '<div class="tech-section-body">';
-        archivedCats.forEach(cat => {
-            html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;">';
-            html += '<span style="flex:1;color:var(--text3);">' + escapeHtml(cat.title) + '</span>';
-            html += '<button class="btn-login" style="width:auto;padding:4px 10px;font-size:12px;" onclick="restoreTechCategory(\'' + cat.id + '\')">↩️ שחזר</button>';
-            html += '<button class="btn-logout" style="padding:4px 10px;font-size:12px;" onclick="permanentlyDeleteTechCategory(\'' + cat.id + '\')">🗑 מחק לצמיתות</button>';
-            html += '</div>';
-        });
-        html += '</div></div>';
-    }
-
-    container.innerHTML = html;
-}
-
-function renderTechItem(item, isAdmin, isFirst, isLast) {
-    let inner = '';
-    if (item.type === 'subtitle') inner = '<div class="tech-sub-title">' + item.text + '</div>';
-    else if (item.type === 'note') inner = '<div class="tech-note">' + item.text + '</div>';
-    else inner = '<div class="tech-param"><span class="tech-param-code">' + escapeHtml(item.code) + '</span><span class="tech-param-text">' + item.text + '</span></div>';
-
-    if (!isAdmin) return inner;
-    return '<div style="display:flex;align-items:center;gap:4px;">' +
-           '<div style="flex:1;min-width:0;">' + inner + '</div>' +
-           '<button onclick="moveTechItem(\'' + item.id + '\',-1)" ' + (isFirst ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למעלה" style="border:none;background:none;cursor:pointer;font-size:13px;flex-shrink:0;">⬆️</button>' +
-           '<button onclick="moveTechItem(\'' + item.id + '\',1)" ' + (isLast ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למטה" style="border:none;background:none;cursor:pointer;font-size:13px;flex-shrink:0;">⬇️</button>' +
-           '<button onclick="editTechItem(\'' + item.id + '\')" title="ערוך" style="border:none;background:none;cursor:pointer;font-size:14px;flex-shrink:0;">✏️</button>' +
-           '<button onclick="archiveTechItem(\'' + item.id + '\')" title="העבר לארכיון" style="border:none;background:none;cursor:pointer;font-size:14px;flex-shrink:0;">🗄</button>' +
-           '</div>';
-}
-
-function renderArchivedTechItem(item) {
-    const label = item.type === 'param' ? (item.code + ' — ' + item.text.replace(/<[^>]+>/g, '')) : item.text.replace(/<[^>]+>/g, '');
-    return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;">' +
-           '<span style="flex:1;min-width:0;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(label) + '</span>' +
-           '<button class="btn-login" style="width:auto;padding:3px 8px;font-size:11px;" onclick="restoreTechItem(\'' + item.id + '\')">↩️ שחזר</button>' +
-           '<button class="btn-logout" style="padding:3px 8px;font-size:11px;" onclick="permanentlyDeleteTechItem(\'' + item.id + '\')">🗑 לצמיתות</button>' +
-           '</div>';
-}
-
-// ---- Category CRUD ----
-async function addTechCategory() {
-    if (currentRole !== 'admin' || !currentTechBrand) return;
-    const title = prompt('שם הקטגוריה החדשה:');
-    if (!title) return;
-    const data = techCache[currentTechBrand] || { categories: [] };
-    const nextOrder = data.categories.length ? Math.max(...data.categories.map(c => c.order || 0)) + 1 : 1;
-    try {
-        await db.collection('techCategories').add({ brand: currentTechBrand, title, order: nextOrder, archived: false });
-        await loadTechBrand(currentTechBrand, true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-async function editCategoryTitle(catId) {
-    const data = techCache[currentTechBrand];
-    const cat = data.categories.find(c => c.id === catId);
-    const title = prompt('שם קטגוריה חדש:', cat ? cat.title : '');
-    if (!title) return;
-    try {
-        await db.collection('techCategories').doc(catId).update({ title });
-        await loadTechBrand(currentTechBrand, true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-async function archiveTechCategory(catId) {
-    if (!confirm('להעביר את הקטגוריה (וכל הפריטים שבתוכה) לארכיון? אפשר לשחזר בכל עת.')) return;
-    try {
-        const data = techCache[currentTechBrand];
-        const items = data.itemsByCat[catId] || [];
-        const batch = db.batch();
-        items.forEach(it => batch.update(db.collection('techItems').doc(it.id), { archived: true }));
-        batch.update(db.collection('techCategories').doc(catId), { archived: true });
-        await batch.commit();
-        await loadTechBrand(currentTechBrand, true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-async function restoreTechCategory(catId) {
-    try {
-        await db.collection('techCategories').doc(catId).update({ archived: false });
-        await loadTechBrand(currentTechBrand, true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-async function permanentlyDeleteTechCategory(catId) {
-    if (!confirm('למחוק את הקטגוריה וכל הפריטים שבתוכה לצמיתות? פעולה זו בלתי הפיכה ולא ניתנת לשחזור.')) return;
-    try {
-        const data = techCache[currentTechBrand];
-        const items = data.itemsByCat[catId] || [];
-        const batch = db.batch();
-        items.forEach(it => batch.delete(db.collection('techItems').doc(it.id)));
-        batch.delete(db.collection('techCategories').doc(catId));
-        await batch.commit();
-        await loadTechBrand(currentTechBrand, true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-async function moveCategory(catId, direction) {
-    const data = techCache[currentTechBrand];
-    const activeCats = data.categories.filter(c => !c.archived).sort((a, b) => (a.order || 0) - (b.order || 0));
-    const idx = activeCats.findIndex(c => c.id === catId);
-    const swapIdx = idx + direction;
-    if (idx === -1 || swapIdx < 0 || swapIdx >= activeCats.length) return;
-    const a = activeCats[idx], b = activeCats[swapIdx];
-    const aOrder = a.order, bOrder = b.order;
-    try {
-        const batch = db.batch();
-        batch.update(db.collection('techCategories').doc(a.id), { order: bOrder });
-        batch.update(db.collection('techCategories').doc(b.id), { order: aOrder });
-        await batch.commit();
-        await loadTechBrand(currentTechBrand, true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-// ---- Item (param/note/subtitle) CRUD via modal ----
-let paramModalState = null; // { mode: 'add'|'edit', catId, item }
-
-function paramModalTypeChanged() {
-    const type = document.getElementById('paramModalType').value;
-    document.getElementById('paramModalCodeWrap').style.display = (type === 'param') ? 'block' : 'none';
-}
-
-function addTechItem(catId) {
-    paramModalState = { mode: 'add', catId };
-    document.getElementById('paramModalTitle').textContent = 'הוספת פריט';
-    document.getElementById('paramModalType').value = 'param';
-    document.getElementById('paramModalCode').value = '';
-    document.getElementById('paramModalText').value = '';
-    paramModalTypeChanged();
-    openParamModal();
-}
-
-function editTechItem(itemId) {
-    const found = findTechItem(itemId);
-    if (!found) return;
-    paramModalState = { mode: 'edit', item: found };
-    document.getElementById('paramModalTitle').textContent = 'עריכת פריט';
-    document.getElementById('paramModalType').value = found.type || 'param';
-    document.getElementById('paramModalCode').value = found.code || '';
-    document.getElementById('paramModalText').value = found.text || '';
-    paramModalTypeChanged();
-    openParamModal();
-}
-
-function findTechItem(itemId) {
-    const data = techCache[currentTechBrand];
-    let found = null;
-    Object.keys(data.itemsByCat).forEach(cid => {
-        const hit = data.itemsByCat[cid].find(i => i.id === itemId);
-        if (hit) found = hit;
-    });
-    return found;
-}
-
-async function archiveTechItem(itemId) {
-    try {
-        await db.collection('techItems').doc(itemId).update({ archived: true });
-        await loadTechBrand(currentTechBrand, true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-async function restoreTechItem(itemId) {
-    try {
-        await db.collection('techItems').doc(itemId).update({ archived: false });
-        await loadTechBrand(currentTechBrand, true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-async function permanentlyDeleteTechItem(itemId) {
-    if (!confirm('למחוק פריט זה לצמיתות? לא ניתן לשחזר.')) return;
-    try {
-        await db.collection('techItems').doc(itemId).delete();
-        await loadTechBrand(currentTechBrand, true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-async function moveTechItem(itemId, direction) {
-    const item = findTechItem(itemId);
-    if (!item) return;
-    const data = techCache[currentTechBrand];
-    const siblings = (data.itemsByCat[item.catId] || []).filter(i => !i.archived).sort((a, b) => (a.order || 0) - (b.order || 0));
-    const idx = siblings.findIndex(i => i.id === itemId);
-    const swapIdx = idx + direction;
-    if (idx === -1 || swapIdx < 0 || swapIdx >= siblings.length) return;
-    const a = siblings[idx], b = siblings[swapIdx];
-    try {
-        const batch = db.batch();
-        batch.update(db.collection('techItems').doc(a.id), { order: b.order });
-        batch.update(db.collection('techItems').doc(b.id), { order: a.order });
-        await batch.commit();
-        await loadTechBrand(currentTechBrand, true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-function openParamModal() {
-    const modal = document.getElementById('paramModal');
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-}
-
-function closeParamModal() {
-    const modal = document.getElementById('paramModal');
-    modal.classList.add('hidden');
-    modal.style.display = 'none';
-    paramModalState = null;
-}
-
-async function saveParamModal() {
-    if (!paramModalState) return;
-    const type = document.getElementById('paramModalType').value;
-    const code = document.getElementById('paramModalCode').value.trim();
-    const text = document.getElementById('paramModalText').value.trim();
-    if (!text) { alert('חובה להזין טקסט'); return; }
-    if (type === 'param' && !code) { alert('חובה להזין קוד עבור פרמטר'); return; }
-
-    try {
-        if (paramModalState.mode === 'add') {
-            const data = techCache[currentTechBrand];
-            const existing = data.itemsByCat[paramModalState.catId] || [];
-            const nextOrder = existing.length ? Math.max(...existing.map(i => i.order || 0)) + 1 : 1;
-            await db.collection('techItems').add({
-                brand: currentTechBrand, catId: paramModalState.catId,
-                type, code: type === 'param' ? code : '', text, order: nextOrder, archived: false
-            });
-        } else {
-            await db.collection('techItems').doc(paramModalState.item.id).update({
-                type, code: type === 'param' ? code : '', text
-            });
-        }
-        closeParamModal();
-        await loadTechBrand(currentTechBrand, true);
-    } catch (e) { alert('שגיאה בשמירה: ' + e.message); }
-}
-
-// ===========================
-// ADMIN — BACKUP & RESTORE
-// ===========================
-function logBackup(msg) {
-    const el = document.getElementById('backupLog');
-    el.style.display = 'block';
-    el.textContent += msg + '\n';
-    el.scrollTop = el.scrollHeight;
-}
-
-// רשימת כל האוספים שכבר עברו ל-Firestore ומנוהלים דרך הגיבוי/שחזור.
-// בכל פעם שעוד קטגוריה עוברת לענן (למשל מחשבון הגז בעתיד), פשוט מוסיפים את שם האוסף לרשימה כאן.
-const BACKUP_COLLECTIONS = ['techCategories', 'techItems', 'videoLinks', 'gasCalcConfig'];
-
-async function exportBackup() {
-    if (currentRole !== 'admin') return;
-    logBackup('אוסף נתונים מ-Firestore...');
-    try {
-        const backup = { exportedAt: new Date().toISOString() };
-        for (const colName of BACKUP_COLLECTIONS) {
-            const snap = await db.collection(colName).get();
-            backup[colName] = [];
-            snap.forEach(doc => backup[colName].push({ id: doc.id, ...doc.data() }));
-        }
-
-        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'tadiran-vrf-backup-' + new Date().toISOString().slice(0, 10) + '.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        const summary = BACKUP_COLLECTIONS.map(c => c + ': ' + backup[c].length).join(', ');
-        logBackup('✅ הגיבוי הורד (' + summary + ')');
-    } catch (e) {
-        logBackup('❌ שגיאה: ' + e.message);
-    }
-}
-
-async function importBackup() {
-    if (currentRole !== 'admin') return;
-    const fileInput = document.getElementById('backupFileInput');
-    const file = fileInput.files[0];
-    if (!file) { alert('בחר קודם קובץ גיבוי'); return; }
-    if (!confirm('פעולה זו תמחק את כל הנתונים הקיימים (בכל הקטגוריות שכבר בענן) ותחליף אותם בתוכן מהקובץ. האם להמשיך?')) return;
-
-    try {
-        const text = await file.text();
-        const backup = JSON.parse(text);
-        const colsInFile = BACKUP_COLLECTIONS.filter(c => Array.isArray(backup[c]));
-        if (!colsInFile.length) throw new Error('פורמט קובץ לא תקין — לא נמצא אף אוסף מוכר');
-
-        let batch = db.batch();
-        let opCount = 0;
-        const flushIfNeeded = async () => { opCount++; if (opCount % 400 === 0) { await batch.commit(); batch = db.batch(); } };
-
-        logBackup('מוחק נתונים קיימים...');
-        for (const colName of colsInFile) {
-            const existing = await db.collection(colName).get();
-            for (const doc of existing.docs) { batch.delete(doc.ref); await flushIfNeeded(); }
-        }
-        await batch.commit();
-
-        logBackup('כותב נתונים מהגיבוי...');
-        batch = db.batch();
-        opCount = 0;
-        for (const colName of colsInFile) {
-            for (const item of backup[colName]) {
-                const { id, ...rest } = item;
-                batch.set(db.collection(colName).doc(id), rest);
-                await flushIfNeeded();
-            }
-        }
-        await batch.commit();
-
-        techCache = {};       // נקה מטמון טכנאים
-        videoLinksCache = []; // נקה מטמון סרטונים
-        if (colsInFile.includes('gasCalcConfig')) await loadAllGasCalcOverrides(); // רענון טבלאות מחשבון הגז
-        const summary = colsInFile.map(c => c + ': ' + backup[c].length).join(', ');
-        logBackup('✅ השחזור הושלם (' + summary + ')');
-    } catch (e) {
-        logBackup('❌ שגיאה: ' + e.message);
-    }
 }
 
 function toggleTechSection(header) {
@@ -2005,166 +1723,21 @@ function switchTab(id, btn) {
     btn.classList.add('active');
     if (id === 'tech') checkTechAuth();
     if (id === 'videos') checkVideosAuth();
-    if (id === 'admin') { populateGasTableSelect(); populateModelEditorInputs(); }
 }
 
 // ===========================
-// VIDEO TUTORIALS — Firestore-backed
+// VIDEO TUTORIALS
 // ===========================
-let videoLinksCache = [];
+const videoPlaylists = {
+    gree:    'https://youtube.com/playlist?list=PLGgbMH8Jkwx8&si=dT2czsFcQzvmH32S',
+    remote:  'https://youtube.com/playlist?list=PLGxAskMKig-4&si=iy0zMWy8l-EsE-_U',
+    toshiba: 'https://youtube.com/playlist?list=PLf0SoTR7GNgI&si=vbNXdg077jIKs018',
+    prime:   'https://youtube.com/playlist?list=PLcaQAGucEk50&si=jGMND-No53AigtQu'
+};
 
-async function loadVideoLinks(forceRefresh) {
-    const loadingEl = document.getElementById('videoLinksLoading');
-    const container = document.getElementById('videoLinksContainer');
-    if (videoLinksCache.length && !forceRefresh) { renderVideoLinks(); return; }
-
-    loadingEl.style.display = 'block';
-    container.innerHTML = '';
-    try {
-        const snap = await db.collection('videoLinks').orderBy('order').get();
-        videoLinksCache = [];
-        snap.forEach(doc => videoLinksCache.push({ id: doc.id, ...doc.data() }));
-        renderVideoLinks();
-    } catch (e) {
-        container.innerHTML = '<div class="tech-note">⚠️ שגיאה בטעינה: ' + escapeHtml(e.message) + '</div>';
-    } finally {
-        loadingEl.style.display = 'none';
-    }
-}
-
-function renderVideoLinks() {
-    const container = document.getElementById('videoLinksContainer');
-    const isAdmin = currentRole === 'admin';
-    const active = videoLinksCache.filter(l => !l.archived).sort((a, b) => (a.order || 0) - (b.order || 0));
-    const archived = videoLinksCache.filter(l => l.archived === true);
-
-    if (!active.length && !(isAdmin && archived.length)) {
-        container.innerHTML = '<div class="tech-note">אין עדיין קישורי סרטונים. ' + (isAdmin ? 'לחץ על "הוסף קישור" למטה.' : '') + '</div>';
-        return;
-    }
-    let html = '';
-    active.forEach((link, idx) => {
-        if (isAdmin) {
-            html += '<div class="brand-card" style="position:relative;padding-top:22px;">' +
-                    '<div onclick="window.open(\'' + encodeURI(link.url) + '\', \'_blank\', \'noopener\')">' + escapeHtml(link.label) + '</div>' +
-                    '<div style="position:absolute;top:4px;left:6px;display:flex;gap:3px;">' +
-                    '<button onclick="event.stopPropagation();moveVideoLink(\'' + link.id + '\',-1)" ' + (idx === 0 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למעלה" style="border:none;background:none;cursor:pointer;font-size:11px;">⬆️</button>' +
-                    '<button onclick="event.stopPropagation();moveVideoLink(\'' + link.id + '\',1)" ' + (idx === active.length - 1 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למטה" style="border:none;background:none;cursor:pointer;font-size:11px;">⬇️</button>' +
-                    '<button onclick="event.stopPropagation();editVideoLink(\'' + link.id + '\')" style="border:none;background:none;cursor:pointer;font-size:12px;" title="ערוך">✏️</button>' +
-                    '<button onclick="event.stopPropagation();archiveVideoLink(\'' + link.id + '\')" style="border:none;background:none;cursor:pointer;font-size:12px;" title="העבר לארכיון">🗄</button>' +
-                    '</div></div>';
-        } else {
-            html += '<div class="brand-card" onclick="window.open(\'' + encodeURI(link.url) + '\', \'_blank\', \'noopener\')">' + escapeHtml(link.label) + '</div>';
-        }
-    });
-    container.innerHTML = html;
-
-    const archWrap = document.getElementById('videoArchiveWrap');
-    if (archWrap) {
-        if (isAdmin && archived.length) {
-            archWrap.classList.remove('hidden');
-            let ahtml = '<div style="font-size:12px;color:var(--text3);margin:12px 0 6px;">🗄 בארכיון (' + archived.length + ')</div>';
-            archived.forEach(link => {
-                ahtml += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;">' +
-                         '<span style="flex:1;color:var(--text3);">' + escapeHtml(link.label) + '</span>' +
-                         '<button class="btn-login" style="width:auto;padding:3px 8px;font-size:11px;" onclick="restoreVideoLink(\'' + link.id + '\')">↩️ שחזר</button>' +
-                         '<button class="btn-logout" style="padding:3px 8px;font-size:11px;" onclick="permanentlyDeleteVideoLink(\'' + link.id + '\')">🗑 לצמיתות</button>' +
-                         '</div>';
-            });
-            archWrap.innerHTML = ahtml;
-        } else {
-            archWrap.classList.add('hidden');
-            archWrap.innerHTML = '';
-        }
-    }
-}
-
-let videoLinkModalState = null; // { mode: 'add'|'edit', item }
-
-function addVideoLink() {
-    videoLinkModalState = { mode: 'add' };
-    document.getElementById('videoLinkModalTitle').textContent = 'הוספת קישור';
-    document.getElementById('videoLinkModalLabel').value = '';
-    document.getElementById('videoLinkModalUrl').value = '';
-    openVideoLinkModal();
-}
-
-function editVideoLink(id) {
-    const item = videoLinksCache.find(l => l.id === id);
-    if (!item) return;
-    videoLinkModalState = { mode: 'edit', item };
-    document.getElementById('videoLinkModalTitle').textContent = 'עריכת קישור';
-    document.getElementById('videoLinkModalLabel').value = item.label || '';
-    document.getElementById('videoLinkModalUrl').value = item.url || '';
-    openVideoLinkModal();
-}
-
-async function archiveVideoLink(id) {
-    try {
-        await db.collection('videoLinks').doc(id).update({ archived: true });
-        await loadVideoLinks(true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-async function restoreVideoLink(id) {
-    try {
-        await db.collection('videoLinks').doc(id).update({ archived: false });
-        await loadVideoLinks(true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-async function permanentlyDeleteVideoLink(id) {
-    if (!confirm('למחוק קישור זה לצמיתות? לא ניתן לשחזר.')) return;
-    try {
-        await db.collection('videoLinks').doc(id).delete();
-        await loadVideoLinks(true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-async function moveVideoLink(id, direction) {
-    const active = videoLinksCache.filter(l => !l.archived).sort((a, b) => (a.order || 0) - (b.order || 0));
-    const idx = active.findIndex(l => l.id === id);
-    const swapIdx = idx + direction;
-    if (idx === -1 || swapIdx < 0 || swapIdx >= active.length) return;
-    const a = active[idx], b = active[swapIdx];
-    try {
-        const batch = db.batch();
-        batch.update(db.collection('videoLinks').doc(a.id), { order: b.order });
-        batch.update(db.collection('videoLinks').doc(b.id), { order: a.order });
-        await batch.commit();
-        await loadVideoLinks(true);
-    } catch (e) { alert('שגיאה: ' + e.message); }
-}
-
-function openVideoLinkModal() {
-    const modal = document.getElementById('videoLinkModal');
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-}
-
-function closeVideoLinkModal() {
-    const modal = document.getElementById('videoLinkModal');
-    modal.classList.add('hidden');
-    modal.style.display = 'none';
-    videoLinkModalState = null;
-}
-
-async function saveVideoLinkModal() {
-    if (!videoLinkModalState) return;
-    const label = document.getElementById('videoLinkModalLabel').value.trim();
-    const url = document.getElementById('videoLinkModalUrl').value.trim();
-    if (!label || !url) { alert('יש למלא שם וקישור'); return; }
-
-    try {
-        if (videoLinkModalState.mode === 'add') {
-            const nextOrder = videoLinksCache.length ? Math.max(...videoLinksCache.map(l => l.order || 0)) + 1 : 1;
-            await db.collection('videoLinks').add({ label, url, order: nextOrder, archived: false });
-        } else {
-            await db.collection('videoLinks').doc(videoLinkModalState.item.id).update({ label, url });
-        }
-        closeVideoLinkModal();
-        await loadVideoLinks(true);
-    } catch (e) { alert('שגיאה בשמירה: ' + e.message); }
+function openVideoPlaylist(brand) {
+    const url = videoPlaylists[brand];
+    if (url) window.open(url, '_blank', 'noopener');
 }
 
 // ===========================
@@ -2245,11 +1818,18 @@ function initModels() {
 
         let models = [];
         if (currentBrand === 'TOSHIBA') {
-            models = type === 'MINI' ? MINI_MODELS.TOSHIBA : TOSHIBA_MODULAR_MODELS;
+            models = type === 'MINI' ? [
+                'MCY-MHP0404','MCY-MHP0504','MCY-MHP0604',
+                'MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'
+            ] : ['SMMSU'];
         } else if (currentBrand === 'PRIME') {
-            models = type === 'MINI' ? MINI_MODELS.PRIME : PRIME_MODULAR_MODELS;
+            models = type === 'MINI'
+                ? ['PRIME 032','PRIME 04','PRIME 05','PRIME 06','PRIME 07','PRIME 08','PRIME 10','PRIME 12']
+                : ['MODULAR 08','MODULAR 10','MODULAR 12','MODULAR 14','MODULAR 16','MODULAR 18','MODULAR 20','MODULAR 22','MODULAR 24','MODULAR 26'];
         } else {
-            models = type === 'MINI' ? MINI_MODELS.GREE : Object.keys(greeFullData);
+            models = type === 'MINI'
+                ? ['80','100','120','140','160','224','280','335']
+                : Object.keys(greeFullData);
         }
 
         models.forEach(m => {
@@ -2272,17 +1852,19 @@ function toggleUI() {
     document.querySelectorAll('.pipe-item').forEach(el => el.classList.add('hidden'));
 
     if (currentBrand === 'TOSHIBA' && type === 'MINI') {
+        // דגמים עם 1/2 נוספת
+        const with12 = ['MCY-1204','MCY-1206'];
         document.getElementById('row14').classList.remove('hidden');
         document.getElementById('row38').classList.remove('hidden');
-        if (TOSHIBA_MINI_ROW12_MODELS.includes(model)) document.getElementById('row12').classList.remove('hidden');
+        if (with12.includes(model)) document.getElementById('row12').classList.remove('hidden');
     } else if (currentBrand === 'GREE' && type === 'MINI') {
         document.getElementById('row14').classList.remove('hidden');
         document.getElementById('row38').classList.remove('hidden');
-        if (GREE_MINI_ROW12_MODELS.includes(model)) document.getElementById('row12').classList.remove('hidden');
+        if (model === '335') document.getElementById('row12').classList.remove('hidden');
     } else if (currentBrand === 'PRIME' && type === 'MINI') {
         document.getElementById('row14').classList.remove('hidden');
         document.getElementById('row38').classList.remove('hidden');
-        if (PRIME_MINI_ROW12_MODELS.includes(model)) document.getElementById('row12').classList.remove('hidden');
+        if (model === 'PRIME 12') document.getElementById('row12').classList.remove('hidden');
     } else {
         ['row14','row38','row12','row58','row34','row78'].forEach(id => document.getElementById(id).classList.remove('hidden'));
         if (currentBrand !== 'PRIME') document.getElementById('row10').classList.remove('hidden');
@@ -2295,7 +1877,8 @@ function toggleUI() {
     document.getElementById('extraFields').classList.toggle('hidden', isPrimeModular || isToshiba || isPrimeMini);
 
     // Toshiba: הצג מאיידים רק לדגמים החדשים
-    const showToshibaUnits = isToshiba && TOSHIBA_MINI_NEW_MODELS.includes(model);
+    const toshibaNewModels = ['MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'];
+    const showToshibaUnits = isToshiba && toshibaNewModels.includes(model);
     document.getElementById('toshibaFields').classList.toggle('hidden', !showToshibaUnits);
     if (showToshibaUnits && document.getElementById('toshibaUnitsList').children.length === 0) addToshibaUnit();
     if (!showToshibaUnits && isToshiba) {
@@ -2310,7 +1893,7 @@ function toggleUI() {
         document.getElementById('smmsuDiversityBox').style.display = 'none';
     }
 
-    const isGreeMiniLarge = (currentBrand === 'GREE' && type === 'MINI' && GREE_MINI_LARGE_MODELS.includes(model));
+    const isGreeMiniLarge = (currentBrand === 'GREE' && type === 'MINI' && ['224','280','335'].includes(model));
     document.getElementById('unitCountWrapper').classList.toggle('hidden', isGreeMiniLarge || isPrimeModular);
     document.getElementById('ratioWrapper').classList.toggle('hidden', currentBrand !== 'GREE' || type === 'MINI');
 }
@@ -2341,13 +1924,14 @@ function calculate() {
 
         if (currentBrand === 'GREE') {
             if (type === 'MINI') {
-                const unitBonus = GREE_MINI_UNIT_BONUS[model];
-                if (unitBonus && units > unitBonus.threshold) totalG += (units - unitBonus.threshold) * unitBonus.grams;
+                const small = ['80','100','120','140','160'];
+                if (small.includes(model) && units > 2) totalG += (units - 2) * 300;
             } else if (ratio && greeFullData[model]) {
                 totalG += greeFullData[model][ratio][units >= 4 ? 1 : 0] * 1000;
             }
         } else if (currentBrand === 'PRIME' && type === 'MODULAR') {
-            totalG += (PRIME_MODULAR_BONUS[model] || 0) * 1000;
+            const primeMap = {"MODULAR 18":0.5,"MODULAR 20":4,"MODULAR 22":4.5,"MODULAR 24":4.5,"MODULAR 26":5};
+            totalG += (primeMap[model] || 0) * 1000;
         }
     }
 
@@ -2752,455 +2336,6 @@ let smmsuOutdoorCount = 0;
 
 // HP יחידות בודדות לשילוב ידני
 const SMMSU_SINGLE_HPS = [8,10,12,14,16,18,20,22,24];
-function renderSmmsuSystemSelect() {
-    const sel = document.getElementById('smmsuSystem');
-    if (!sel) return;
-    let html = '';
-    let openGroup = null;
-    SMMSU_COMBO_OPTIONS.forEach(opt => {
-        if (opt.group !== openGroup) {
-            if (openGroup !== null) html += '</optgroup>';
-            if (opt.group !== null) html += '<optgroup label="' + opt.group.replace(/"/g, '&quot;') + '">';
-            openGroup = opt.group;
-        }
-        html += '<option value="' + opt.value + '">' + opt.label + '</option>';
-    });
-    if (openGroup !== null) html += '</optgroup>';
-    sel.innerHTML = html;
-}
-
-const SMMSU_COMBO_OPTIONS = [{"value": "", "label": "— בחר עוצמת מערכת —", "group": null}, {"value": "manual", "label": "➕ שילוב ידני — הוסף מעבים בנפרד", "group": null}, {"value": "8", "label": "8HP — מעבה 8HP בודד", "group": "יחידה בודדת"}, {"value": "10", "label": "10HP — מעבה 10HP בודד", "group": "יחידה בודדת"}, {"value": "12", "label": "12HP — מעבה 12HP בודד", "group": "יחידה בודדת"}, {"value": "14", "label": "14HP — מעבה 14HP בודד", "group": "יחידה בודדת"}, {"value": "16", "label": "16HP — מעבה 16HP בודד", "group": "יחידה בודדת"}, {"value": "18", "label": "18HP — מעבה 18HP בודד", "group": "יחידה בודדת"}, {"value": "20", "label": "20HP — מעבה 20HP בודד", "group": "יחידה בודדת"}, {"value": "22", "label": "22HP — מעבה 22HP בודד", "group": "יחידה בודדת"}, {"value": "24", "label": "24HP — מעבה 24HP בודד", "group": "יחידה בודדת"}, {"value": "26", "label": "26HP — 14+12", "group": "שתי יחידות"}, {"value": "28", "label": "28HP — 14+14", "group": "שתי יחידות"}, {"value": "30", "label": "30HP — 18+12", "group": "שתי יחידות"}, {"value": "32", "label": "32HP — 20+12", "group": "שתי יחידות"}, {"value": "34", "label": "34HP — 20+14", "group": "שתי יחידות"}, {"value": "36", "label": "36HP — 24+12", "group": "שתי יחידות"}, {"value": "38", "label": "38HP — 24+14", "group": "שתי יחידות"}, {"value": "40", "label": "40HP — 20+20", "group": "שתי יחידות"}, {"value": "42", "label": "42HP — 24+18", "group": "שתי יחידות"}, {"value": "44", "label": "44HP — 24+20", "group": "שתי יחידות"}, {"value": "46", "label": "46HP — 24+22", "group": "שתי יחידות"}, {"value": "48", "label": "48HP — 24+24", "group": "שתי יחידות"}, {"value": "50", "label": "50HP — 24+14+12", "group": "שלוש יחידות"}, {"value": "52", "label": "52HP — 24+14+14", "group": "שלוש יחידות"}, {"value": "54", "label": "54HP — 20+20+14", "group": "שלוש יחידות"}, {"value": "56", "label": "56HP — 24+20+12", "group": "שלוש יחידות"}, {"value": "58", "label": "58HP — 24+20+14", "group": "שלוש יחידות"}, {"value": "60", "label": "60HP — 24+24+12", "group": "שלוש יחידות"}, {"value": "62", "label": "62HP — 24+24+14", "group": "שלוש יחידות"}, {"value": "64", "label": "64HP — 24+24+20", "group": "שלוש יחידות"}, {"value": "66", "label": "66HP — 24+22+20", "group": "שלוש יחידות"}, {"value": "68", "label": "68HP — 24+24+20", "group": "שלוש יחידות"}, {"value": "70", "label": "70HP — 24+24+22", "group": "שלוש יחידות"}, {"value": "72", "label": "72HP — 24+24+24", "group": "שלוש יחידות"}, {"value": "74", "label": "74HP — 24+24+14+12", "group": "ארבע יחידות"}, {"value": "76", "label": "76HP — 24+24+14+14", "group": "ארבע יחידות"}, {"value": "78", "label": "78HP — 24+24+20+14", "group": "ארבע יחידות"}, {"value": "80", "label": "80HP — 24+24+20+12", "group": "ארבע יחידות"}, {"value": "82", "label": "82HP — 24+24+20+14", "group": "ארבע יחידות"}, {"value": "84", "label": "84HP — 24+24+24+12", "group": "ארבע יחידות"}, {"value": "86", "label": "86HP — 24+24+24+14", "group": "ארבע יחידות"}, {"value": "88", "label": "88HP — 24+24+20+20", "group": "ארבע יחידות"}, {"value": "90", "label": "90HP — 24+24+22+20", "group": "ארבע יחידות"}, {"value": "92", "label": "92HP — 24+24+24+20", "group": "ארבע יחידות"}, {"value": "94", "label": "94HP — 24+24+24+22", "group": "ארבע יחידות"}, {"value": "96", "label": "96HP — 24+24+24+24", "group": "ארבע יחידות"}, {"value": "98", "label": "98HP — 24+24+24+14+12", "group": "חמש יחידות"}, {"value": "100", "label": "100HP — 24+24+24+14+14", "group": "חמש יחידות"}, {"value": "102", "label": "102HP — 24+24+24+20+14", "group": "חמש יחידות"}, {"value": "104", "label": "104HP — 24+24+24+20+12", "group": "חמש יחידות"}, {"value": "106", "label": "106HP — 24+24+24+20+14", "group": "חמש יחידות"}, {"value": "108", "label": "108HP — 24+24+24+24+12", "group": "חמש יחידות"}, {"value": "110", "label": "110HP — 24+24+24+24+14", "group": "חמש יחידות"}, {"value": "112", "label": "112HP — 24+24+24+24+20", "group": "חמש יחידות"}, {"value": "114", "label": "114HP — 24+24+24+22+20", "group": "חמש יחידות"}, {"value": "116", "label": "116HP — 24+24+24+24+20", "group": "חמש יחידות"}, {"value": "118", "label": "118HP — 24+24+24+24+22", "group": "חמש יחידות"}, {"value": "120", "label": "120HP — 24+24+24+24+24", "group": "חמש יחידות"}];
-
-// ===========================
-// MODEL LISTS & MODEL-SPECIFIC BEHAVIOR — admin-editable
-// (הועברו לכאן מתוך initModels/toggleUI/calculate כדי שיהיו ניתנים לעריכה,
-//  בלי לגעת בלוגיקה עצמה — רק בנתונים שהלוגיקה קוראת מהם)
-// ===========================
-
-// רשימת הדגמים שמופיעה בתפריט "בחר דגם" עבור מערכת MINI, לכל מותג.
-// הוספת שם לרשימה = הוא יופיע בתפריט ויחושב לפי צנרת בלבד (ברירת מחדל בטוחה),
-// אלא אם גם מוסיפים אותו לאחת הטבלאות המיוחדות שמתחת (בונוס/שורת 1/2 נוספת וכו').
-const MINI_MODELS = {
-    GREE: ['80','100','120','140','160','224','280','335'],
-    TOSHIBA: ['MCY-MHP0404','MCY-MHP0504','MCY-MHP0604','MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'],
-    PRIME: ['PRIME 032','PRIME 04','PRIME 05','PRIME 06','PRIME 07','PRIME 08','PRIME 10','PRIME 12']
-};
-
-// רשימת הדגמים בתפריט "בחר דגם" עבור מערכת MODULAR, למותגי PRIME ו-TOSHIBA
-// (ל-GREE MODULAR הרשימה נגזרת אוטומטית מטבלת greeFullData, אין צורך ברשימה נפרדת)
-const PRIME_MODULAR_MODELS = ['MODULAR 08','MODULAR 10','MODULAR 12','MODULAR 14','MODULAR 16','MODULAR 18','MODULAR 20','MODULAR 22','MODULAR 24','MODULAR 26'];
-const TOSHIBA_MODULAR_MODELS = ['SMMSU'];
-
-// אילו דגמי TOSHIBA MINI מציגים שורת צנרת 1/2" נוספת
-const TOSHIBA_MINI_ROW12_MODELS = ['MCY-1204','MCY-1206'];
-// אילו דגמי GREE MINI מציגים שורת צנרת 1/2" נוספת
-const GREE_MINI_ROW12_MODELS = ['335'];
-// אילו דגמי PRIME MINI מציגים שורת צנרת 1/2" נוספת
-const PRIME_MINI_ROW12_MODELS = ['PRIME 12'];
-// אילו דגמי TOSHIBA MINI הם "חדשים" (מחושבים לפי טבלת מאיידים TOSHIBA_TABLE2) ולכן מציגים את שדות הוספת המאיידים
-const TOSHIBA_MINI_NEW_MODELS = ['MCY-0806','MCY-1006','MCY-1004','MCY-1204','MCY-1206'];
-// אילו דגמי GREE MINI הם "גדולים" (יחידה שלמה, בלי שדה "מספר יחידות" נפרד)
-const GREE_MINI_LARGE_MODELS = ['224','280','335'];
-// בונוס לדגמי GREE MINI על כל יחידה מעבר לסף: { "שם דגם": { threshold: מספר יחידות בסיס, grams: תוספת גרם ליחידה נוספת } }
-const GREE_MINI_UNIT_BONUS = {
-    '80':  { threshold: 2, grams: 300 },
-    '100': { threshold: 2, grams: 300 },
-    '120': { threshold: 2, grams: 300 },
-    '140': { threshold: 2, grams: 300 },
-    '160': { threshold: 2, grams: 300 }
-};
-
-// תוויות תצוגה (שם מוצג) למותגים ולסוגי מערכת — קוסמטי בלבד, לא משפיע על החישוב עצמו
-const BRAND_LABELS = { GREE: 'GREE', PRIME: 'PRIME', TOSHIBA: 'TOSHIBA' };
-const SYSTYPE_LABELS = { MINI: 'MINI — מיני VRF', MODULAR: 'MODULAR — מודולרי' };
-// בונוס קבוע בק"ג לכל דגם PRIME MODULAR (מעבר לחישוב הצנרת)
-const PRIME_MODULAR_BONUS = {"MODULAR 18": 0.5, "MODULAR 20": 4, "MODULAR 22": 4.5, "MODULAR 24": 4.5, "MODULAR 26": 5};
-
-// ===========================
-// GAS CALC CONFIG — cloud overrides (admin-editable)
-// ===========================
-// מיפוי שם הטבלה -> הפניה חיה (reference) לאובייקט/מערך בפועל + הסוג שלו.
-// שימוש ב-shorthand property names נותן לנו הפניה אמיתית (לא עותק),
-// כך שמוטציה בתוך GAS_CALC_REFS.<name> משנה בפועל את המשתנה המקורי.
-const GAS_CALC_REFS = {
-    pipeFactors, greeFullData, TOSHIBA_TABLE2, TOSHIBA_CAP_CODES,
-    TOSHIBA_MODEL_FIXED, TOSHIBA_MODEL_BONUS, SMMSU_SYSTEM_BONUS,
-    SMMSU_STANDARD, SMMSU_CAP_HP, SMMSU_HE, SMMSU_DX, SMMSU_HOT_WATER,
-    SMMSU_DIVERSITY, SMMSU_SINGLE_HPS, SMMSU_COMBO_OPTIONS,
-    MINI_MODELS, PRIME_MODULAR_MODELS, TOSHIBA_MODULAR_MODELS,
-    TOSHIBA_MINI_ROW12_MODELS, GREE_MINI_ROW12_MODELS, PRIME_MINI_ROW12_MODELS,
-    TOSHIBA_MINI_NEW_MODELS, GREE_MINI_LARGE_MODELS, GREE_MINI_UNIT_BONUS,
-    PRIME_MODULAR_BONUS, BRAND_LABELS, SYSTYPE_LABELS
-};
-const GAS_CALC_TABLES = {
-    pipeFactors: 'object', greeFullData: 'object', TOSHIBA_TABLE2: 'object',
-    TOSHIBA_CAP_CODES: 'array', TOSHIBA_MODEL_FIXED: 'object', TOSHIBA_MODEL_BONUS: 'object',
-    SMMSU_SYSTEM_BONUS: 'object', SMMSU_STANDARD: 'object', SMMSU_CAP_HP: 'object',
-    SMMSU_HE: 'object', SMMSU_DX: 'object', SMMSU_HOT_WATER: 'object',
-    SMMSU_DIVERSITY: 'array', SMMSU_SINGLE_HPS: 'array', SMMSU_COMBO_OPTIONS: 'array',
-    MINI_MODELS: 'object', PRIME_MODULAR_MODELS: 'array', TOSHIBA_MODULAR_MODELS: 'array',
-    TOSHIBA_MINI_ROW12_MODELS: 'array', GREE_MINI_ROW12_MODELS: 'array', PRIME_MINI_ROW12_MODELS: 'array',
-    TOSHIBA_MINI_NEW_MODELS: 'array', GREE_MINI_LARGE_MODELS: 'array', GREE_MINI_UNIT_BONUS: 'object',
-    PRIME_MODULAR_BONUS: 'object', BRAND_LABELS: 'object', SYSTYPE_LABELS: 'object'
-};
-// עותק קפוא של הערכים המקוריים מהקוד — לשימוש בכפתור "חזור לברירת מחדל"
-const GAS_CALC_DEFAULTS = {};
-Object.keys(GAS_CALC_REFS).forEach(name => {
-    GAS_CALC_DEFAULTS[name] = JSON.parse(JSON.stringify(GAS_CALC_REFS[name]));
-});
-
-function recomputeDerivedGasTables() {
-    TOSHIBA_UNIT_TYPES.length = 0; TOSHIBA_UNIT_TYPES.push(...Object.keys(TOSHIBA_TABLE2));
-    SMMSU_STANDARD_CODES.length = 0; SMMSU_STANDARD_CODES.push(...Object.keys(SMMSU_STANDARD).sort());
-    SMMSU_HE_CODES.length = 0; SMMSU_HE_CODES.push(...Object.keys(SMMSU_HE).sort());
-    SMMSU_DX_HPS.length = 0; SMMSU_DX_HPS.push(...Object.keys(SMMSU_DX).map(Number).sort((a,b)=>a-b));
-    SMMSU_HW_CODES.length = 0; SMMSU_HW_CODES.push(...Object.keys(SMMSU_HOT_WATER));
-}
-
-function applyGasTableData(name, data) {
-    const ref = GAS_CALC_REFS[name];
-    const type = GAS_CALC_TABLES[name];
-    if (type === 'array') { ref.length = 0; ref.push(...data); }
-    else { Object.keys(ref).forEach(k => delete ref[k]); Object.assign(ref, data); }
-    recomputeDerivedGasTables();
-    if (name === 'SMMSU_COMBO_OPTIONS') renderSmmsuSystemSelect();
-    if (name === 'BRAND_LABELS' || name === 'SYSTYPE_LABELS') applyBrandAndSystypeLabels();
-}
-
-function applyBrandAndSystypeLabels() {
-    const cardGree = document.getElementById('cardGree');
-    const cardPrime = document.getElementById('cardPrime');
-    const cardToshiba = document.getElementById('cardToshiba');
-    if (cardGree) cardGree.textContent = BRAND_LABELS.GREE;
-    if (cardPrime) cardPrime.textContent = BRAND_LABELS.PRIME;
-    if (cardToshiba) cardToshiba.textContent = BRAND_LABELS.TOSHIBA;
-    const optMini = document.getElementById('sysTypeOptMini');
-    const optModular = document.getElementById('sysTypeOptModular');
-    if (optMini) optMini.textContent = SYSTYPE_LABELS.MINI;
-    if (optModular) optModular.textContent = SYSTYPE_LABELS.MODULAR;
-}
-
-async function loadAllGasCalcOverrides() {
-    try {
-        const snap = await db.collection('gasCalcConfig').get();
-        snap.forEach(doc => {
-            const name = doc.id;
-            const payload = doc.data();
-            if (GAS_CALC_REFS[name] && payload && payload.data !== undefined) {
-                applyGasTableData(name, payload.data);
-            }
-        });
-    } catch (e) {
-        console.warn('לא ניתן לטעון דריסות מחשבון הגז מהענן:', e.message);
-    }
-}
-
-function populateGasTableSelect() {
-    const sel = document.getElementById('gasTableSelect');
-    if (!sel) return;
-    sel.innerHTML = Object.keys(GAS_CALC_REFS).map(name => '<option value="' + name + '">' + name + '</option>').join('');
-    loadGasTableIntoEditor();
-}
-
-function loadGasTableIntoEditor() {
-    const name = document.getElementById('gasTableSelect').value;
-    document.getElementById('gasTableEditor').value = JSON.stringify(GAS_CALC_REFS[name], null, 2);
-    document.getElementById('gasTableStatus').textContent = '';
-}
-
-function resetGasTableToDefault() {
-    const name = document.getElementById('gasTableSelect').value;
-    if (!confirm('להציג בעורך את ברירת המחדל המקורית (מהקוד) של "' + name + '"? זה לא ישמור אוטומטית — עדיין צריך ללחוץ "שמור לענן" לאחר מכן.')) return;
-    document.getElementById('gasTableEditor').value = JSON.stringify(GAS_CALC_DEFAULTS[name], null, 2);
-}
-
-async function saveGasTable() {
-    const name = document.getElementById('gasTableSelect').value;
-    const statusEl = document.getElementById('gasTableStatus');
-    let parsed;
-    try {
-        parsed = JSON.parse(document.getElementById('gasTableEditor').value);
-    } catch (e) {
-        statusEl.style.color = 'var(--red)';
-        statusEl.textContent = '❌ JSON לא תקין: ' + e.message;
-        return;
-    }
-    const expectedType = GAS_CALC_TABLES[name];
-    if (expectedType === 'array' && !Array.isArray(parsed)) {
-        statusEl.style.color = 'var(--red)'; statusEl.textContent = '❌ טבלה זו חייבת להיות מערך (array).'; return;
-    }
-    if (expectedType === 'object' && (Array.isArray(parsed) || typeof parsed !== 'object' || parsed === null)) {
-        statusEl.style.color = 'var(--red)'; statusEl.textContent = '❌ טבלה זו חייבת להיות אובייקט.'; return;
-    }
-    try {
-        await db.collection('gasCalcConfig').doc(name).set({ data: parsed, updatedAt: new Date().toISOString() });
-        applyGasTableData(name, parsed);
-        statusEl.style.color = '#1a7f37';
-        statusEl.textContent = '✅ נשמר בענן והחישוב עודכן מיידית.';
-    } catch (e) {
-        statusEl.style.color = 'var(--red)';
-        statusEl.textContent = '❌ שגיאה בשמירה: ' + e.message;
-    }
-}
-
-// ===========================
-// FRIENDLY MODEL EDITOR — ניהול דגמים בלי JSON
-// ===========================
-let modelEditorDraft = [];
-
-function populateModelEditorInputs() {
-    document.getElementById('brandLabelGREE').value = BRAND_LABELS.GREE;
-    document.getElementById('brandLabelPRIME').value = BRAND_LABELS.PRIME;
-    document.getElementById('brandLabelTOSHIBA').value = BRAND_LABELS.TOSHIBA;
-    renderModelEditor();
-    renderPipeFactorEditor();
-}
-
-function buildModelDraft(brand, type) {
-    if (type === 'MINI') {
-        const names = MINI_MODELS[brand] || [];
-        return names.map(name => {
-            const row = { name };
-            if (brand === 'GREE') {
-                row.row12 = GREE_MINI_ROW12_MODELS.includes(name);
-                row.large = GREE_MINI_LARGE_MODELS.includes(name);
-                const b = GREE_MINI_UNIT_BONUS[name];
-                row.bonusThreshold = b ? b.threshold : '';
-                row.bonusGrams = b ? b.grams : '';
-            } else if (brand === 'TOSHIBA') {
-                row.row12 = TOSHIBA_MINI_ROW12_MODELS.includes(name);
-                row.newModel = TOSHIBA_MINI_NEW_MODELS.includes(name);
-            } else if (brand === 'PRIME') {
-                row.row12 = PRIME_MINI_ROW12_MODELS.includes(name);
-            }
-            return row;
-        });
-    } else {
-        if (brand === 'PRIME') {
-            return PRIME_MODULAR_MODELS.map(name => ({ name, bonusKg: PRIME_MODULAR_BONUS[name] !== undefined ? PRIME_MODULAR_BONUS[name] : '' }));
-        } else if (brand === 'TOSHIBA') {
-            return TOSHIBA_MODULAR_MODELS.map(name => ({ name }));
-        }
-        return null;
-    }
-}
-
-function renderModelEditor() {
-    const brand = document.getElementById('modelEditorBrand').value;
-    const type = document.getElementById('modelEditorType').value;
-    document.getElementById('modelEditorStatus').textContent = '';
-    const container = document.getElementById('modelEditorTable');
-    const addBtn = document.querySelector('button[onclick="addModelRow()"]');
-
-    if (brand === 'GREE' && type === 'MODULAR') {
-        container.innerHTML = '<div class="tech-note">דגמי GREE MODULAR מנוהלים דרך טבלת greeFullData (מבנה עם יחסים/ratios מורכב יותר) — ערוך אותם בכרטיס "נתונים (מתקדם)" למטה, בחר greeFullData.</div>';
-        if (addBtn) addBtn.style.display = 'none';
-        return;
-    }
-    if (brand === 'TOSHIBA' && type === 'MODULAR') {
-        container.innerHTML = '<div class="tech-note">מערכת ה-MODULAR של TOSHIBA (SMMSU) מנוהלת דרך טבלאות ה-SMMSU הייעודיות בכרטיס "נתונים (מתקדם)" למטה, לא כרשימת דגמים רגילה.</div>';
-        if (addBtn) addBtn.style.display = 'none';
-        return;
-    }
-    if (addBtn) addBtn.style.display = '';
-
-    modelEditorDraft = buildModelDraft(brand, type);
-    renderModelEditorRows();
-}
-
-function renderModelEditorRows() {
-    const brand = document.getElementById('modelEditorBrand').value;
-    const type = document.getElementById('modelEditorType').value;
-    const container = document.getElementById('modelEditorTable');
-
-    if (!modelEditorDraft.length) {
-        container.innerHTML = '<div class="tech-note">אין דגמים עדיין. לחץ "➕ הוסף דגם".</div>';
-        return;
-    }
-
-    let html = '<div style="display:flex;flex-direction:column;gap:6px;">';
-    modelEditorDraft.forEach((row, idx) => {
-        html += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px;background:var(--surface2);border-radius:8px;">';
-        html += '<input type="text" value="' + escapeHtml(row.name) + '" oninput="modelEditorDraft[' + idx + '].name=this.value" style="flex:1;min-width:90px;padding:6px;border-radius:6px;border:1px solid var(--border);">';
-
-        if (type === 'MINI' && brand === 'GREE') {
-            html += '<label style="font-size:11px;display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ' + (row.row12 ? 'checked' : '') + ' onchange="modelEditorDraft[' + idx + '].row12=this.checked"> שורת 1/2"</label>';
-            html += '<label style="font-size:11px;display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ' + (row.large ? 'checked' : '') + ' onchange="modelEditorDraft[' + idx + '].large=this.checked"> יחידה גדולה</label>';
-            html += '<input type="number" placeholder="סף יח׳" value="' + row.bonusThreshold + '" oninput="modelEditorDraft[' + idx + '].bonusThreshold=this.value" style="width:70px;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:11px;" title="סף יחידות לבונוס">';
-            html += '<input type="number" placeholder="גרם/יח׳" value="' + row.bonusGrams + '" oninput="modelEditorDraft[' + idx + '].bonusGrams=this.value" style="width:80px;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:11px;" title="תוספת גרם ליחידה מעל הסף">';
-        } else if (type === 'MINI' && brand === 'TOSHIBA') {
-            html += '<label style="font-size:11px;display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ' + (row.row12 ? 'checked' : '') + ' onchange="modelEditorDraft[' + idx + '].row12=this.checked"> שורת 1/2"</label>';
-            html += '<label style="font-size:11px;display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ' + (row.newModel ? 'checked' : '') + ' onchange="modelEditorDraft[' + idx + '].newModel=this.checked"> דגם חדש (מאיידים)</label>';
-        } else if (type === 'MINI' && brand === 'PRIME') {
-            html += '<label style="font-size:11px;display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ' + (row.row12 ? 'checked' : '') + ' onchange="modelEditorDraft[' + idx + '].row12=this.checked"> שורת 1/2"</label>';
-        } else if (type === 'MODULAR' && brand === 'PRIME') {
-            html += '<input type="number" placeholder="בונוס (ק״ג)" step="0.1" value="' + row.bonusKg + '" oninput="modelEditorDraft[' + idx + '].bonusKg=this.value" style="width:100px;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:11px;">';
-        }
-
-        html += '<button onclick="moveModelRow(' + idx + ',-1)" ' + (idx === 0 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למעלה" style="border:none;background:none;cursor:pointer;font-size:14px;">⬆️</button>';
-        html += '<button onclick="moveModelRow(' + idx + ',1)" ' + (idx === modelEditorDraft.length - 1 ? 'disabled style="opacity:0.3;"' : '') + ' title="הזז למטה" style="border:none;background:none;cursor:pointer;font-size:14px;">⬇️</button>';
-        html += '<button onclick="removeModelRow(' + idx + ')" title="הסר" style="border:none;background:none;cursor:pointer;font-size:14px;">🗑</button>';
-        html += '</div>';
-    });
-    html += '</div>';
-    container.innerHTML = html;
-}
-
-function addModelRow() {
-    const brand = document.getElementById('modelEditorBrand').value;
-    const type = document.getElementById('modelEditorType').value;
-    if (brand === 'GREE' && type === 'MODULAR') return;
-    if (brand === 'TOSHIBA' && type === 'MODULAR') return;
-    const row = { name: '' };
-    if (type === 'MINI' && brand === 'GREE') { row.row12 = false; row.large = false; row.bonusThreshold = ''; row.bonusGrams = ''; }
-    if (type === 'MINI' && brand === 'TOSHIBA') { row.row12 = false; row.newModel = false; }
-    if (type === 'MINI' && brand === 'PRIME') { row.row12 = false; }
-    if (type === 'MODULAR' && brand === 'PRIME') { row.bonusKg = ''; }
-    modelEditorDraft.push(row);
-    renderModelEditorRows();
-}
-
-function removeModelRow(idx) {
-    modelEditorDraft.splice(idx, 1);
-    renderModelEditorRows();
-}
-
-function moveModelRow(idx, dir) {
-    const swap = idx + dir;
-    if (swap < 0 || swap >= modelEditorDraft.length) return;
-    const tmp = modelEditorDraft[idx];
-    modelEditorDraft[idx] = modelEditorDraft[swap];
-    modelEditorDraft[swap] = tmp;
-    renderModelEditorRows();
-}
-
-async function saveModelEditor() {
-    const brand = document.getElementById('modelEditorBrand').value;
-    const type = document.getElementById('modelEditorType').value;
-    const statusEl = document.getElementById('modelEditorStatus');
-
-    const names = modelEditorDraft.map(r => r.name.trim());
-    if (names.some(n => !n)) { statusEl.style.color = 'var(--red)'; statusEl.textContent = '❌ יש דגם עם שם ריק.'; return; }
-    if (new Set(names).size !== names.length) { statusEl.style.color = 'var(--red)'; statusEl.textContent = '❌ יש שמות דגמים כפולים.'; return; }
-
-    try {
-        const batch = db.batch();
-        const toApply = [];
-        const now = new Date().toISOString();
-
-        if (type === 'MINI') {
-            const newMiniModels = Object.assign({}, MINI_MODELS, { [brand]: names });
-            batch.set(db.collection('gasCalcConfig').doc('MINI_MODELS'), { data: newMiniModels, updatedAt: now });
-            toApply.push(['MINI_MODELS', newMiniModels]);
-
-            if (brand === 'GREE') {
-                const row12 = modelEditorDraft.filter(r => r.row12).map(r => r.name.trim());
-                const large = modelEditorDraft.filter(r => r.large).map(r => r.name.trim());
-                const bonus = {};
-                modelEditorDraft.forEach(r => {
-                    if (r.bonusThreshold !== '' && r.bonusGrams !== '' && r.bonusThreshold != null && r.bonusGrams != null) {
-                        bonus[r.name.trim()] = { threshold: Number(r.bonusThreshold), grams: Number(r.bonusGrams) };
-                    }
-                });
-                batch.set(db.collection('gasCalcConfig').doc('GREE_MINI_ROW12_MODELS'), { data: row12, updatedAt: now });
-                batch.set(db.collection('gasCalcConfig').doc('GREE_MINI_LARGE_MODELS'), { data: large, updatedAt: now });
-                batch.set(db.collection('gasCalcConfig').doc('GREE_MINI_UNIT_BONUS'), { data: bonus, updatedAt: now });
-                toApply.push(['GREE_MINI_ROW12_MODELS', row12], ['GREE_MINI_LARGE_MODELS', large], ['GREE_MINI_UNIT_BONUS', bonus]);
-            } else if (brand === 'TOSHIBA') {
-                const row12 = modelEditorDraft.filter(r => r.row12).map(r => r.name.trim());
-                const newModels = modelEditorDraft.filter(r => r.newModel).map(r => r.name.trim());
-                batch.set(db.collection('gasCalcConfig').doc('TOSHIBA_MINI_ROW12_MODELS'), { data: row12, updatedAt: now });
-                batch.set(db.collection('gasCalcConfig').doc('TOSHIBA_MINI_NEW_MODELS'), { data: newModels, updatedAt: now });
-                toApply.push(['TOSHIBA_MINI_ROW12_MODELS', row12], ['TOSHIBA_MINI_NEW_MODELS', newModels]);
-            } else if (brand === 'PRIME') {
-                const row12 = modelEditorDraft.filter(r => r.row12).map(r => r.name.trim());
-                batch.set(db.collection('gasCalcConfig').doc('PRIME_MINI_ROW12_MODELS'), { data: row12, updatedAt: now });
-                toApply.push(['PRIME_MINI_ROW12_MODELS', row12]);
-            }
-        } else {
-            if (brand === 'PRIME') {
-                batch.set(db.collection('gasCalcConfig').doc('PRIME_MODULAR_MODELS'), { data: names, updatedAt: now });
-                const bonus = {};
-                modelEditorDraft.forEach(r => { if (r.bonusKg !== '' && r.bonusKg != null) bonus[r.name.trim()] = Number(r.bonusKg); });
-                batch.set(db.collection('gasCalcConfig').doc('PRIME_MODULAR_BONUS'), { data: bonus, updatedAt: now });
-                toApply.push(['PRIME_MODULAR_MODELS', names], ['PRIME_MODULAR_BONUS', bonus]);
-            } else if (brand === 'TOSHIBA') {
-                batch.set(db.collection('gasCalcConfig').doc('TOSHIBA_MODULAR_MODELS'), { data: names, updatedAt: now });
-                toApply.push(['TOSHIBA_MODULAR_MODELS', names]);
-            }
-        }
-
-        await batch.commit();
-        toApply.forEach(([name, data]) => applyGasTableData(name, data));
-        statusEl.style.color = '#1a7f37';
-        statusEl.textContent = '✅ נשמר בהצלחה. השינוי כבר בתוקף במחשבון.';
-    } catch (e) {
-        statusEl.style.color = 'var(--red)';
-        statusEl.textContent = '❌ שגיאה בשמירה: ' + e.message;
-    }
-}
-
-async function saveBrandLabels() {
-    const statusEl = document.getElementById('modelEditorStatus');
-    const newLabels = {
-        GREE: document.getElementById('brandLabelGREE').value.trim() || 'GREE',
-        PRIME: document.getElementById('brandLabelPRIME').value.trim() || 'PRIME',
-        TOSHIBA: document.getElementById('brandLabelTOSHIBA').value.trim() || 'TOSHIBA'
-    };
-    try {
-        await db.collection('gasCalcConfig').doc('BRAND_LABELS').set({ data: newLabels, updatedAt: new Date().toISOString() });
-        applyGasTableData('BRAND_LABELS', newLabels);
-        statusEl.style.color = '#1a7f37';
-        statusEl.textContent = '✅ שמות המותגים נשמרו.';
-    } catch (e) {
-        statusEl.style.color = 'var(--red)';
-        statusEl.textContent = '❌ שגיאה: ' + e.message;
-    }
-}
-
-// ===========================
-// FRIENDLY PIPE FACTOR EDITOR — גרם/מטר לפי מותג
-// ===========================
-const PIPE_DIAMETERS = ["1/4", "3/8", "1/2", "5/8", "3/4", "7/8", "1", "1 1/8"];
-
-function pipeDiamInputId(d) { return 'pf-' + d.replace(/[\/ ]/g, '_'); }
-
-function renderPipeFactorEditor() {
-    const brand = document.getElementById('pipeFactorBrand').value;
-    const factors = pipeFactors[brand] || {};
-    let html = '<div style="display:flex;flex-direction:column;gap:6px;">';
-    PIPE_DIAMETERS.forEach(d => {
-        const val = factors[d] !== undefined ? factors[d] : '';
-        html += '<div style="display:flex;align-items:center;gap:10px;">';
-        html += '<span style="width:60px;font-size:13px;color:var(--text);">' + d + '"</span>';
-        html += '<input type="number" id="' + pipeDiamInputId(d) + '" value="' + val + '" placeholder="לא קיים" style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--border);">';
-        html += '<span style="font-size:11px;color:var(--text3);white-space:nowrap;">גרם/מטר</span>';
-        html += '</div>';
-    });
-    html += '</div>';
-    document.getElementById('pipeFactorTable').innerHTML = html;
-}
-
-async function savePipeFactors() {
-    const brand = document.getElementById('pipeFactorBrand').value;
-    const statusEl = document.getElementById('pipeFactorStatus');
-    const newBrandFactors = {};
-    PIPE_DIAMETERS.forEach(d => {
-        const val = document.getElementById(pipeDiamInputId(d)).value.trim();
-        if (val !== '') newBrandFactors[d] = Number(val);
-    });
-    try {
-        const newPipeFactors = Object.assign({}, pipeFactors, { [brand]: newBrandFactors });
-        await db.collection('gasCalcConfig').doc('pipeFactors').set({ data: newPipeFactors, updatedAt: new Date().toISOString() });
-        applyGasTableData('pipeFactors', newPipeFactors);
-        statusEl.style.color = '#1a7f37';
-        statusEl.textContent = '✅ נשמר. השינוי כבר בתוקף במחשבון.';
-    } catch (e) {
-        statusEl.style.color = 'var(--red)';
-        statusEl.textContent = '❌ שגיאה: ' + e.message;
-    }
-}
-
 
 function addSMMSUOutdoor() {
     smmsuOutdoorCount++;
@@ -3425,12 +2560,6 @@ function removeSMMSUUnit(idx) {
     calculate();
 }
 
-// ===========================
-// INIT — האתר פתוח לכולם; טוענים נתוני מחשבון גז מהענן מיד (ללא תלות בהתחברות)
-// ===========================
-renderSmmsuSystemSelect();
-applyBrandAndSystypeLabels();
-loadAllGasCalcOverrides();
 
 </script>
 </body>
